@@ -1,0 +1,175 @@
+action-msgs==1.2.1
+action-tutorials-interfaces==0.20.4
+action-tutorials-py==0.20.4
+actionlib-msgs==4.2.4
+ament-cmake-test==1.3.9
+ament-copyright==0.12.11
+ament-cppcheck==0.12.11
+ament-cpplint==0.12.11
+ament-flake8==0.12.11
+ament-index-python==1.4.0
+ament-lint==0.12.11
+ament-lint-cmake==0.12.11
+ament-package==0.14.0
+ament-pep257==0.12.11
+ament-uncrustify==0.12.11
+ament-xmllint==0.12.11
+angles==1.15.0
+archspec @ file:///home/conda/feedstock_root/build_artifacts/archspec_1708969572489/work
+boltons @ file:///home/conda/feedstock_root/build_artifacts/boltons_1711936407380/work
+Brotli @ file:///home/conda/feedstock_root/build_artifacts/brotli-split_1695989787169/work
+builtin-interfaces==1.2.1
+certifi @ file:///home/conda/feedstock_root/build_artifacts/certifi_1707022139797/work/certifi
+cffi @ file:///home/conda/feedstock_root/build_artifacts/cffi_1696001684923/work
+charset-normalizer @ file:///home/conda/feedstock_root/build_artifacts/charset-normalizer_1698833585322/work
+colorama @ file:///home/conda/feedstock_root/build_artifacts/colorama_1666700638685/work
+composition-interfaces==1.2.1
+conda @ file:///home/conda/feedstock_root/build_artifacts/conda_1711445853354/work
+conda-libmamba-solver @ file:///home/conda/feedstock_root/build_artifacts/conda-libmamba-solver_1706566000184/work/src
+conda-package-handling @ file:///home/conda/feedstock_root/build_artifacts/conda-package-handling_1691048088238/work
+conda_package_streaming @ file:///home/conda/feedstock_root/build_artifacts/conda-package-streaming_1691009212940/work
+control-msgs==4.6.0
+controller-manager==2.41.0
+controller-manager-msgs==2.41.0
+cv-bridge==3.2.1
+demo-nodes-py==0.20.4
+diagnostic-msgs==4.2.4
+distro @ file:///home/conda/feedstock_root/build_artifacts/distro_1704321475663/work
+domain-coordinator==0.10.0
+example-interfaces==0.9.3
+examples-rclpy-executors==0.15.1
+examples-rclpy-minimal-action-client==0.15.1
+examples-rclpy-minimal-action-server==0.15.1
+examples-rclpy-minimal-client==0.15.1
+examples-rclpy-minimal-publisher==0.15.1
+examples-rclpy-minimal-service==0.15.1
+examples-rclpy-minimal-subscriber==0.15.1
+geometry-msgs==4.2.4
+idna @ file:///home/conda/feedstock_root/build_artifacts/idna_1701026962277/work
+image-geometry==3.2.1
+interactive-markers==2.3.2
+jsonpatch @ file:///home/conda/feedstock_root/build_artifacts/jsonpatch_1695536281965/work
+jsonpointer @ file:///home/conda/feedstock_root/build_artifacts/jsonpointer_1695397238043/work
+laser-geometry==2.4.0
+launch==1.0.6
+launch-ros==0.19.7
+launch-testing==1.0.6
+launch-testing-ros==0.19.7
+launch-xml==1.0.6
+launch-yaml==1.0.6
+libmambapy @ file:///home/conda/feedstock_root/build_artifacts/mamba-split_1711394305528/work/libmambapy
+lifecycle-msgs==1.2.1
+logging-demo==0.20.4
+mamba @ file:///home/conda/feedstock_root/build_artifacts/mamba-split_1711394305528/work/mamba
+map-msgs==2.1.0
+menuinst @ file:///home/conda/feedstock_root/build_artifacts/menuinst_1705068285533/work
+message-filters==4.3.4
+mocap4r2-control-msgs==0.0.7
+nav-msgs==4.2.4
+osrf-pycommon==2.0.2
+packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1710075952259/work
+pcl-msgs==1.0.0
+pendulum-msgs==0.20.4
+platformdirs @ file:///home/conda/feedstock_root/build_artifacts/platformdirs_1706713388748/work
+pluggy @ file:///home/conda/feedstock_root/build_artifacts/pluggy_1706116770704/work
+pycosat @ file:///home/conda/feedstock_root/build_artifacts/pycosat_1696355758174/work
+pycparser @ file:///home/conda/feedstock_root/build_artifacts/pycparser_1711811537435/work
+PySocks @ file:///home/conda/feedstock_root/build_artifacts/pysocks_1661604839144/work
+python-qt-binding==1.1.2
+qt-dotgraph==2.2.3
+qt-gui==2.2.3
+qt-gui-cpp==2.2.3
+qt-gui-py-common==2.2.3
+quality-of-service-demo-py==0.20.4
+rcl-interfaces==1.2.1
+rclpy==3.3.13
+rcutils==5.1.6
+requests @ file:///home/conda/feedstock_root/build_artifacts/requests_1684774241324/work
+resource-retriever==3.1.2
+rmw-dds-common==1.6.0
+ros2action==0.18.10
+ros2bag==0.15.11
+ros2cli==0.18.10
+ros2component==0.18.10
+ros2doctor==0.18.10
+ros2interface==0.18.10
+ros2launch==0.19.7
+ros2lifecycle==0.18.10
+ros2multicast==0.18.10
+ros2node==0.18.10
+ros2param==0.18.10
+ros2pkg==0.18.10
+ros2run==0.18.10
+ros2service==0.18.10
+ros2topic==0.18.10
+rosbag2-interfaces==0.15.11
+rosbag2-py==0.15.11
+rosgraph-msgs==1.2.1
+rosidl-adapter==3.1.5
+rosidl-cli==3.1.5
+rosidl-cmake==3.1.5
+rosidl-generator-c==3.1.5
+rosidl-generator-cpp==3.1.5
+rosidl-generator-py==0.14.4
+rosidl-parser==3.1.5
+rosidl-runtime-py==0.9.3
+rosidl-typesupport-c==2.0.1
+rosidl-typesupport-cpp==2.0.1
+rosidl-typesupport-fastrtps-c==2.2.2
+rosidl-typesupport-fastrtps-cpp==2.2.2
+rosidl-typesupport-introspection-c==3.1.5
+rosidl-typesupport-introspection-cpp==3.1.5
+rpyutils==0.2.1
+rqt==1.1.7
+rqt-action==2.0.1
+rqt-bag==1.1.5
+rqt-bag-plugins==1.1.5
+rqt-console==2.0.3
+rqt-controller-manager==2.41.0
+rqt-gauges==0.0.3
+rqt-graph==1.3.1
+rqt-gui==1.1.7
+rqt-gui-py==1.1.7
+rqt-joint-trajectory-controller==2.35.0
+rqt-moveit==1.0.1
+rqt-msg==1.2.0
+rqt-plot==1.1.2
+rqt-publisher==1.5.0
+rqt-py-common==1.1.7
+rqt-py-console==1.0.2
+rqt-reconfigure==1.1.2
+rqt-robot-dashboard==0.5.8
+rqt-robot-monitor==1.0.6
+rqt-robot-steering==1.0.0
+rqt-runtime-monitor==1.0.0
+rqt-service-caller==1.0.5
+rqt-shell==1.0.2
+rqt-srv==1.0.3
+rqt-tf-tree==1.0.5
+rqt-topic==1.5.0
+ruamel.yaml @ file:///home/conda/feedstock_root/build_artifacts/ruamel.yaml_1707298115475/work
+ruamel.yaml.clib @ file:///home/conda/feedstock_root/build_artifacts/ruamel.yaml.clib_1707314473442/work
+sensor-msgs==4.2.4
+sensor-msgs-py==4.2.4
+shape-msgs==4.2.4
+sros2==0.10.5
+statistics-msgs==1.2.1
+std-msgs==4.2.4
+std-srvs==4.2.4
+stereo-msgs==4.2.4
+teleop-twist-keyboard==2.4.0
+tf2-geometry-msgs==0.25.7
+tf2-kdl==0.25.7
+tf2-msgs==0.25.7
+tf2-py==0.25.7
+tf2-ros-py==0.25.7
+tf2-tools==0.25.7
+topic-monitor==0.20.4
+tqdm @ file:///home/conda/feedstock_root/build_artifacts/tqdm_1707598593068/work
+trajectory-msgs==4.2.4
+truststore @ file:///home/conda/feedstock_root/build_artifacts/truststore_1694154605758/work
+turtlesim==1.4.2
+unique-identifier-msgs==2.2.1
+urllib3 @ file:///home/conda/feedstock_root/build_artifacts/urllib3_1708239446578/work
+visualization-msgs==4.2.4
+zstandard==0.22.0
