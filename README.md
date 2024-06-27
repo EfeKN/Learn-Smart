@@ -37,3 +37,7 @@ Use python 3.12.4
 `pip install -r requirements.txt`
 
 `uvicorn main:app --reload`
+
+# Clean
+
+`.\clean.ps1` Windows
