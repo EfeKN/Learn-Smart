@@ -22,21 +22,25 @@ Use python 3.12.4
 
 # Frontend
 
-`npm install`
+1. Create a .env file inside the `frontend` folder, then populate it with the following string: `BACKEND_API_URL=http://localhost:8000/api`
 
-`npm run dev`
+1. `npm install`
+
+1. `npm run dev`
 
 # Backend
 
-`python -m venv backend`
+1. Create a .env file inside the `backend/` folder, then populate it with the `GOOGLE_API_KEY` (provided in Whatsapp) and `DATABASE_URL` (your MySQL DB URI) variables.
 
-`backend\Scripts\activate`
+1. `python -m venv backend`
 
-`cd backend`
+1. `backend\Scripts\activate`
 
-`pip install -r requirements.txt`
+1. `cd backend`
 
-`uvicorn main:app --reload`
+1. `pip install -r requirements.txt`
+
+1. `uvicorn main:app --reload`
 
 # Clean
 

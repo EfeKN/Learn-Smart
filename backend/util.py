@@ -1,22 +1,33 @@
-# Creation Date: 27.06.2024
+from sqlalchemy.orm import Session
+from models import User
+from schemas import UserSchema
 
-import os
-from dotenv import load_dotenv
-import google.generativeai as genai
-import openai 
+def create_user(db: Session, user: UserSchema):
+    """
+    Create a new user in the database.
 
-genai.configure(api_key=os.getenv('GOOGLE_API_KEY'))
+    Args:
+        db (Session): The database session.
+        user (UserSchema): The user data.
 
-# Generate response using OpenAI
-async def generate_response(prompt="hello how can you assist me"):
+    Returns:
+        User: The created user object.
+    """
+    db_user = User(name=user.name, password=user.password)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
 
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=prompt,
-        max_tokens=150,
-        stream=True
-    )
+def get_user_by_name(db: Session, name: str):
+    """
+    Retrieve a user from the database by their name.
 
-    async for chunk in response:
-        text = chunk['choices'][0].get('text', '')
-        yield text
+    Args:
+        db (Session): The database session.
+        name (str): The name of the user to retrieve.
+
+    Returns:
+        User: The user object if found, None otherwise.
+    """
+    return db.query(User).filter(User.name == name).first()

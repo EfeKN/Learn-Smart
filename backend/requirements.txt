@@ -1,4 +1,7 @@
 fastapi
 google-generativeai
 uvicorn
-openai
+sqlalchemy
+databases
+mysqlclient
+aiomysql
