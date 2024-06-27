@@ -40,7 +40,7 @@ Use python 3.12.4
 
 1. `pip install -r requirements.txt`
 
-1. `uvicorn main:app --reload`
+1. `uvicorn main:app --reload --host 127.0.0.1 --port 8000`
 
 # Clean
 
