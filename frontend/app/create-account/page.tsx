@@ -1,55 +1,72 @@
 "use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import backend from '@/api/backend';
+import backend from "@/environment/backend_environment";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const CreateAccountPage: React.FC = () => {
-  const [name, setName] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
+  const [name, setName] = useState<string>(""); // State for name input
+  const [password, setPassword] = useState<string>(""); // State for password input
+
+  // Next.js router hook
   const router = useRouter();
 
+  // Function to handle account creation
+  // Sends a POST request to the backend to create a new user account
+  // Redirects to login page after successful account creation
+  //
   const handleCreateAccount = async () => {
     try {
-      const response = await backend.post('/users', { name, password });
+      // Send a POST request to the backend to create a new user account
+      const response = await backend.post("/users", { name, password });
+
+      // Check if the response status is 200
       if (response.status === 200) {
-        alert('Account created successfully');
+        alert("Account created successfully");
+
         // Redirect to login page after successful account creation
-        router.push('/login');
+        router.push("/login");
       }
     } catch (error) {
-      console.error('Create account error:', error);
-      alert('Account creation failed');
+      // Catch any errors and log them to the console
+      console.error("Create account error:", error);
+      alert("Account creation failed");
     }
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '50px' }}>
+    <div className="flex flex-col items-center mt-1">
       <h1>Create Account</h1>
-      <div style={{ marginBottom: '10px' }}>
+
+      <div className="mb-1">
         <label>
           Name:
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            style={{ marginLeft: '10px' }}
+            className="ml-1"
           />
         </label>
       </div>
-      <div style={{ marginBottom: '10px' }}>
+
+      <div className="mb-1">
         <label>
           Password:
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{ marginLeft: '10px' }}
+            className="ml-1"
           />
         </label>
       </div>
-      <button onClick={handleCreateAccount} style={{ marginBottom: '10px' }}>Create Account</button>
-      <button onClick={() => router.push('/login')}>Back to Login</button>
+
+      <button onClick={handleCreateAccount} className="mb-1">
+        Create Account
+      </button>
+
+      <button onClick={() => router.push("/login")}>Back to Login</button>
     </div>
   );
 };

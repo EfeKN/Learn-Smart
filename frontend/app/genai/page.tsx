@@ -38,7 +38,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ padding: "20px" }} /* TODO: Move to CSS */>
+    <div className="p-5">
       <h1>Ask Gemini</h1>
       <textarea
         value={prompt}
@@ -46,18 +46,15 @@ export default function Home() {
         rows={4}
         cols={50}
         placeholder="Enter your prompt here..."
-        style={{ display: "block", marginBottom: "20px" }} // TODO: Move to CSS
+        className="block mb-5"
       />
-      <button
-        onClick={sendPrompt}
-        style={{ marginBottom: "20px" }} /* TODO: Move to CSS */
-      >
+      <button onClick={sendPrompt} className="mb-5">
         Generate
       </button>
       <h2>Response:</h2>
       <div
         id="response"
-        style={{ whiteSpace: "pre-wrap" }} /* TODO: Move to CSS */
+        className="whitespace-pre-wrap border border-gray-300 p-5 mt-5"
       ></div>
     </div>
   );

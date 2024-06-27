@@ -1,4 +1,5 @@
-# models.py
+# Creation Date: 28.06.2024
+
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -9,9 +10,12 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Database setup
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+engine = create_engine(DATABASE_URL)  # Database connection
+SessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, bind=engine
+)  # Session factory
+Base = declarative_base()  # Base class for ORM models
+
 
 # User model
 # This model represents a user in the database.

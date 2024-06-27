@@ -7,7 +7,8 @@ $paths = @(
     ".\backend\Include",
     ".\backend\Lib",
     ".\backend\Scripts",
-    ".\backend\pyvenv.cfg"
+    ".\backend\pyvenv.cfg",
+    ".\backend\.env"
 )
 
 # Function to remove files and directories

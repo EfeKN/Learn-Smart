@@ -1,5 +1,6 @@
-# schemas.py
+# Creation Date: 28.06.2024
 from pydantic import BaseModel
+
 
 # UserSchema
 # This schema represents a user object. Used for request and response validation.

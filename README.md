@@ -22,6 +22,8 @@ Use python 3.12.4
 
 # Frontend
 
+1. `cd frontend`
+
 1. Create a .env file inside the `frontend` folder, then populate it with the following string: `BACKEND_API_URL=http://localhost:8000/api`
 
 1. `npm install`
