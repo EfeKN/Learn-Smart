@@ -1,3 +1,5 @@
+# Creation Date: 26.06.2024
+
 from fastapi.responses import StreamingResponse
 import asyncio
 from dotenv import load_dotenv
@@ -41,3 +43,9 @@ async def generate(request: Request):
 async def read_root():
     return {"message": "Hello World"}
 
+
+# Define the ediz's route, a dummy route
+@app.post("/ediz")
+async def read_ediz():
+    print("Ediz is the best!")
+    return {"message": "Ediz is the best!"}
