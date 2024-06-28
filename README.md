@@ -44,6 +44,22 @@ Use python 3.12.4
 
 1. `uvicorn main:app --reload --host 127.0.0.1 --port 8000`
 
+# Database Example Setup Windows
+
+1. Download MySQL community edition
+
+1. Open MySQL Shell with Administrator
+
+1. Write `\sql` to switch sql mode
+
+1. Connect `\connect root@localhost`
+
+1. Create user `CREATE USER '<username>'@'localhost' IDENTIFIED BY '<password>';`
+
+1. Create the database `CREATE DATABASE learnsmart;`
+
+1. Grant privileges `GRANT ALL PRIVILEGES ON learnsmart.* TO '<username>'@'localhost';`
+
 # Clean
 
 `.\clean.ps1` Windows
