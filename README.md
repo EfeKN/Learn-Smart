@@ -36,7 +36,7 @@ Use python 3.12.4
 
 1. `python -m venv backend`
 
-1. `backend\Scripts\activate`
+1. `backend\Scripts\activate` for Windows, and `source backend/bin/activate` for Mac
 
 1. `cd backend`
 
