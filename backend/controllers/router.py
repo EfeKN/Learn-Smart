@@ -60,14 +60,16 @@ def delete_file(filename: str):
     """
     factory = FileManagerFactory()
     extension = filename.split(".")[-1]
-    file_manager = factory(extension)
 
     try:
+        file_manager = factory(extension)
         file_manager.delete(f"{FILES_PATH}/{filename}")
         return {"filename": filename}
     
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="File not found.")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     
     
 @router.get("/{filename}")
