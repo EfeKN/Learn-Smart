@@ -3,8 +3,8 @@
 import axios from "axios";
 
 // Create a new axios instance with a custom config for the backend
-const backendApi = axios.create({
+const backendAPI = axios.create({
   baseURL: process.env.BACKEND_API_URL,
 });
 
-export default backendApi;
+export default backendAPI;
