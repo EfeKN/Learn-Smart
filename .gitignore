@@ -21,5 +21,6 @@
 /backend/Lib
 /backend/Scripts
 /backend/pyvenv.cfg
+/backend/upload_files/
 __pycache__
 .env
