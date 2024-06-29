@@ -1,4 +1,3 @@
-import datetime
 from sqlalchemy import Column, DateTime, Integer, String, func
 
 from database import Base
@@ -10,7 +9,10 @@ class User(Base):
     Attributes:
         id (int): The unique identifier for the user.
         name (str): The name of the user.
-        password (str): The password for the user.
+        nickname (str): The nickname of the user.
+        email (str): The email address of the user.
+        hashed_password (str): The hashed password of the user.
+        created_at (datetime): The date and time when the user was created.
     """
     __tablename__ = "users"
 

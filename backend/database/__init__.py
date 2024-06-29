@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from dotenv import load_dotenv
 import os
 
@@ -24,20 +24,4 @@ SessionLocal = sessionmaker(
 
 Base = declarative_base()  # Base class for ORM models
 
-
-def get_db():
-    """
-    Returns a database session.
-
-    Yields:
-        db: The database session.
-
-    """
-
-    db = SessionLocal() # factory for creating new Session objects
-
-    try:
-        yield db  # return the database session
-
-    finally:
-        db.close()  # close the database session after the request is finished
+session = scoped_session(SessionLocal)

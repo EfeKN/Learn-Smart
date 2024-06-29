@@ -37,6 +37,9 @@ Use python 3.12.4
     * `GOOGLE_API_KEY=` (provided in Whatsapp)
     * `DATABASE_URL=` (your MySQL DB URI)
     * `FILES_PATH="./upload_files"`
+    * `SECRET_KEY=bc8338b8fdbdde68a9f3b555b8994563e0ad1c47863f56f7b300ff96c54cd822`
+    * `ALGORITHM=HS256`
+    * `ACCESS_TOKEN_EXPIRE_MINUTES = 3000`
 
 1. `python -m venv backend`
 

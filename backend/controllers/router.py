@@ -1,24 +1,27 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File, UploadFile
 
+from controllers import authentication as auth
 from controllers.filemanager import FileManagerFactory
+from modules.user.model import User
 from . import FILES_PATH
 
 router = APIRouter(prefix="/files", tags=["Files"])
 
 @router.post("/")
-def upload_file(file: UploadFile = File(...)):
+def upload_file(file: UploadFile = File(...), current_user: User = Depends(auth.get_current_user)):
     """
     Uploads a file to the server.
 
     Args:
-    - file (UploadFile): The file to be uploaded.
+        file (UploadFile): The file to be uploaded.
+        current_user (User): The current authenticated user (used for authentication).
 
     Returns:
-    - dict: A dictionary containing the filename of the uploaded file.
+        dict: A dictionary containing the filename of the uploaded file.
 
     Raises:
-    - HTTPException: If no valid file is provided or if the file extension is invalid.
+        HTTPException: If there is an error during the file upload process.
     """
     filename = file.filename
     extension = filename.split(".")[-1] # file extension
@@ -45,18 +48,19 @@ def upload_file(file: UploadFile = File(...)):
 # after the auth. mechanism is added, this function should be modified such that
 # the users should be able to delete their own files.
 @router.delete("/{filename}")
-def delete_file(filename: str):
+def delete_file(filename: str, current_user: User = Depends(auth.get_current_user)):
     """
-    Deletes the file with the specified filename.
+    Delete a file with the given filename.
 
     Args:
-    - filename (str): The name of the file to be deleted.
+        filename (str): The name of the file to be deleted.
+        current_user (User): The current authenticated user (used for authentication).
 
     Returns:
-    - dict: A dictionary containing the filename of the deleted file.
+        dict: A dictionary containing the deleted filename.
 
     Raises:
-    - HTTPException: If the file does not exist.
+        HTTPException: If the file is not found or if there is a value error.
     """
     factory = FileManagerFactory()
     extension = filename.split(".")[-1]
@@ -73,7 +77,7 @@ def delete_file(filename: str):
     
     
 @router.get("/{filename}")
-def get_file(filename: str):
+def get_file(filename: str, current_user: User = Depends(auth.get_current_user)):
 # TODO: relevant logic must be added here. for example: obtain slide pages one by one, then
 # send them to the genai api.
     pass
