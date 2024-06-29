@@ -1,6 +1,5 @@
-from sqlalchemy import Column, Integer, String
-from pydantic import BaseModel
-from abc import ABC
+import datetime
+from sqlalchemy import Column, DateTime, Integer, String, func
 
 from database import Base
 
@@ -16,20 +15,11 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(50), unique=True, index=True, nullable=False)
-    password = Column(String(100), nullable=False)
+    name = Column(String(50), nullable=False)
+    nickname = Column(String(50), unique=True, index=True, nullable=False)
+    email = Column(String(100), unique=True, index=True, nullable=False)
+    hashed_password = Column(String(100), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-
-class UserSchema(BaseModel, ABC):
-    """
-    Represents a user schema, which is used for request and response validation.
-    E.g. see localhost:8000/docs (auto-generated API documentation)
-
-    UserSchema objects are NOT to be instantiated.
-
-    Attributes:
-        name (str): The name of the user.
-        password (str): The password of the user.
-    """
-    name: str
-    password: str
+    # attributes might be added
+    # possible feature: email verification and we'd need some more attributes here
