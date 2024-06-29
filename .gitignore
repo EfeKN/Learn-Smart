@@ -13,7 +13,6 @@
 /frontend/npm-debug.log*
 /frontend/yarn-debug.log*
 /frontend/yarn-error.log*
-/frontend/.env
 /frontend/*.local
 /frontend/.vercel
 /frontend/*.tsbuildinfo
@@ -22,5 +21,5 @@
 /backend/Lib
 /backend/Scripts
 /backend/pyvenv.cfg
-/backend/__pycache__
-/backend/.env
+__pycache__
+.env

@@ -1,6 +1,6 @@
 "use client";
 
-import backend from "@/environment/backend_environment";
+import backendAPI from "@/environment/backend_api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -11,7 +11,7 @@ const LoginPage: React.FC = () => {
 
   const handleLogin = async () => {
     try {
-      const response = await backend.post("/login", { name, password });
+      const response = await backendAPI.post("/users/login", { name, password });
       if (response.status === 200) {
         alert("Login successful");
         // Redirect to another page after successful login

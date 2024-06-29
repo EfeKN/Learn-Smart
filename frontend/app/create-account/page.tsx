@@ -1,6 +1,6 @@
 "use client";
 
-import backend from "@/environment/backend_environment";
+import backendAPI from "@/environment/backend_api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -18,7 +18,7 @@ const CreateAccountPage: React.FC = () => {
   const handleCreateAccount = async () => {
     try {
       // Send a POST request to the backend to create a new user account
-      const response = await backend.post("/users", { name, password });
+      const response = await backendAPI.post("/users/create", { name, password });
 
       // Check if the response status is 200
       if (response.status === 200) {
