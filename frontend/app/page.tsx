@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const HomePage: React.FC = () => {
   const router = useRouter();
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      router.push('/login');
+      router.push("/login");
     }, 1000); // 1 second delay
 
     // Clean up the timer on component unmount
@@ -17,7 +17,7 @@ const HomePage: React.FC = () => {
 
   return (
     <div>
-      <h1>31. Redirecting to login...</h1>
+      <h1>Redirecting to login...</h1>
     </div>
   );
 };

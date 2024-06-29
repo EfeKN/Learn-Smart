@@ -18,7 +18,10 @@ const CreateAccountPage: React.FC = () => {
   const handleCreateAccount = async () => {
     try {
       // Send a POST request to the backend to create a new user account
-      const response = await backendAPI.post("/users/create", { name, password });
+      const response = await backendAPI.post("/users/create", {
+        name,
+        password,
+      });
 
       // Check if the response status is 200
       if (response.status === 200) {

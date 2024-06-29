@@ -24,3 +24,4 @@
 /backend/upload_files/
 __pycache__
 .env
+learn-smart.log
