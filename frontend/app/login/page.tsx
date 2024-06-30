@@ -2,7 +2,7 @@
 
 import backendAPI from "@/environment/backend_api";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
 import RootLayout from "@/app/layout";
@@ -10,7 +10,12 @@ import RootLayout from "@/app/layout";
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [isClient, setIsClient] = useState<boolean>(false);
   const router = useRouter();
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleLogin = async () => {
     const formData = {
@@ -46,6 +51,10 @@ const LoginPage: React.FC = () => {
     router.push("/create-account");
   };
 
+  if (!isClient) {
+    return null; // Render nothing until useEffect runs on the client
+  }
+
   return (
       <RootLayout showNavbar={false}>
       <main
@@ -53,7 +62,7 @@ const LoginPage: React.FC = () => {
         <div className="bg-white text-black rounded-2xl shadow-2xl flex w-2/3 max-w-4xl">
           <div className="w-3/5 p-5">
             <div className="text-left font-bold mb-10">
-              <span className="text-black-500">Learn</span>Smart
+              <span className="text-blue-500">Learn</span>Smart
             </div>
             <div className="py-5">
               <h2 className="text-3xl font-bold text-black-500 mb-2">Login to LearnSmart</h2>
