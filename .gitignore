@@ -21,6 +21,7 @@
 /backend/Lib
 /backend/Scripts
 /backend/pyvenv.cfg
+/backend/upload_files/
 __pycache__
 backend/.env
 
@@ -28,6 +29,7 @@ backend/.env
 
 # dotenv
 .env
+logs/
 
 # virtualenv
 .venv

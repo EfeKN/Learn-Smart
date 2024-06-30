@@ -2,28 +2,45 @@
 
 import backendAPI from "@/environment/backend_api";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import React, { useState } from "react";
 import {FaRegEnvelope} from "react-icons/fa";
 import {MdLockOutline} from "react-icons/md";
 
 const LoginPage: React.FC = () => {
-  const [name, setName] = useState<string>("");
+  const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const router = useRouter();
 
   const handleLogin = async () => {
-    try {
-      const response = await backendAPI.post("/users/login", { name, password });
+
+    // Form data to log in the user.
+    // The backend expects the body in this format (note that the first field is "username" and not "email")
+    const formData = {
+      "username": email,
+      "password": password
+    };
+
+    backendAPI.post("/users/login", formData, {
+      headers: {
+        Accept: "application/json", // The type of response we expect
+        "Content-Type": "application/x-www-form-urlencoded", // The type of data we are sending
+    }}).then((response) => {
       if (response.status === 200) {
         alert("Login successful");
+
+        const data = response.data;
+
+        // Store the user auth. token in local storage
+        localStorage.setItem("token", data["access_token"]);
+        localStorage.setItem("permissions", "user");
+
         // Redirect to another page after successful login
         router.push("/genai");
       }
-    } catch (error) {
+    }).catch((error) => {
       console.error("Login error:", error);
       alert("Login failed");
-    }
-  };
+    })};
 
   const handleCreateAccount = () => {
     // Redirect to create account page or handle account creation
@@ -46,9 +63,9 @@ const LoginPage: React.FC = () => {
                         <FaRegEnvelope/>
                         <input
                             type="text"
-                            value={name}
+                            value={email}
                             placeholder="Email or Username"
-                            onChange={(e) => setName(e.target.value)}
+                            onChange={(e) => setEmail(e.target.value)}
                             className="ml-1 bg-gray-100 outline-none text-sm flex-1"
                         />
                     </div>

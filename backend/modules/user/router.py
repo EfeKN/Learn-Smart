@@ -1,64 +1,68 @@
-from fastapi import HTTPException, Depends, APIRouter
-from sqlalchemy.orm import Session
+from fastapi import Depends, HTTPException, APIRouter
+from fastapi.security import OAuth2PasswordRequestForm
 
-from modules.user.model import User, UserSchema
-from database import get_db
-from modules.user.util import get_user_by_name
+from modules.user.model import User
+import modules.user.schemas as schemas
+from database.dbmanager import UserDB
+from controllers import authentication as auth
 
 router = APIRouter(prefix="/users", tags=["User"])
 
-@router.post("/login", response_model=UserSchema)
-def login(user: UserSchema, db: Session = Depends(get_db)):
+@router.post("/login", response_model=auth.Token, include_in_schema=False)
+def login(form_data: OAuth2PasswordRequestForm = Depends()):
     """
     Endpoint for user login.
 
-    Args:
-        user (schemas.UserSchema): The user object containing the login credentials.
+    Parameters:
+    - form_data: OAuth2PasswordRequestForm object containing user login credentials.
 
     Returns:
-        schemas.UserSchema: The user object if login is successful.
+    - Token: Token object containing the JWT access token.
 
-    Raises:
-        HTTPException: If the username is not found or the password is incorrect.
     """
-
-    # Get the user from the database by name
-    db_user = get_user_by_name(db, name=user.name)
-
-    # Check if the user exists and the password is correct
-    if db_user is None:
-        raise HTTPException(status_code=400, detail="Username not found")
-    if db_user.password != user.password:
-        raise HTTPException(status_code=400, detail="Incorrect password")
-    return db_user
+    return auth.login_for_access_token(form_data)
 
 
-@router.post("/create", response_model=UserSchema)
-def create_user(user: UserSchema, db: Session = Depends(get_db)):
+@router.post("/create", response_model=schemas.UserResponse)
+def create_user(user: schemas.UserCreationRequest):
     """
     Create a new user.
 
     Args:
-        user (schemas.UserSchema): The user data to be created.
+        user (schemas.UserCreationRequest): The user data to be created.
 
     Returns:
-        schemas.UserSchema: The created user data.
+        schemas.UserResponse: The created user data.
 
     Raises:
-        HTTPException: If the username is already registered.
+        HTTPException: If there is an error creating the user.
     """
+    try:
+        db_user: User = UserDB.create(user)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    return schemas.UserResponse.model_validate(db_user) # validate the model attributes and return the user data
 
-    # Get the user from the database by name
-    db_user = get_user_by_name(db, name=user.name)
 
-    # check if the user already exists
-    if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+@router.get("/{nickname}", response_model=schemas.UserResponse)
+def get_user(nickname: str, current_user: User = Depends(auth.get_current_user)):
+    """
+    Retrieve a user by their nickname.
 
-    db_user = User(name=user.name, password=user.password)
+    Args:
+        nickname (str): The nickname of the user to retrieve.
+        current_user (User): The currently authenticated user (used for authentication).
 
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    Returns:
+        UserResponse: The response model containing the user's information.
 
-    return db_user
+    Raises:
+        HTTPException: If the user is not found.
+    """
+    db_user = UserDB.fetch(nickname=nickname)
+
+    if not db_user: # if the user is not found
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return schemas.UserResponse.model_validate(db_user) # validate the model attributes and return the user data
