@@ -1,6 +1,5 @@
-from pydantic import BaseModel, model_validator, EmailStr, ConfigDict, Field
+from pydantic import BaseModel, EmailStr
 from typing import Optional
-from abc import ABC
 
 class UserCreationRequest(BaseModel):
     """
@@ -14,7 +13,7 @@ class UserCreationRequest(BaseModel):
     """
     name: str
     nickname: str
-    email: EmailStr
+    email: EmailStr # EmailStr is a Pydantic email validator
     password: str
 
 
@@ -28,10 +27,9 @@ class UserResponse(BaseModel):
         nickname (Optional[str]): The user's nickname.
         email (Optional[EmailStr]): The user's email.
     """
-    model_config = ConfigDict(from_attributes=True) # allows the ORM objects to be mapped to the Pydantic models
 
     id: Optional[int] = None
     name: Optional[str] = None
     nickname: Optional[str] = None
-    email: Optional[EmailStr] = None
+    email: Optional[EmailStr] = None # EmailStr is a Pydantic email validator
     

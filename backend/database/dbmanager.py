@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 
+from database.connection import db_connection
 from controllers import authentication as auth
 from modules.user.schemas import UserCreationRequest
 from modules.user.model import User
-from database import session
+from database import DATABASE_URL
 
 class DatabaseInterface(ABC):
     """
@@ -92,31 +93,27 @@ class UserDB(DatabaseInterface):
         Creates a new user in the database.
 
         Args:
-            obj (UserCreationRequest): The user creation request object containing user details.
+        - obj (UserCreationRequest): The user creation request object containing user details.
 
         Returns:
-            User: The newly created user object.
-
-        Raises:
-            ValueError: If the username is already registered.
+        - dict: A dictionary representation of the created user object.
         """
-
         # Check if a user with the same email already exists
-        db_user = UserDB.fetch(email=obj.email)
-        if db_user:
+        user = UserDB.fetch(email=obj.email)
+        if user:
             raise ValueError("Username already registered")
-
+        
         # Create a new user object
-        db_user = User(name=obj.name, nickname=obj.nickname,
+        user = User(name=obj.name, nickname=obj.nickname,
                     email=obj.email, hashed_password=auth.hash_password(obj.password))
-
+        
         # save the user object in the database
-        with session() as db:
-            db.add(db_user)
+        with db_connection as db:
+            db.add(user)
             db.commit()
-            db.refresh(db_user)
+            db.refresh(user)
 
-        return db_user
+            return user.to_dict()
 
     def fetch(**kwargs):
         """
@@ -130,7 +127,7 @@ class UserDB(DatabaseInterface):
                 - id (int): The ID of the user.
 
         Returns:
-            User: The user object retrieved from the database.
+            dict or None: A dictionary representing the user if found, or None if no user is found.
 
         Raises:
             ValueError: If no query parameters are provided.
@@ -139,18 +136,21 @@ class UserDB(DatabaseInterface):
         email = kwargs.get("email")
         id = kwargs.get("id")
 
-        # Fetch the user based on the provided query parameters
-        # It doesn't matter which parameter is provided, since all of them are unique identifiers of users
-        with session() as db:
+        with db_connection as db:
             if nickname:
-                return db.query(User).filter(User.nickname == nickname).first() # fetch the first user with the given nickname
+                user = db.query(User).filter(User.nickname == nickname).first() # fetch the first user with the given nickname
             elif email:
-                return db.query(User).filter(User.email == email).first() # fetch the first user with the given email
+                user = db.query(User).filter(User.email == email).first() # fetch the first user with the given email
             elif id:
-                return db.query(User).filter(User.id == id).first() # fetch the first user with the given ID
+                user = db.query(User).filter(User.id == id).first() # fetch the first user with the given ID
             else:
                 raise ValueError("No query parameters provided")
+            
+            if user:
+                return user.to_dict()
 
+            return None
+            
     def update(obj: User):
         """
         Updates a user in the database.

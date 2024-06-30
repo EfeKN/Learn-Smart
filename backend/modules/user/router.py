@@ -38,11 +38,11 @@ def create_user(user: schemas.UserCreationRequest):
         HTTPException: If there is an error creating the user.
     """
     try:
-        db_user: User = UserDB.create(user)
+        user_dict = UserDB.create(user)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     
-    return schemas.UserResponse.model_validate(db_user) # validate the model attributes and return the user data
+    return schemas.UserResponse(**user_dict)
 
 
 @router.get("/{nickname}", response_model=schemas.UserResponse)
@@ -60,9 +60,9 @@ def get_user(nickname: str, current_user: User = Depends(auth.get_current_user))
     Raises:
         HTTPException: If the user is not found.
     """
-    db_user = UserDB.fetch(nickname=nickname)
+    user = UserDB.fetch(nickname=nickname)
 
-    if not db_user: # if the user is not found
+    if not user: # if the user is not found
         raise HTTPException(status_code=404, detail="User not found")
 
-    return schemas.UserResponse.model_validate(db_user) # validate the model attributes and return the user data
+    return schemas.UserResponse(**user)

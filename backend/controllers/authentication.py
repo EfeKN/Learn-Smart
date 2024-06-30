@@ -48,16 +48,16 @@ def hash_password(password):
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     """
-    Retrieves the current user based on the provided token.
+    Retrieves the current user based on the provided JWT token.
 
     Args:
-        token (str): The authentication token.
+    - token (str): The JWT token used for authentication.
 
     Returns:
-        User: The current user.
+    - The user dictionary associated with the provided token.
 
     Raises:
-        HTTPException: If the credentials cannot be validated or the user does not exist.
+    - HTTPException: If the token is invalid or the user is not found.
     """
     credentials_exception = HTTPException(
         detail="Could not validate credentials",
@@ -109,7 +109,7 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES)) # expiration time for the token
 
     access_token = _create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={"sub": user["email"]}, expires_delta=access_token_expires
     ) # create an access token for the user
     
     # the client will use this token to authenticate requests
@@ -129,7 +129,7 @@ def _authenticate_user(password, **kwargs):
             - id (int): The user's ID.
 
     Returns:
-        User object: The authenticated user object if the password matches and the user is found.
+        User dictionary: The authenticated user's dict. if the password matches and the user is found.
         None: If the user is not found or the password does not match.
     """
 
@@ -146,7 +146,7 @@ def _authenticate_user(password, **kwargs):
         user = UserDB.fetch(id=id)
     
     # user not found or password does not match
-    if not user or not verify_password(password, user.hashed_password):
+    if not user or not verify_password(password, user["hashed_password"]):
         return None
     
     return user

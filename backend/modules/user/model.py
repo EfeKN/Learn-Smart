@@ -1,8 +1,8 @@
 from sqlalchemy import Column, DateTime, Integer, String, func
 
-from database import Base
+from database.connection import db_connection
 
-class User(Base):
+class User(db_connection.Base):
     """
     Represents a user in the database system.
 
@@ -22,6 +22,22 @@ class User(Base):
     email = Column(String(100), unique=True, index=True, nullable=False)
     hashed_password = Column(String(100), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    def to_dict(self):
+            """
+            Converts the User object to a dictionary.
+
+            Returns:
+                dict: A dictionary representation of the User object.
+            """
+            return {
+                "id": self.id,
+                "name": self.name,
+                "nickname": self.nickname,
+                "email": self.email,
+                "hashed_password": self.hashed_password,
+                "created_at": self.created_at
+            }
 
     # attributes might be added
     # possible feature: email verification and we'd need some more attributes here
