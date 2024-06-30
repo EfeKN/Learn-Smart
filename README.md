@@ -35,7 +35,7 @@ Use python 3.12.4
 1. Create a .env file inside the `backend/` folder, then populate it with the following:
 
     * `GOOGLE_API_KEY=` (provided in Whatsapp)
-    * `DATABASE_URL=` (your MySQL DB URI, example: `mysql://\<username>:\<password>@localhost/database_name`)
+    * `DATABASE_URL=` (your MySQL DB URI, example: `mysql://\<username>:\<password>@localhost/<database_name>`)
     * `FILES_PATH="./upload_files"`
     * `SECRET_KEY=bc8338b8fdbdde68a9f3b555b8994563e0ad1c47863f56f7b300ff96c54cd822`
     * `ALGORITHM=HS256`
@@ -66,9 +66,9 @@ Use python 3.12.4
 
 5. Create user `CREATE USER '<username>'@'localhost' IDENTIFIED BY '<password>';`
 
-6. Create the database `CREATE DATABASE learnsmart;`
+6. Create the database `CREATE DATABASE <database_name>;`
 
-7. Grant privileges `GRANT ALL PRIVILEGES ON learnsmart.* TO '<username>'@'localhost';`
+7. Grant privileges `GRANT ALL PRIVILEGES ON <database_name>.* TO '<username>'@'localhost';`
 
 # Clean
 
