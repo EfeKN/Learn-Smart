@@ -98,10 +98,11 @@ class UserDB(DatabaseInterface):
         Returns:
         - dict: A dictionary representation of the created user object.
         """
-        # Check if a user with the same email already exists
-        user = UserDB.fetch(email=obj.email)
+        # Check if a user with the same email or nickname already exists
+        user = UserDB.fetch(email=obj.email, nickname=obj.nickname)
+
         if user:
-            raise ValueError("Username already registered")
+            raise ValueError("User with provided credentials already registered")
         
         # Create a new user object
         user = User(name=obj.name, nickname=obj.nickname,
