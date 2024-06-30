@@ -1,4 +1,7 @@
 import logging
+import os
+
+LOG_DIR = "logs"
 
 def setup_logger(name, log_file, level=logging.DEBUG):
     """
@@ -35,5 +38,11 @@ def setup_logger(name, log_file, level=logging.DEBUG):
 
     return logger
 
+
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+log_file_path = os.path.join(LOG_DIR, "learn-smart.log")
+
 # Create a default logger for the application
-logger = setup_logger('logger', 'learn-smart.log', logging.DEBUG)
+logger = setup_logger("logger", log_file_path, logging.DEBUG)

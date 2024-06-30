@@ -38,10 +38,10 @@ def create_user(user: schemas.UserCreationRequest):
         HTTPException: If there is an error creating the user.
     """
     try:
-        db_user = UserDB.create(user)
+        db_user: User = UserDB.create(user)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-
+    
     return schemas.UserResponse.model_validate(db_user) # validate the model attributes and return the user data
 
 

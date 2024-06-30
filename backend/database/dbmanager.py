@@ -86,38 +86,37 @@ class UserDB(DatabaseInterface):
     Database interface for the User model.
     """
 
-    class DBManager:
-        @staticmethod
-        def create(obj: UserCreationRequest):
-            """
-            Creates a new user in the database.
+    @staticmethod
+    def create(obj: UserCreationRequest):
+        """
+        Creates a new user in the database.
 
-            Args:
-                obj (UserCreationRequest): The user creation request object containing user details.
+        Args:
+            obj (UserCreationRequest): The user creation request object containing user details.
 
-            Returns:
-                User: The newly created user object.
+        Returns:
+            User: The newly created user object.
 
-            Raises:
-                ValueError: If the username is already registered.
-            """
+        Raises:
+            ValueError: If the username is already registered.
+        """
 
-            # Check if a user with the same email already exists
-            db_user = UserDB.fetch(email=obj.email)
-            if db_user:
-                raise ValueError("Username already registered")
+        # Check if a user with the same email already exists
+        db_user = UserDB.fetch(email=obj.email)
+        if db_user:
+            raise ValueError("Username already registered")
 
-            # Create a new user object
-            db_user = User(name=obj.name, nickname=obj.nickname,
-                        email=obj.email, hashed_password=auth.hash_password(obj.password))
+        # Create a new user object
+        db_user = User(name=obj.name, nickname=obj.nickname,
+                    email=obj.email, hashed_password=auth.hash_password(obj.password))
 
-            # save the user object in the database
-            with session() as db:
-                db.add(db_user)
-                db.commit()
-                db.refresh(db_user)
+        # save the user object in the database
+        with session() as db:
+            db.add(db_user)
+            db.commit()
+            db.refresh(db_user)
 
-            return db_user
+        return db_user
 
     def fetch(**kwargs):
         """

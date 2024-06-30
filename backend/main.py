@@ -7,9 +7,7 @@ from database import Base, engine
 from modules.user.router import router as users_router
 from modules.genai.router import router as genai_router
 from controllers.router import router as files_router
-
 from logger import logger
-
 
 Base.metadata.create_all(bind=engine)  # create the tables in the database
 
@@ -30,4 +28,4 @@ routers = [users_router, genai_router, files_router]
 for router in routers:
     app.include_router(router, prefix="/api")
 
-logger.info("Application started successfully")
+logger.info("FastAPI backend started successfully")

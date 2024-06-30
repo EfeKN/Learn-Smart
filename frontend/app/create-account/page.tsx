@@ -6,6 +6,8 @@ import { useState } from "react";
 
 const CreateAccountPage: React.FC = () => {
   const [name, setName] = useState<string>(""); // State for name input
+  const [nickname, setNickname] = useState<string>(""); // State for nickname input
+  const [email, setEmail] = useState<string>(""); // State for email input
   const [password, setPassword] = useState<string>(""); // State for password input
 
   // Next.js router hook
@@ -14,27 +16,55 @@ const CreateAccountPage: React.FC = () => {
   // Function to handle account creation
   // Sends a POST request to the backend to create a new user account
   // Redirects to login page after successful account creation
-  //
   const handleCreateAccount = async () => {
-    try {
-      // Send a POST request to the backend to create a new user account
-      const response = await backendAPI.post("/users/create", {
-        name,
-        password,
-      });
 
-      // Check if the response status is 200
-      if (response.status === 200) {
+    /**
+     * Validates an email address.
+     * @param inputText - The email address to validate.
+     * @returns True if the email address is valid, false otherwise.
+     */
+    function validateEmail(inputText: string) {
+      var regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+      return inputText.match(regex) !== null; // true if email is valid
+    }
+
+    // JSON of parameters to send in POST request to create account
+    const parameterDict: { [key: string]: string } = {
+      name: name,
+      nickname: nickname,
+      email: email,
+      password: password
+    };
+
+    // Check if any fields are empty, reject user if so
+    for (let key in parameterDict) {
+      let value = parameterDict[key];
+      if (!(value.length > 0)) {
+        alert("Please fill in all fields!");
+        return;
+      }
+    }
+
+    if (validateEmail(email) === false) {
+      alert("Invalid email address");
+      return;
+    } // if regex check fails, reject user
+
+    // Send POST request to create account
+    backendAPI.post("/users/create", parameterDict, {
+      headers: {
+        Accept: "application/json", // The type of response we expect
+        "Content-Type": "application/json" // The type of data we are sending
+      }
+    }).then((response) => {
+      if (response.status === 200) { // successful account creation
         alert("Account created successfully");
-
-        // Redirect to login page after successful account creation
         router.push("/login");
       }
-    } catch (error) {
-      // Catch any errors and log them to the console
+    }).catch((error) => {
       console.error("Create account error:", error);
       alert("Account creation failed");
-    }
+    });
   };
 
   return (
@@ -48,6 +78,30 @@ const CreateAccountPage: React.FC = () => {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            className="ml-1"
+          />
+        </label>
+      </div>
+
+      <div className="mb-1">
+        <label>
+          Nickname:
+          <input
+            type="text"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            className="ml-1"
+          />
+        </label>
+      </div>
+
+      <div className="mb-1">
+        <label>
+          Email:
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="ml-1"
           />
         </label>

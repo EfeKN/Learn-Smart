@@ -10,6 +10,9 @@ export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
 
+  // get user's authentication token from local storage for API requests
+  const token = localStorage.getItem("token");
+
   // Function to send prompt to the backend and receive a response
   const sendPrompt = async () => {
     setResponse(""); // Clear the response
@@ -30,6 +33,7 @@ export default function Home() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Send the authentication token in the request headers
         },
         body: JSON.stringify({ prompt }), // Send the prompt in the request body as JSON
       }

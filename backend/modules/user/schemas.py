@@ -1,10 +1,10 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, model_validator, EmailStr, ConfigDict, Field
 from typing import Optional
 from abc import ABC
 
-class UserCreationRequest(BaseModel, ABC):
+class UserCreationRequest(BaseModel):
     """
-    Represents a user creation request.
+    Represents a request to create a new user.
 
     Attributes:
         name (str): The name of the user.
@@ -14,13 +14,13 @@ class UserCreationRequest(BaseModel, ABC):
     """
     name: str
     nickname: str
-    email: EmailStr # EmailStr is a Pydantic email validator
+    email: EmailStr
     password: str
 
 
-class UserResponse(BaseModel, ABC):
+class UserResponse(BaseModel):
     """
-    Represents a user response.
+    Represents a generic user response model.
 
     Attributes:
         id (Optional[int]): The user's ID.
