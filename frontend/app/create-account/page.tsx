@@ -1,11 +1,13 @@
 "use client";
 
 import backendAPI from "@/environment/backend_api";
+
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { FaRegEnvelope, FaRegUser } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
 import { RiShieldUserLine } from "react-icons/ri"
+import RootLayout from "@/app/layout";
 
 const CreateAccountPage: React.FC = () => {
   const [name, setName] = useState<string>(""); // State for name input
@@ -71,6 +73,7 @@ const CreateAccountPage: React.FC = () => {
   };
 
   return (
+      <RootLayout showNavbar={false}>
     <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center bg-gray-100 min-h-screen">
       <div className="bg-white text-black rounded-2xl shadow-2xl flex w-2/3 max-w-4xl">
         <div className="w-3/5 p-5">
@@ -112,7 +115,7 @@ const CreateAccountPage: React.FC = () => {
                   className="ml-1 bg-gray-100 outline-none text-sm flex-1"
               />
             </div>
-            <div className="bg-gray-100 w-64 p-2 flex items-center mb-5">
+            <div className="bg-gray-100 w-64 p-2 flex items-center mb-2">
               <MdLockOutline/>
               <input
                   type="password"
@@ -122,10 +125,21 @@ const CreateAccountPage: React.FC = () => {
                   className="ml-1 bg-gray-100 outline-none text-sm flex-1"
               />
             </div>
+            <div className="bg-gray-100 w-64 p-2 flex items-center mb-5">
+              <MdLockOutline/>
+              <input
+                  type="password"
+                  value={password}
+                  placeholder="Confirm Password"
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="ml-1 bg-gray-100 outline-none text-sm flex-1"
+              />
+            </div>
           </div>
           <button
               onClick={handleCreateAccount}
-              className="border-2 bg-white border-black text-black rounded-full px-12 py-2 inline-block font-semibold hover:bg-black hover:text-white"
+              className="border-2 bg-white border-black text-black rounded-full
+              px-12 py-2 inline-block font-semibold hover:bg-black hover:text-white"
           >
             Create Account
           </button>
@@ -143,6 +157,7 @@ const CreateAccountPage: React.FC = () => {
         </div>
       </div>
     </main>
+      </RootLayout>
   );
 };
 

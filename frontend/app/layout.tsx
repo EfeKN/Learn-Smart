@@ -1,27 +1,23 @@
-// Creation Date: 27.06.2024
+// Import type and necessary modules
+import { Inter } from 'next/font/google';
+import Navbar from './components/navbar';
+import './globals.css';
 
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import Navbar from "./components/navbar";
-import "./globals.css";
+const inter = Inter({ subsets: ['latin'] });
 
-const inter = Inter({ subsets: ["latin"] });
-
-export const metadata: Metadata = {
-  title: "Learn Smart",
-  description:
-    "Learn Smart is a platform aimed at helping students learn more effectively.",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
+// Define props interface for RootLayout
+interface RootLayoutProps {
   children: React.ReactNode;
-}>) {
+  showNavbar?: boolean; // Optional prop to show or hide the navbar
+}
+
+// Define RootLayout component
+export default function RootLayout({ children, showNavbar = true }: RootLayoutProps) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        <Navbar />
+        {/* Conditionally render Navbar based on showNavbar prop */}
+        {showNavbar && <Navbar />}
         <div>{children}</div>
       </body>
     </html>
