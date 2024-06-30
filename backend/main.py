@@ -3,15 +3,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from database import Base, engine
 from modules.user.router import router as users_router
 from modules.genai.router import router as genai_router
 from controllers.router import router as files_router
 from logger import logger
 
-Base.metadata.create_all(bind=engine)  # create the tables in the database
+from database.connection import db_connection
 
 app = FastAPI()  # create the FastAPI app
+db_connection()  # create the tables in the database
 
 # Add CORS middleware to allow cross-origin requests
 app.add_middleware(
