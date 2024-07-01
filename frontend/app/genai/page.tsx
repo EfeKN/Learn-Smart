@@ -4,14 +4,19 @@
 
 import DOMPurify from "dompurify";
 import { marked } from "marked";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Navbar from "@/app/components/navbar";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
+  const [token, setToken] = useState<string | null>(null);
 
-  // get user's authentication token from local storage for API requests
-  const token = localStorage.getItem("token");
+  // Retrieve token from localStorage once the component mounts
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
+  }, []);
 
   // Function to send prompt to the backend and receive a response
   const sendPrompt = async () => {
@@ -27,17 +32,14 @@ export default function Home() {
     }
 
     // Send a POST request to the backend API
-    const res = await fetch(
-      "http://localhost:8000/api/genai/generate_response",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Send the authentication token in the request headers
-        },
-        body: JSON.stringify({ prompt }), // Send the prompt in the request body as JSON
-      }
-    );
+    const res = await fetch("http://localhost:8000/api/genai/generate_response", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Send the authentication token in the request headers
+      },
+      body: JSON.stringify({ prompt }), // Send the prompt in the request body as JSON
+    });
 
     // Get the response body as a stream and read it
     const reader = res.body?.getReader();
@@ -80,24 +82,27 @@ export default function Home() {
   };
 
   return (
-    <div className="p-5">
-      <h1>Ask Gemini</h1>
-      <textarea
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        rows={4}
-        cols={50}
-        placeholder="Enter your prompt here..."
-        className="block mb-5"
-      />
-      <button onClick={sendPrompt} className="mb-5" type="button">
-        Generate
-      </button>
-      <h2>Response:</h2>
-      <div
-        id="response"
-        className="whitespace-pre-wrap border border-gray-300 p-5 mt-5"
-      ></div>
-    </div>
+      <main>
+        <Navbar />
+        <div className="p-5">
+          <h1>Ask Gemini</h1>
+          <textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              rows={4}
+              cols={50}
+              placeholder="Enter your prompt here..."
+              className="block mb-5"
+          />
+          <button onClick={sendPrompt} className="mb-5" type="button">
+            Generate
+          </button>
+          <h2>Response:</h2>
+          <div
+              id="response"
+              className="whitespace-pre-wrap border border-gray-300 p-5 mt-5"
+          ></div>
+        </div>
+      </main>
   );
 }
