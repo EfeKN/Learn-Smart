@@ -16,9 +16,9 @@ const HomePage: React.FC = () => {
   }, [router]);
 
   return (
-    <div>
-      <h1>Redirecting to login...</h1>
-    </div>
+        <div>
+          <h1>Redirecting to login...</h1>
+        </div>
   );
 };
 

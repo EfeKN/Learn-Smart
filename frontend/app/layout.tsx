@@ -6,19 +6,22 @@ import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
+export const metadata: Metadata = {
+  title: 'LearnSmart',
+  description:
+    'Learn Smart is a platform aimed at helping students learn more effectively.',
+};
+
 // Define props interface for RootLayout
 interface RootLayoutProps {
   children: React.ReactNode;
-  showNavbar?: boolean; // Optional prop to show or hide the navbar
 }
 
 // Define RootLayout component
-export default function RootLayout({ children, showNavbar = true }: RootLayoutProps) {
+export default function RootLayout({ children} : RootLayoutProps) {
   return (
     <html lang="en">
       <body className={inter.className}>
-        {/* Conditionally render Navbar based on showNavbar prop */}
-        {showNavbar && <Navbar />}
         <div>{children}</div>
       </body>
     </html>
