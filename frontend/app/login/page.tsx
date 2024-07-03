@@ -71,7 +71,7 @@ const LoginPage: React.FC = () => {
             <span className="text-blue-500">Learn</span>Smart
           </div>
           <div className="py-5">
-            <h2 className="text-3xl font-bold text-black-500 mb-2">Login to LearnSmart</h2>
+            <h2 className="text-3xl font-bold text-black-500 mb-2">Login</h2>
           </div>
           <div className="border-2 w-10 border-black inline-block mb-2"></div>
           <div className="flex flex-col items-center">
