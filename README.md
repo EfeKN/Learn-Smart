@@ -33,16 +33,17 @@ Use python 3.12.4
     * `GOOGLE_API_KEY=` (provided in Whatsapp)
     * `DATABASE_URL=` (your MySQL DB URI, example: `mysql://\<username>:\<password>@localhost/<database_name>`)
     * `FILES_PATH="./upload_files"`
+    * `CHATS_DIR="./chats"`
     * `SECRET_KEY=bc8338b8fdbdde68a9f3b555b8994563e0ad1c47863f56f7b300ff96c54cd822`
     * `ALGORITHM=HS256`
-    * `ACCESS_TOKEN_EXPIRE_MINUTES = 3000`
+    * `ACCESS_TOKEN_EXPIRE_MINUTES = 30000`
 
 2. `python -m venv backend`
 
 3. * `backend\Scripts\activate` for Windows
    * `source backend/bin/activate` for Mac
 
-4. `cd backend && mkdir upload_files`. This is where the file uploads are stored (for now).
+4. `cd backend && mkdir upload_files chats`. This is where the file uploads are stored (for now).
 
 5. `pip install -r requirements.txt`
 

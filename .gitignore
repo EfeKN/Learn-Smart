@@ -22,6 +22,7 @@
 /backend/Scripts
 /backend/pyvenv.cfg
 /backend/upload_files/
+/backend/chats/
 __pycache__
 backend/.env
 

@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 
@@ -34,11 +34,20 @@ class DatabaseConnection:
         self.session_factory = scoped_session(self.SessionLocal) # create a thread-local scoped session
         self.Base = declarative_base() # create a base class for the models
 
-    def __call__(self):
+    def create_tables(self):
         """
         Creates the database tables based on the defined models.
         """
         self.Base.metadata.create_all(bind=self.engine)
+    
+    def drop_tables(self):
+        """
+        Drops the database tables based on the defined models.
+        """
+        with self as connection:
+            connection.execute(text("DROP TABLE IF EXISTS chats;"))
+            connection.execute(text("DROP TABLE IF EXISTS courses;"))
+            connection.execute(text("DROP TABLE IF EXISTS users;"))
 
     def __enter__(self):
         """

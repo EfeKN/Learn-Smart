@@ -22,13 +22,13 @@ class UserResponse(BaseModel):
     Represents a generic user response model.
 
     Attributes:
-        id (Optional[int]): The user's ID.
+        user_id (Optional[int]): The user's ID.
         name (Optional[str]): The user's name.
         nickname (Optional[str]): The user's nickname.
         email (Optional[EmailStr]): The user's email.
     """
 
-    id: Optional[int] = None
+    user_id: Optional[int] = None
     name: Optional[str] = None
     nickname: Optional[str] = None
     email: Optional[EmailStr] = None # EmailStr is a Pydantic email validator

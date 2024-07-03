@@ -126,24 +126,21 @@ def _authenticate_user(password, **kwargs):
             Possible keyword arguments include:
             - nickname (str): The user's nickname.
             - email (str): The user's email address.
-            - id (int): The user's ID.
+            - user_id (int): The user's ID.
 
     Returns:
         User dictionary: The authenticated user's dict. if the password matches and the user is found.
         None: If the user is not found or the password does not match.
     """
 
-    nickname = kwargs.get("nickname")
-    email = kwargs.get("email")
-    id = kwargs.get("id")
+    nickname = kwargs.get("nickname", None)
+    email = kwargs.get("email", None)
+    user_id = kwargs.get("user_id", None)
 
+    # import the UserDB class here to avoid circular imports
     from database.dbmanager import UserDB
-    if nickname:
-        user = UserDB.fetch(nickname=nickname)
-    elif email:
-        user = UserDB.fetch(email=email)
-    elif id:
-        user = UserDB.fetch(id=id)
+
+    user = UserDB.fetch(nickname=nickname, email=email, user_id=user_id) # fetch the user from the database
     
     # user not found or password does not match
     if not user or not verify_password(password, user["hashed_password"]):

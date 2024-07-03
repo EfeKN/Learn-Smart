@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi import File, UploadFile
+import os
 
 from controllers import authentication as auth
 from controllers.filemanager import FileManagerFactory
@@ -35,7 +36,7 @@ def upload_file(file: UploadFile = File(...), current_user: User = Depends(auth.
         # each user has dedicated folder in the root folder with their id
         # each folder will have 3 subfolders: images, documents, and slides
 
-        path = f"{FILES_PATH}/{filename}"
+        path = os.path.join(FILES_PATH, filename) # construct the file path
         file_manager.save(path, file) # save the file in file system
 
         return {"filename": filename}

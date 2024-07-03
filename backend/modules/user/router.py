@@ -1,9 +1,8 @@
 from fastapi import Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 
-from modules.user.model import User
 import modules.user.schemas as schemas
-from database.dbmanager import UserDB
+from database.dbmanager import UserDB, CourseDB
 from controllers import authentication as auth
 
 router = APIRouter(prefix="/users", tags=["User"])
@@ -38,15 +37,15 @@ def create_user(user: schemas.UserCreationRequest):
         HTTPException: If there is an error creating the user.
     """
     try:
-        user_dict = UserDB.create(user)
+        user_dict = UserDB.create(**user.model_dump()) # create the user given the user data
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     
     return schemas.UserResponse(**user_dict)
 
 
-@router.get("/{nickname}", response_model=schemas.UserResponse)
-def get_user(nickname: str, current_user: User = Depends(auth.get_current_user)):
+@router.get("/", response_model=schemas.UserResponse)
+def get_user(nickname: str = None, id: int = None, current_user: dict = Depends(auth.get_current_user)):
     """
     Retrieve a user by their nickname.
 
@@ -60,9 +59,30 @@ def get_user(nickname: str, current_user: User = Depends(auth.get_current_user))
     Raises:
         HTTPException: If the user is not found.
     """
-    user = UserDB.fetch(nickname=nickname)
+    if not nickname and not id:
+        raise HTTPException(status_code=400, detail="Nickname or ID must be provided")
+    
+    user = UserDB.fetch(nickname=nickname, user_id=id)
 
     if not user: # if the user is not found
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="User(s) not found")
 
     return schemas.UserResponse(**user)
+
+
+@router.get("/me")
+def get_current_user(current_user: dict = Depends(auth.get_current_user)):
+    """
+    Get the current authenticated user.
+
+    Args:
+        current_user (User): The current authenticated user.
+
+    Returns:
+        User: The current authenticated user.
+    """
+    # courses = UserDB.fetch(current_user["user_id"])
+    courses = CourseDB.fetch(user_id=current_user["user_id"])
+    current_user["courses"] = courses # add the user's courses to response
+    current_user.pop("hashed_password") # remove the hashed password from the response
+    return current_user

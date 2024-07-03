@@ -11,10 +11,6 @@ cffi==1.16.0
 charset-normalizer==3.3.2
 click==8.1.7
 colorama==0.4.6
-# conda==24.3.0
-# conda-libmamba-solver==24.1.0
-# conda-package-handling==2.2.0
-# conda_package_streaming==0.9.0
 distro==1.9.0
 dnspython==2.6.1
 docutils==0.21.2
@@ -40,12 +36,9 @@ idna==3.6
 Jinja2==3.1.4
 jsonpatch==1.33
 jsonpointer==2.4
-#libmambapy==1.5.8
-#mamba==1.5.8
 markdown-it-py==3.0.0
 MarkupSafe==2.1.5
 mdurl==0.1.2
-#menuinst==2.0.2
 orjson==3.10.5
 packaging==24.0
 pip==24.0
@@ -95,3 +88,4 @@ PyJWT>=2.0.0,<3.0.0
 pymupdf>=1.19.6,<2.0.0
 python-pptx>=0.6.21,<0.7.0
 python-docx>=0.8.11,<0.9.0
+jsonpickle

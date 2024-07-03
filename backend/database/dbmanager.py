@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
+from sqlalchemy import and_
 
 from database.connection import db_connection
 from controllers import authentication as auth
-from modules.user.schemas import UserCreationRequest
-from modules.user.model import User
-from database import DATABASE_URL
 
+from modules.user.model import User
+from modules.chat.model import Chat
+from modules.course.model import Course
 class DatabaseInterface(ABC):
     """
     Interface for the database manager.
@@ -88,25 +89,31 @@ class UserDB(DatabaseInterface):
     """
 
     @staticmethod
-    def create(obj: UserCreationRequest):
+    def create(name: str, nickname: str, email: str, password: str):
         """
-        Creates a new user in the database.
+        Create a new user with the provided credentials and save it in the database.
 
         Args:
-        - obj (UserCreationRequest): The user creation request object containing user details.
+        - name (str): The name of the user.
+        - nickname (str): The nickname of the user.
+        - email (str): The email of the user.
+        - password (str): The password of the user.
 
         Returns:
         - dict: A dictionary representation of the created user object.
+        Raises:
+        - ValueError: If a user with the same email or nickname already exists.
         """
         # Check if a user with the same email or nickname already exists
-        user = UserDB.fetch(email=obj.email, nickname=obj.nickname)
+        user_by_email = UserDB.fetch(email=email)
+        user_by_nickname = UserDB.fetch(nickname=nickname)
 
-        if user:
+        if user_by_email or user_by_nickname:
             raise ValueError("User with provided credentials already registered")
-        
+
         # Create a new user object
-        user = User(name=obj.name, nickname=obj.nickname,
-                    email=obj.email, hashed_password=auth.hash_password(obj.password))
+        user = User(name=name, nickname=nickname,
+                    email=email, hashed_password=auth.hash_password(password))
         
         # save the user object in the database
         with db_connection as db:
@@ -116,42 +123,57 @@ class UserDB(DatabaseInterface):
 
             return user.to_dict()
 
+    @staticmethod
     def fetch(**kwargs):
         """
-        Fetches a user from the database based on the provided query parameters.
+        Fetches user(s) from the database based on the provided query parameters.
 
         Args:
             **kwargs: Keyword arguments representing the query parameters.
-                Possible keyword arguments:
+                Possible query parameters include:
+                - name (str): The name of the user.
                 - nickname (str): The nickname of the user.
                 - email (str): The email of the user.
-                - id (int): The ID of the user.
+                - user_id (int): The ID of the user.
+                - all (bool): Flag indicating whether to fetch all users or just the first one. Default is False.
 
         Returns:
-            dict or None: A dictionary representing the user if found, or None if no user is found.
+            If `all` is True, returns a list of user dictionaries. Each dictionary represents a user and contains the user's attributes.
+            If `all` is False, returns a single user dictionary or None if no user is found.
 
         Raises:
             ValueError: If no query parameters are provided.
         """
-        nickname = kwargs.get("nickname")
-        email = kwargs.get("email")
-        id = kwargs.get("id")
+        name = kwargs.get("name", None)
+        nickname = kwargs.get("nickname", None)
+        email = kwargs.get("email", None)
+        user_id = kwargs.get("user_id", None)
+        all = kwargs.get("all", False)
+
+        if not any([nickname, email, user_id]):
+            raise ValueError("No query parameters provided")
+
+        # Create a list of filters based on the provided query parameters
+        filters = []
+        if name:
+            filters.append(User.name == name)
+        if nickname:
+            filters.append(User.nickname == nickname)
+        if email:
+            filters.append(User.email == email)
+        if user_id:
+            filters.append(User.user_id == user_id)
 
         with db_connection as db:
-            if nickname:
-                user = db.query(User).filter(User.nickname == nickname).first() # fetch the first user with the given nickname
-            elif email:
-                user = db.query(User).filter(User.email == email).first() # fetch the first user with the given email
-            elif id:
-                user = db.query(User).filter(User.id == id).first() # fetch the first user with the given ID
-            else:
-                raise ValueError("No query parameters provided")
-            
-            if user:
-                return user.to_dict()
+            query = db.query(User).filter(and_(*filters)) # apply filters to the query
+            result = query.all() if all else query.first() # fetch all users or just the first one
 
-            return None
+            if all:
+                return [user.to_dict() for user in result] if result else [] # return a list of user dicts
             
+            return result.to_dict() if result else None # return a single user dict or None
+            
+    @staticmethod
     def update(obj: User):
         """
         Updates a user in the database.
@@ -165,9 +187,228 @@ class UserDB(DatabaseInterface):
         """
         pass
 
+    @staticmethod
     def delete(**kwargs):
         """
         Deletes a user from the database.
+
+        Args:
+        - **kwargs: Additional keyword arguments for specifying query parameters.
+
+        """
+        pass
+
+
+class ChatDB(DatabaseInterface):
+    """
+    Database interface for the Chat model.
+    """
+
+    @staticmethod
+    def create(course_id: int, title: str, history_url: str):
+        """
+        Create a new chat object and save it in the database.
+
+        Args:
+            course_id (int): The ID of the course associated with the chat.
+            title (str): The title of the chat.
+            history_url (str): The URL of the chat's history.
+
+        Returns:
+            dict: A dictionary representation of the created chat object.
+        """
+        chat = Chat(course_id=course_id, title=title, history_url=history_url)
+        
+        # save the chat object in the database
+        with db_connection as db:
+            db.add(chat)
+            db.commit()
+            db.refresh(chat)
+
+        return chat.to_dict()
+
+    @staticmethod
+    def fetch(**kwargs):
+        """
+        Fetches chat data from the database based on the provided query parameters.
+
+        Args:
+            chat_id (int): The ID of the chat.
+            course_id (int): The ID of the course.
+            all (bool, optional): If True, fetches all matching chat records. If False (default), fetches only the first matching record.
+
+        Returns:
+            dict or list: A dictionary representing the fetched chat record if `all` is False and a matching record is found. 
+                          A list of dictionaries representing all fetched chat records if `all` is True and matching records are found.
+                          None if no matching record is found and `all` is False.
+                          An empty list if no matching records are found and `all` is True.
+
+        Raises:
+            ValueError: If no query parameters are provided.
+        """
+        chat_id = kwargs.get("chat_id", None)
+        course_id = kwargs.get("course_id", None)
+        all = kwargs.get("all", False)
+
+        if not any([chat_id, course_id]): # check if any query parameters are provided
+            raise ValueError("No query parameters provided")
+        
+        # Create a list of filters based on the provided query parameters
+        filters = []
+        if chat_id:
+            filters.append(Chat.chat_id == chat_id)
+        if course_id:
+            filters.append(Chat.course_id == course_id)
+
+        with db_connection as db:
+            query = db.query(Chat).filter(and_(*filters)) # apply filters to the query
+            result = query.all() if all else query.first() # fetch all chats or just the first one
+            
+            if all:
+                return [chat.to_dict() for chat in result] if result else [] # return a list of chat dicts
+            
+            return result.to_dict() if result else None # return a single chat dict or None
+
+    @staticmethod
+    def update(chat_id: int, title: str = None, history_url: str = None):
+        """
+        Update the chat with the given chat_id.
+
+        Args:
+            chat_id (int): The ID of the chat to update.
+            title (str, optional): The new title for the chat. Defaults to None.
+            history_url (str, optional): The new history URL for the chat. Defaults to None.
+
+        Returns:
+            dict: A dictionary representation of the updated chat.
+
+        Raises:
+            ValueError: If the chat with the given chat_id is not found.
+        """
+        with db_connection as db:
+            chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
+            if not chat:
+                raise ValueError(f"Chat with ID {chat_id} not found")
+
+            if title:
+                chat.title = title
+                
+            if history_url:
+                chat.history_url = history_url
+
+            db.commit()
+            db.refresh(chat)
+
+            return chat.to_dict()
+
+    @staticmethod
+    def delete(**kwargs):
+        """
+        Deletes a chat from the database.
+
+        Args:
+        - **kwargs: Additional keyword arguments for specifying query parameters.
+
+        """
+        pass
+
+
+class CourseDB(DatabaseInterface):
+    """
+    Database interface for the Course model.
+    """
+
+    @staticmethod
+    def create(name: str, description: str, user_id: int):
+        """
+        Create a new course in the database.
+
+        Args:
+            name (str): The name of the course.
+            description (str): The description of the course.
+            user_id (int): The ID of the user who owns the course.
+
+        Returns:
+            dict: A dictionary representing the created course.
+
+        Raises:
+            ValueError: If a course with the provided name already exists for the user.
+        """
+        course = CourseDB.fetch(course_name=name, user_id=user_id)
+        if course:
+            raise ValueError(f"Course with provided name already exists for user {user_id}")
+
+        course = Course(course_name=name, description=description, user_id=user_id) # create a new course object
+        
+        # save the user object in the database
+        with db_connection as db:
+            db.add(course)
+            db.commit()
+            db.refresh(course)
+
+            return course.to_dict()
+
+    @staticmethod
+    def fetch(**kwargs):
+        """
+        Fetches course information from the database based on the provided query parameters.
+
+        Args:
+            course_id (int): The ID of the course.
+            course_name (str): The name of the course.
+            user_id (int): The ID of the user.
+            all (bool, optional): If True, fetches all matching courses. If False (default), fetches only the first matching course.
+
+        Returns:
+            dict or list: A dictionary representing the fetched course information if `all` is False, or a list of dictionaries representing multiple courses if `all` is True. Returns None if no matching course is found.
+
+        Raises:
+            ValueError: If no query parameters are provided.
+        """
+        course_id = kwargs.get("course_id", None)
+        course_name = kwargs.get("course_name", None)
+        user_id = kwargs.get("user_id", None)
+        all = kwargs.get("all", False)
+
+        if not any([course_id, course_name, user_id]): # check if any query parameters are provided
+            raise ValueError("No query parameters provided")
+        
+        # Create a list of filters based on the provided query parameters
+        filters = []
+        if course_id:
+            filters.append(Course.course_id == course_id)
+        if course_name:
+            filters.append(Course.course_name == course_name)
+        if user_id:
+            filters.append(Course.user_id == user_id)
+
+        with db_connection as db:
+            query = db.query(Course).filter(and_(*filters)) # apply filters to the query
+            result = query.all() if all else query.first() # fetch all courses or just the first one
+            
+            if all:
+                return [course.to_dict() for course in result] if result else [] # return a list of course dicts
+            
+            return result.to_dict() if result else None # return a single course dict or None
+
+    @staticmethod
+    def update(obj):
+        """
+        Updates a course in the database.
+
+        Args:
+        - obj: The course object to be updated.
+
+        Returns:
+        - dict: A dictionary representation of the updated course object.
+
+        """
+        pass
+
+    @staticmethod
+    def delete(**kwargs):
+        """
+        Deletes a course from the database.
 
         Args:
         - **kwargs: Additional keyword arguments for specifying query parameters.
