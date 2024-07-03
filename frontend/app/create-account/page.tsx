@@ -142,7 +142,7 @@ const CreateAccountPage: React.FC = () => {
             </div>
             <div
                 className="w-2/5 bg-black text-white rounded-tr-2xl rounded-br-2xl flex flex-col items-center justify-center py-28 px-12">
-              <h2 className="text-3xl font-bold mb-10">Log In</h2>
+              <h2 className="text-3xl font-bold mb-10">Login</h2>
               <div className="border-2 w-10 border-white inline-block mb-32"></div>
               <button
                   onClick={() => router.push("/login")}
