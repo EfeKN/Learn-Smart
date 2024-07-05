@@ -36,6 +36,8 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ closeModal })
           <button
             className="text-gray-600 hover:text-gray-800 focus:outline-none"
             onClick={closeModal}
+            type= "button"
+            title='Close Modal'
           >
             <svg
               className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
