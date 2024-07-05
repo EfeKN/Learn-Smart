@@ -13,7 +13,8 @@ class Course(Base):
     __tablename__ = 'courses'
 
     course_id = Column(Integer, primary_key=True, index=True)
-    course_name = Column(String(255), index=True)
+    course_name = Column(String(255), index=True) # e.g. Operating Systems
+    course_title = Column(String(16)) # e.g. CS 342
     description = Column(String(1024))
     user_id = Column(Integer, ForeignKey('users.user_id'))
 

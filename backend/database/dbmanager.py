@@ -7,6 +7,7 @@ from controllers import authentication as auth
 from modules.user.model import User
 from modules.chat.model import Chat
 from modules.course.model import Course
+
 class DatabaseInterface(ABC):
     """
     Interface for the database manager.
@@ -81,7 +82,6 @@ class DatabaseInterface(ABC):
         - NotImplementedError: This method should be implemented by subclasses.
         """
         pass
-
 
 class UserDB(DatabaseInterface):
     """
@@ -205,19 +205,24 @@ class ChatDB(DatabaseInterface):
     """
 
     @staticmethod
-    def create(course_id: int, title: str, history_url: str):
+    def create(course_id: int, title: str, history_url: str = None, slides_mode: bool = False, 
+               slides_fname: str = None, slides_furl: str = None):
         """
         Create a new chat object and save it in the database.
 
-        Args:
-            course_id (int): The ID of the course associated with the chat.
-            title (str): The title of the chat.
-            history_url (str): The URL of the chat's history.
+        Parameters:
+        - course_id (int): The ID of the course associated with the chat.
+        - title (str): The title of the chat.
+        - history_url (str, optional): The URL of the chat's history.
+        - slides_mode (bool, optional): Indicates whether the chat has slides.
+        - slides_fname (str, optional): The filename of the chat's slides.
+        - slides_furl (str, optional): The URL of the chat's slides.
 
         Returns:
-            dict: A dictionary representation of the created chat object.
+        - dict: A dictionary representation of the created chat object.
         """
-        chat = Chat(course_id=course_id, title=title, history_url=history_url)
+        chat = Chat(course_id=course_id, title=title, history_url=history_url,
+                    slides_mode=slides_mode, slides_fname=slides_fname, slides_furl=slides_furl)
         
         # save the chat object in the database
         with db_connection as db:
@@ -225,7 +230,7 @@ class ChatDB(DatabaseInterface):
             db.commit()
             db.refresh(chat)
 
-        return chat.to_dict()
+            return chat.to_dict()
 
     @staticmethod
     def fetch(**kwargs):
@@ -270,31 +275,42 @@ class ChatDB(DatabaseInterface):
             return result.to_dict() if result else None # return a single chat dict or None
 
     @staticmethod
-    def update(chat_id: int, title: str = None, history_url: str = None):
+    def update(chat_id: int, **kwargs):
         """
-        Update the chat with the given chat_id.
+        Update the chat details in the database.
 
         Args:
             chat_id (int): The ID of the chat to update.
-            title (str, optional): The new title for the chat. Defaults to None.
-            history_url (str, optional): The new history URL for the chat. Defaults to None.
+            **kwargs: Keyword arguments for the fields to update. Possible keyword arguments include:
+                - title (str): The new title for the chat.
+                - history_url (str): The new history URL for the chat.
+                - slides_fname (str): The new slides filename for the chat.
+                - slides_furl (str): The new slides file URL for the chat.
 
         Returns:
-            dict: A dictionary representation of the updated chat.
+            dict: A dictionary representing the updated chat details.
 
         Raises:
-            ValueError: If the chat with the given chat_id is not found.
+            ValueError: If the chat with the specified ID is not found in the database.
         """
+        title = kwargs.get("title", None)
+        history_url = kwargs.get("history_url", None)
+        slides_fname = kwargs.get("slides_fname", None) # get the new slides filename
+        slides_furl = kwargs.get("slides_furl", None) # get the new slides file URL
+
         with db_connection as db:
             chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
             if not chat:
                 raise ValueError(f"Chat with ID {chat_id} not found")
 
             if title:
-                chat.title = title
-                
+                chat.title = title                
             if history_url:
                 chat.history_url = history_url
+            if slides_fname:
+                chat.slides_fname = slides_fname
+            if slides_furl:
+                chat.slides_furl = slides_furl
 
             db.commit()
             db.refresh(chat)

@@ -32,7 +32,7 @@ export default function Home() {
     }
 
     // Send a POST request to the backend API
-    const res = await fetch("http://localhost:8000/api/genai/generate_response", {
+    const res = await fetch("http://localhost:8000/api/genai/send_message", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
