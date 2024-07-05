@@ -77,8 +77,14 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
             with open(dumped_generator_path, "w") as file:
                 file.write(dumped_generator)
 
-        except ValueError as e:
+        # Rollback changes
+        except ValueError as e: # If the file extension is invalid (file manager can't handle it)
+            ChatDB.delete(chat["chat_id"]) # Delete the chat from the database
             raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e: # Unsupported platform in slide_generator call
+            ChatDB.delete(chat["chat_id"])
+            file_manager.delete(slides_furl) # Delete the slides file
+            raise HTTPException(status_code=500, detail=str(e))
 
     ChatDB.update(chat["chat_id"], history_url=history_url, slides_fname=slides_fname,
                   slides_furl=slides_furl) # Update the chat in the database

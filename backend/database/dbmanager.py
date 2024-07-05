@@ -318,15 +318,23 @@ class ChatDB(DatabaseInterface):
             return chat.to_dict()
 
     @staticmethod
-    def delete(**kwargs):
+    def delete(chat_id: int):
         """
-        Deletes a chat from the database.
+        Deletes a chat from the database based on the provided chat_id.
 
         Args:
-        - **kwargs: Additional keyword arguments for specifying query parameters.
+            chat_id (int): The ID of the chat to be deleted.
 
+        Raises:
+            ValueError: If the chat with the provided chat_id is not found in the database.
         """
-        pass
+        with db_connection as db:
+            chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
+            if chat:
+                db.delete(chat)
+                db.commit()
+            else:
+                raise ValueError(f"Chat with ID {chat_id} not found")
 
 
 class CourseDB(DatabaseInterface):

@@ -9,7 +9,7 @@ A note on the file system storage schema:
 - The Chat model in database has a field called history_url, which poins to files in this directory.
 
 
-/backend/upload_files/ directory:
+/backend/files/ directory:
 This directory is formatted such that:
 - ./chat_<chat_id>/ directory:
     - contains files posted in the chat with the ID <chat_id>.

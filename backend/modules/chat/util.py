@@ -39,14 +39,13 @@ def slide_generator(path: str):
             PPTtoPDF(path, f"{name}.pdf")
 
         elif platform.system() == "Linux": # for Linux (and possibly macOS -- you need libreoffice installed)
-            print("Host OS: Linux")
             libreoffice_path = "/usr/bin/soffice"
 
             # create "name".pdf from "name".pptx
             outdir = os.path.dirname(path)
             subprocess.run([libreoffice_path, "--headless", "--convert-to", "pdf", "--outdir", outdir, path])
         else:
-            print("Unsupported platform.")
+            raise Exception("Unsupported platform")
 
     path = f"{name}.pdf"
     doc = pymupdf.open(path)
