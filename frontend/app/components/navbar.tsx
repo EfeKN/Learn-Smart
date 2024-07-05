@@ -5,22 +5,26 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
+
+// Import FlyoutMenu component
+import FlyoutMenu from "./flyout-menu";
 
 const Navbar = () => {
-  // State to toggle mobile navigation
   const [nav, setNav] = useState(false);
+  const router = useRouter();
 
-  // Navigation links data
-  // TODO: Replace with actual links
+  const handleLogout = () => {
+    Cookies.remove("authToken");
+    router.push("/login");
+  };
+
   const links = [
     {
       id: 1,
-      link: "home",
-    },
-    {
-      id: 2,
-      link: "profile",
-    },
+      link: "menu",
+    }
   ];
 
   return (
@@ -43,7 +47,13 @@ const Navbar = () => {
             key={id}
             className="nav-links px-4 cursor-pointer capitalize font-medium text-gray-500 hover:scale-105 hover:text-black duration-200 link-underline"
           >
-            <Link href={link}>{link}</Link>
+            {link === "logout" ? (
+              <a onClick={handleLogout}>{link}</a>
+            ) : link === "menu" ? (
+              <FlyoutMenu />
+            ) : (
+              <Link href={link}>{link}</Link>
+            )}
           </li>
         ))}
       </ul>
@@ -62,9 +72,15 @@ const Navbar = () => {
               key={id}
               className="px-4 cursor-pointer capitalize py-6 text-4xl"
             >
-              <Link onClick={() => setNav(!nav)} href={link}>
-                {link}
-              </Link>
+              {link === "logout" ? (
+                <a onClick={() => { setNav(!nav); handleLogout(); }}>{link}</a>
+              ) : link === "menu" ? (
+                <FlyoutMenu onClose={() => setNav(false)} />
+              ) : (
+                <Link onClick={() => setNav(!nav)} href={link}>
+                  {link}
+                </Link>
+              )}
             </li>
           ))}
         </ul>

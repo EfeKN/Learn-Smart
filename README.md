@@ -53,7 +53,7 @@ Use python 3.12.4
 
 # Database Example Setup Windows
 
-1. Download MySQL community edition
+1. Download MySQL community edition and shell
 
 2. Open MySQL Shell with Administrator
 
