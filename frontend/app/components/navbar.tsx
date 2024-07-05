@@ -8,27 +8,22 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
+// Import FlyoutMenu component
+import FlyoutMenu from "./flyout-menu";
+
 const Navbar = () => {
-  // State to toggle the application
   const [nav, setNav] = useState(false);
   const router = useRouter();
 
-  // Logout function
   const handleLogout = () => {
     Cookies.remove("authToken");
     router.push("/login");
   };
 
-  // Navigation links data
-    // TO-DO replace with links
   const links = [
     {
       id: 1,
-      link: "profile",
-    },
-    {
-      id: 2,
-      link: "logout",
+      link: "menu",
     }
   ];
 
@@ -54,6 +49,8 @@ const Navbar = () => {
           >
             {link === "logout" ? (
               <a onClick={handleLogout}>{link}</a>
+            ) : link === "menu" ? (
+              <FlyoutMenu />
             ) : (
               <Link href={link}>{link}</Link>
             )}
@@ -77,6 +74,8 @@ const Navbar = () => {
             >
               {link === "logout" ? (
                 <a onClick={() => { setNav(!nav); handleLogout(); }}>{link}</a>
+              ) : link === "menu" ? (
+                <FlyoutMenu onClose={() => setNav(false)} />
               ) : (
                 <Link onClick={() => setNav(!nav)} href={link}>
                   {link}
