@@ -1,20 +1,17 @@
 import React, { useState } from 'react';
 import Cookies from 'js-cookie';
+import { FaUser, FaCog } from 'react-icons/fa'; // Importing necessary icons
 
 const handleLogout = () => {
   Cookies.remove('authToken');
   window.location.href = '/login';
 };
 
-const navigateToNotifications = () => {
-    window.location.href = '/notifications';
-};
-
 const navigateToProfile = () => {
   window.location.href = '/profile';
 };
 
- const navigateToSettings = () => {
+const navigateToSettings = () => {
   window.location.href = '/settings';
 };
 
@@ -50,50 +47,31 @@ const FlyoutMenu = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-screen max-w-md md:max-w-3xl">
+        <div className="absolute right-0 mt-1.5 w-40">
           <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
-            <div className="relative bg-white px-5 py-6 sm:p-8">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center justify-center border-r-2 border-gray-300 pr-4">
-                  <a href="#" onClick={navigateToProfile} className="text-lg font-medium text-black hover:text-gray-900">
-                    Profile
-                  </a>
-                </div>
-                <div className="flex items-center justify-center">
-                  <a href="#" onClick={navigateToSettings} className="text-lg font-medium text-black hover:text-gray-900">
-                    Settings
-                  </a>
-                </div>
-              </div>
-              <div className="bg-gray-50 px-5 py-5 sm:px-8 sm:py-8 mt-4 rounded-md">
-                <button
-                    type="button"
-                    onClick={navigateToNotifications}
-                    className="text-lm font-medium text-black"
+            <div className="bg-gray-50 px-4 py-2 sm:p-4">
+              <div className="flex flex-col gap-1">
+                <a
+                  href="#"
+                  onClick={navigateToProfile}
+                  className="flex items-center text-base font-medium text-black hover:text-gray-900 py-2 px-4"
                 >
-                    <u>Notifications</u>
-                </button>
-                <ul className="mt-4 space-y-4">
-                  <li className="flex items-start">
-                    <img
-                        src="https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3603&q=80"
-                        alt="" className="h-20 w-20 rounded-md object-cover"/>
-                    <div className="ml-4">
-                      <p className="text-sm text-gray-500">
-                        <time dateTime="2023-03-16">July 6, 2024</time>
-                      </p>
-                      <a href="#" className="text-base font-medium text-gray-900 hover:text-gray-700">
-                        Example 1
-                      </a>
-                      <p className="mt-1 text-sm text-gray-500">Lorem Ipsum.</p>
-                    </div>
-                  </li>
-                </ul>
-              </div>
-              <div className="flex justify-end text-sm text-gray-500 mt-4">
-                <a href="#" onClick={handleLogout} className="hover:text-gray-700">
-                  Logout
+                  <FaUser className="w-4 h-4 mr-8" />
+                  Profile
                 </a>
+                <a
+                  href="#"
+                  onClick={navigateToSettings}
+                  className="flex items-center text-base font-medium text-black hover:text-gray-900 py-2 px-4"
+                >
+                  <FaCog className="w-4 h-4 mr-4" />
+                  Settings
+                </a>
+                <div className="flex justify-end text-sm text-gray-500 mt-0">
+                  <a href="#" onClick={handleLogout} className="hover:text-gray-700 py-2 px-4">
+                    Logout
+                  </a>
+                </div>
               </div>
             </div>
           </div>
