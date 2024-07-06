@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
 import Cookies from "js-cookie";
-import ForgotPasswordModal from "../components/forgotpassword";
+import ForgotPasswordModal from "../components/forgot-password";
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>(Cookies.get("emailCookie") || "");

@@ -7,9 +7,7 @@ import { useState } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
-
-// Import FlyoutMenu component
-import FlyoutMenu from "./flyout-menu";
+import FlyoutMenu from "../components/flyout-menu";
 
 const Navbar = () => {
   const [nav, setNav] = useState(false);
@@ -45,7 +43,7 @@ const Navbar = () => {
         {links.map(({ id, link }) => (
           <li
             key={id}
-            className="nav-links px-4 cursor-pointer capitalize font-medium text-gray-500 hover:scale-105 hover:text-black duration-200 link-underline"
+            className="nav-links px-4 cursor-pointer capitalize font-medium text-gray-500 link-underline"
           >
             {link === "logout" ? (
               <a onClick={handleLogout}>{link}</a>
