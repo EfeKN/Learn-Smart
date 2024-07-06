@@ -1,18 +1,19 @@
 "use client";
 
 import backendAPI from "@/environment/backend_api";
+import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
-import Cookies from "js-cookie";
 import ForgotPasswordModal from "../components/forgot-password";
 
-const LoginPage: React.FC = () => {
+export default function LoginPage() {
   const [email, setEmail] = useState<string>(Cookies.get("emailCookie") || "");
   const [password, setPassword] = useState<string>("");
   const [rememberMe, setRememberMe] = useState<boolean>(false);
-  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState<boolean>(false); // State for modal visibility
+  const [showForgotPasswordModal, setShowForgotPasswordModal] =
+    useState<boolean>(false); // State for modal visibility
   const router = useRouter();
 
   useEffect(() => {
@@ -40,15 +41,15 @@ const LoginPage: React.FC = () => {
   const handleLogin = async () => {
     const formData = {
       username: email,
-      password: password
+      password: password,
     };
 
     try {
       const response = await backendAPI.post("/users/login", formData, {
         headers: {
           Accept: "application/json",
-          "Content-Type": "application/x-www-form-urlencoded"
-        }
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       });
 
       if (response.status === 200) {
@@ -81,14 +82,18 @@ const LoginPage: React.FC = () => {
   return (
     <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center bg-gray-100 min-h-screen">
       {/* ForgotPasswordModal */}
-      {showForgotPasswordModal && <ForgotPasswordModal closeModal={closeModal} />}
+      {showForgotPasswordModal && (
+        <ForgotPasswordModal closeModal={closeModal} />
+      )}
       <div className="bg-white text-black rounded-2xl shadow-2xl flex w-2/3 max-w-4xl">
         <div className="w-3/5 p-5">
           <div className="text-left font-bold mb-12">
             <span className="text-blue-500">Learn</span>Smart
           </div>
           <div className="py-5">
-            <h2 className="text-3xl font-bold text-black-500 mb-2">Login to LearnSmart</h2>
+            <h2 className="text-3xl font-bold text-black-500 mb-2">
+              Login to LearnSmart
+            </h2>
           </div>
           <div className="border-2 w-10 border-black inline-block mb-2"></div>
           <div className="flex flex-col items-center">
@@ -116,11 +121,11 @@ const LoginPage: React.FC = () => {
           <div className="flex justify-between w-64 mb-4 mx-auto">
             <label className="flex items-center text-xs">
               <input
-                  type="checkbox"
-                  name="remember"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="mr-1"
+                type="checkbox"
+                name="remember"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="mr-1"
               />
               Remember Me
             </label>
@@ -129,8 +134,8 @@ const LoginPage: React.FC = () => {
             </button>
           </div>
           <button
-              onClick={handleLogin}
-              className="border-2 bg-white border-black text-black
+            onClick={handleLogin}
+            className="border-2 bg-white border-black text-black
               rounded-full px-12 py-2 inline-block font-semibold hover:bg-black hover:text-white"
           >
             Login
@@ -150,6 +155,4 @@ const LoginPage: React.FC = () => {
       </div>
     </main>
   );
-};
-
-export default LoginPage;
+}

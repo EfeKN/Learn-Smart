@@ -2,10 +2,10 @@
 
 "use client";
 
+import Navbar from "@/app/components/navbar";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
-import { useState, useEffect } from "react";
-import Navbar from "@/app/components/navbar";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
@@ -82,27 +82,27 @@ export default function Home() {
   };
 
   return (
-      <main>
-        <Navbar />
-        <div className="p-5">
-          <h1>Ask Gemini</h1>
-          <textarea
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-              rows={4}
-              cols={50}
-              placeholder="Enter your prompt here..."
-              className="block mb-5"
-          />
-          <button onClick={sendPrompt} className="mb-5" type="button">
-            Generate
-          </button>
-          <h2>Response:</h2>
-          <div
-              id="response"
-              className="whitespace-pre-wrap border border-gray-300 p-5 mt-5"
-          ></div>
-        </div>
-      </main>
+    <main>
+      <Navbar />
+      <div className="p-5">
+        <h1>Ask Gemini</h1>
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          rows={4}
+          cols={50}
+          placeholder="Enter your prompt here..."
+          className="block mb-5"
+        />
+        <button onClick={sendPrompt} className="mb-5" type="button">
+          Generate
+        </button>
+        <h2>Response:</h2>
+        <div
+          id="response"
+          className="whitespace-pre-wrap border border-gray-300 p-5 mt-5"
+        ></div>
+      </div>
+    </main>
   );
 }

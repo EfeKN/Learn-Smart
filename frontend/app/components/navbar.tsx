@@ -1,34 +1,33 @@
-// components/Navbar.js
-import React, { useState } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { FaBars, FaTimes } from 'react-icons/fa';
-import { useRouter } from 'next/navigation';
-import Cookies from 'js-cookie';
-import FlyoutMenu from '../components/flyout-menu';
-import Notifications from '../components/notifications';
+import Cookies from "js-cookie";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { FaBars, FaTimes } from "react-icons/fa";
+import FlyoutMenu from "../components/flyout-menu";
+import Notifications from "../components/notifications";
 
-import logo from '@/assets/logo.png';
+import logo from "@/assets/logo.png";
 
-const Navbar = () => {
+export default function Navbar() {
   const [nav, setNav] = useState(false);
   const router = useRouter();
 
   const handleLogout = () => {
-    Cookies.remove('authToken');
-    router.push('/login');
+    Cookies.remove("authToken");
+    router.push("/login");
   };
 
   const links = [
     {
       id: 1,
-      name: 'Notifications',
-      link: 'notifications',
+      name: "Notifications",
+      link: "notifications",
     },
     {
       id: 2,
-      name: 'Menu',
-      link: 'menu',
+      name: "Menu",
+      link: "menu",
     },
     // Add other links as needed
   ];
@@ -54,9 +53,9 @@ const Navbar = () => {
             key={id}
             className="nav-links px-4 cursor-pointer capitalize font-medium text-gray-500 link-underline"
           >
-            {link === 'menu' ? (
+            {link === "menu" ? (
               <FlyoutMenu />
-            ) : link === 'notifications' ? (
+            ) : link === "notifications" ? (
               <Notifications />
             ) : (
               <Link href={`/${link}`}>
@@ -79,10 +78,13 @@ const Navbar = () => {
       {nav && (
         <ul className="flex flex-col justify-center items-center absolute top-0 left-0 w-full h-screen bg-gradient-to-b from-white to-gray-800 text-gray-500">
           {links.map(({ id, name, link }) => (
-            <li key={id} className="px-4 cursor-pointer capitalize py-6 text-4xl">
-              {link === 'menu' ? (
+            <li
+              key={id}
+              className="px-4 cursor-pointer capitalize py-6 text-4xl"
+            >
+              {link === "menu" ? (
                 <FlyoutMenu onClose={() => setNav(false)} />
-              ) : link === 'notifications' ? (
+              ) : link === "notifications" ? (
                 <Notifications />
               ) : (
                 <Link onClick={() => setNav(!nav)} href={`/${link}`}>
@@ -95,6 +97,4 @@ const Navbar = () => {
       )}
     </div>
   );
-};
-
-export default Navbar;
+}

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-const HomePage: React.FC = () => {
+export default function HomePage() {
   const router = useRouter();
 
   useEffect(() => {
@@ -16,10 +16,8 @@ const HomePage: React.FC = () => {
   }, [router]);
 
   return (
-        <div>
-          <h1>Redirecting to login...</h1>
-        </div>
+    <div>
+      <h1>Redirecting to login...</h1>
+    </div>
   );
-};
-
-export default HomePage;
+}

@@ -1,18 +1,18 @@
-import React, { useState } from 'react';
-import Cookies from 'js-cookie';
-import { FaUser, FaCog } from 'react-icons/fa'; // Importing necessary icons
+import Cookies from "js-cookie";
+import { useState } from "react";
+import { FaCog, FaUser } from "react-icons/fa";
 
 const handleLogout = () => {
-  Cookies.remove('authToken');
-  window.location.href = '/login';
+  Cookies.remove("authToken");
+  window.location.href = "/login";
 };
 
 const navigateToProfile = () => {
-  window.location.href = '/profile';
+  window.location.href = "/profile";
 };
 
 const navigateToSettings = () => {
-  window.location.href = '/settings';
+  window.location.href = "/settings";
 };
 
 const FlyoutMenu = () => {
@@ -26,7 +26,9 @@ const FlyoutMenu = () => {
     <div className="relative z-50">
       <button
         type="button"
-        className={`inline-flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900 ${isOpen ? 'active' : ''}`}
+        className={`inline-flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900 ${
+          isOpen ? "active" : ""
+        }`}
         aria-expanded={isOpen}
         onClick={toggleMenu}
       >
@@ -36,7 +38,9 @@ const FlyoutMenu = () => {
           viewBox="0 0 20 20"
           fill="currentColor"
           aria-hidden="true"
-          className={`h-5 w-5 transform transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`}
+          className={`h-5 w-5 transform transition-transform duration-300 ${
+            isOpen ? "rotate-180" : "rotate-0"
+          }`}
         >
           <path
             fillRule="evenodd"
@@ -68,7 +72,11 @@ const FlyoutMenu = () => {
                   Settings
                 </a>
                 <div className="flex justify-end text-sm text-gray-500 mt-0">
-                  <a href="#" onClick={handleLogout} className="hover:text-gray-700 py-2 px-4">
+                  <a
+                    href="#"
+                    onClick={handleLogout}
+                    className="hover:text-gray-700 py-2 px-4"
+                  >
                     Logout
                   </a>
                 </div>
