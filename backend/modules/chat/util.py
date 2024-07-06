@@ -16,50 +16,50 @@ def slide_generator(path: str):
         PIL.Image.Image: The image of each slide.
     """
 
-    # the uploaded file is first converted to pdf, then each slide is extracted as an image
-    name, extension = path.rsplit(".", 1)
-
-    if extension == "pptx": # we are going to convert the pptx file to pdf
-
-        if platform.system() == "Windows": # for Windows
+    def convert_pptx_to_pdf(input_path, output_path):
+        system = platform.system()
+        if system == "Windows":
             import comtypes.client
-
-            def PPTtoPDF(inputFileName, outputFileName, formatType = 32):
-                powerpoint = comtypes.client.CreateObject("Powerpoint.Application")
-                powerpoint.Visible = 1
-
-                if outputFileName[-3:] != 'pdf':
-                    outputFileName = outputFileName + ".pdf"
-
-                deck = powerpoint.Presentations.Open(inputFileName)
-                deck.SaveAs(outputFileName, formatType) # formatType = 32 for ppt to pdf
-                deck.Close()
-                powerpoint.Quit()
-
-            PPTtoPDF(path, f"{name}.pdf")
-
-        elif platform.system() == "Linux": # for Linux (and possibly macOS -- you need libreoffice installed)
-            libreoffice_path = "/usr/bin/soffice"
-
-            # create "name".pdf from "name".pptx
-            outdir = os.path.dirname(path)
-            subprocess.run([libreoffice_path, "--headless", "--convert-to", "pdf", "--outdir", outdir, path])
+            powerpoint = comtypes.client.CreateObject("Powerpoint.Application")
+            powerpoint.Visible = 1
+            deck = powerpoint.Presentations.Open(input_path)
+            deck.SaveAs(output_path, 32)
+            deck.Close()
+            powerpoint.Quit()
+        elif system == "Linux" or system == "Darwin":
+            subprocess.run(["soffice", "--headless", "--convert-to", "pdf", "--outdir", os.path.dirname(input_path), input_path])
         else:
-            raise Exception("Unsupported platform")
+            raise Exception(f"Unsupported operating system: {system}")
 
-    path = f"{name}.pdf"
+    name, extension = os.path.splitext(path)
+    if extension == ".pptx":
+        convert_pptx_to_pdf(path, f"{name}.pdf")
+        path = f"{name}.pdf"
+
     doc = pymupdf.open(path)
-
-
-    base_filename = os.path.splitext(os.path.basename(path))[0]
     base_dirname = os.path.dirname(path)
 
     for page in doc:
         pix = page.get_pixmap()
-        
-        fname = f"{generate_hash(base_filename, strategy="uuid")}.png" # generate a unique name for the temporary image file
-        fname = os.path.join(base_dirname, fname)
-        pix.save(fname, "png") # save the slide as an image, temporarily
-        img = Image.open(fname)
+        unique_filename = f"{generate_hash(name, strategy="uuid")}.png"
+        img_path = os.path.join(base_dirname, unique_filename)
+        pix.save(img_path, "png")
+        with Image.open(img_path) as img:
+            yield img_path, img
 
-        yield fname, img
+    doc.close()
+
+
+def get_chat_filenames(user_id: int, course_id: int, chat_id: int):
+    fname_prefix = f"user_{user_id}_course_{course_id}_chat_{chat_id}"
+    fname = generate_hash(fname_prefix)
+
+    # return chat history file name, metadata file name
+    return f"{fname}.txt", f"{fname}_metadata.json"
+
+
+def get_generator_path(slides_path: str):
+    return os.path.splitext(slides_path)[0] + "_generator.txt"
+
+def get_chat_metadata_path(history_path: str):
+    return os.path.splitext(history_path)[0] + "_metadata.json"
