@@ -50,13 +50,16 @@ def slide_generator(path: str):
     path = f"{name}.pdf"
     doc = pymupdf.open(path)
 
+
+    base_filename = os.path.splitext(os.path.basename(path))[0]
+    base_dirname = os.path.dirname(path)
+
     for page in doc:
         pix = page.get_pixmap()
         
-        fname = f"{generate_hash(name, strategy="uuid")}.png" # generate a unique name for the temporary image file
+        fname = f"{generate_hash(base_filename, strategy="uuid")}.png" # generate a unique name for the temporary image file
+        fname = os.path.join(base_dirname, fname)
         pix.save(fname, "png") # save the slide as an image, temporarily
         img = Image.open(fname)
 
-        os.remove(fname) # remove the temporary image file after it's loaded
-
-        yield img
+        yield fname, img

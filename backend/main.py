@@ -12,9 +12,9 @@ from tools import create_tables, setup
 
 from logger import logger
 
-__DROP__ = True # flag variable to drop tables, must be set when the database schema changes
-                # reset to False after the first run, otherwise the database will be reset every
-                # time the server starts.
+__DROP__ = False # flag variable to drop tables, must be set when the database schema changes
+                 # reset to False after the first run, otherwise the database will be reset every
+                 # time the server starts.
 
 app = FastAPI()  # create the FastAPI app
 

@@ -4,9 +4,10 @@ Date: July 5
 
 A note on the file system storage schema:
 
-/backend/chats/ directory:
+/backend/chats_histories/ directory:
 - This directory is to keep chat histories of each chat. 
 - The Chat model in database has a field called history_url, which poins to files in this directory.
+- We also have <history_url>_metadata.json; which contains info about chat histories, e.g. the URLs of the files uploaded.
 
 
 /backend/files/ directory:
