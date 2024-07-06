@@ -6,7 +6,7 @@ from passlib.context import CryptContext
 load_dotenv()
 
 # file uploads path
-FILES_PATH = os.getenv("FILES_PATH")
+FILES_DIR = os.getenv("FILES_DIR")
 
 # authentication
 SECRET_KEY = os.getenv("SECRET_KEY")

@@ -1,0 +1,35 @@
+Author: Bilginer Oral
+Date: July 5
+---------------------------------------------------------------------------------
+
+A note on the file system storage schema:
+
+/backend/chats/ directory:
+- This directory is to keep chat histories of each chat. 
+- The Chat model in database has a field called history_url, which poins to files in this directory.
+
+
+/backend/files/ directory:
+This directory is formatted such that:
+- ./chat_<chat_id>/ directory:
+    - contains files posted in the chat with the ID <chat_id>.
+    - For example, I upload an image on chat with ID 6, it'll be stored in ./chat_6/ directory
+    - If the chat is in slides-mode, for the uploaded presentation there also exists a jsonpickle dump file, with name <hashed_filename>_generator.txt
+- ./user_<user_id>/ directory:
+    - This directory keeps users' files, such as syllabi.
+
+
+---------------------------------------------------------------------------------
+
+A note on filename hashing:
+- If the chat is in slides-mode, there slide file's name will be hashed. jsonpickle dump file associated with that file will have the same name except that it ends with the suffix "_generator.txt"
+- Files (except a chat's presentation) uploaded to chats are hashed based on timestamps, and the original file name is appended end of to the hashed value, e.g. <TIMESTAMP>_<original_file_name>.<extension>. This way ensures unique naming and easier file retrieval.
+
+---------------------------------------------------------------------------------
+
+Note on hashing:
+
+chat-history files are hashed using SHA256 algorithm, with the string to be hashed following this convention:
+user_{user_id}_course_{course_id}_chat_{chat_id}
+
+which yields unique names for chat histories.

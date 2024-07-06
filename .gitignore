@@ -23,6 +23,8 @@
 /backend/pyvenv.cfg
 /backend/upload_files/
 /backend/chats/
+/backend/chat_histories
+/backend/files
 __pycache__
 backend/.env
 

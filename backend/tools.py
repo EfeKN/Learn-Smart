@@ -1,12 +1,21 @@
 import hashlib
+import time
+import uuid
 import os
 import dotenv
 
 from database.connection import db_connection
 
-# Function to generate SHA-256 hash of a given string
-def generate_hash(filename):
-    return hashlib.sha256(filename.encode()).hexdigest()
+# Function to generate hash of a given string based on the strategy
+def generate_hash(filename, strategy="sha256"):
+    if strategy == "sha256":
+        return hashlib.sha256(filename.encode()).hexdigest() # generate a SHA-256 hash
+    elif strategy == "uuid":
+        return uuid.uuid4().hex # generate a random UUID
+    elif strategy == "timestamp":
+        return f"{int(time.time())}_{filename}" # generate a timestamp based hash
+    else:
+        raise ValueError("Invalid strategy provided. Please use 'sha256' or 'uuid'.")
 
 
 # Invoke the db_connection to create tables
@@ -17,14 +26,13 @@ def create_tables(drop: bool = False):
 
 
 def setup():
-
     dotenv.load_dotenv()
 
-    CHATS_DIR = os.getenv("CHATS_DIR", "./chats")
-    FILES_PATH = os.getenv("FILES_PATH", "./upload_files")
+    CHATS_DIR = os.getenv("CHATS_DIR", "./chat_histories")
+    FILES_DIR = os.getenv("FILES_DIR", "./files")
 
     if not os.path.exists(CHATS_DIR):
         os.makedirs(CHATS_DIR)
 
-    if not os.path.exists(FILES_PATH):
-        os.makedirs(FILES_PATH)
+    if not os.path.exists(FILES_DIR):
+        os.makedirs(FILES_DIR)

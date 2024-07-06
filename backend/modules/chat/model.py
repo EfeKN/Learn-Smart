@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, DateTime, String, func
+from sqlalchemy import Column, Integer, ForeignKey, DateTime, String, func,  Boolean
 from sqlalchemy.orm import relationship
 
 from database.connection import db_connection
@@ -15,6 +15,11 @@ class Chat(Base):
     title = Column(String(150), nullable=False)
     course_id = Column(Integer, ForeignKey('courses.course_id'))
     history_url = Column(String(255))
+
+    slides_mode = Column(Boolean, default=False)
+    slides_fname = Column(String(255), nullable=True) # slides file name, e.g. Lecture_1.pptx
+    slides_furl = Column(String(255), nullable=True) # slides file URL, e.g. ./.../<ffb1e29cc1...>.pptx
+
     started_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # quiz relationships, quiz URLs, might be added here
@@ -33,5 +38,8 @@ class Chat(Base):
             "title": self.title,
             "course_id": self.course_id,
             "history_url": self.history_url,
+            "slides_mode": self.slides_mode,
+            "slides_fname": self.slides_fname,
+            "slides_furl": self.slides_furl,
             "started_at": self.started_at
         }
