@@ -1,5 +1,3 @@
-// src/app/components/ForgotPasswordModal.tsx
-
 import React, { useState } from 'react';
 import { FaRegEnvelope } from 'react-icons/fa';
 
