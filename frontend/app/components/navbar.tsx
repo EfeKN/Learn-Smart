@@ -6,7 +6,7 @@ import { FaBars, FaTimes } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
 import FlyoutMenu from '../components/flyout-menu';
-import Notifications from '../components/notifications'; // Import Notifications component
+import Notifications from '../components/notifications';
 
 import logo from '@/assets/logo.png';
 

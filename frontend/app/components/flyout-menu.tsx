@@ -47,16 +47,16 @@ const FlyoutMenu = () => {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-3 w-56">
+        <div className="absolute right-0 mt-1.5 w-40">
           <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
-            <div className="bg-white px-4 py-2 sm:p-4">
+            <div className="bg-gray-50 px-4 py-2 sm:p-4">
               <div className="flex flex-col gap-1">
                 <a
                   href="#"
                   onClick={navigateToProfile}
                   className="flex items-center text-base font-medium text-black hover:text-gray-900 py-2 px-4"
                 >
-                  <FaUser className="w-4 h-4 mr-5" />
+                  <FaUser className="w-4 h-4 mr-8" />
                   Profile
                 </a>
                 <a
@@ -64,7 +64,7 @@ const FlyoutMenu = () => {
                   onClick={navigateToSettings}
                   className="flex items-center text-base font-medium text-black hover:text-gray-900 py-2 px-4"
                 >
-                  <FaCog className="w-4 h-4 mr-5" />
+                  <FaCog className="w-4 h-4 mr-4" />
                   Settings
                 </a>
                 <div className="flex justify-end text-sm text-gray-500 mt-0">
