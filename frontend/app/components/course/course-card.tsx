@@ -19,7 +19,7 @@ const CourseCard = ({ site }) => {
   };
 
   return (
-    <div
+    <button
       className="course-card flex flex-col items-center p-4 bg-red-500 shadow-lg relative overflow-hidden"
       onMouseEnter={handleHover}
       onMouseLeave={handleLeave}
@@ -30,18 +30,12 @@ const CourseCard = ({ site }) => {
       </div>
       <div className="mt-2 text-white font-semibold">{site.name}</div>
 
-      <div className={`overlay-content ${hovered ? "active" : ""}`}>
-        <div className="overlay-text">{site.name}</div>
+      <div className={`overlay-content ${hovered ? 'active' : ''}`}>
+        <div className="overlay-text">
+          {site.name}
+        </div>
       </div>
-
-      <button
-        className={`absolute top-0 left-0 w-full h-full ${
-          hovered ? "hidden" : "block"
-        }`}
-        onClick={handleClick}
-        title="Go to course homepage"
-      ></button>
-    </div>
+    </button>
   );
 };
 
