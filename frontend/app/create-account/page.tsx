@@ -149,6 +149,7 @@ export default function CreateAccountPage() {
           <button
             onClick={handleCreateAccount}
             className="border-2 bg-white border-black text-black rounded-full px-12 py-2 inline-block font-semibold hover:bg-black hover:text-white"
+            type="button"
           >
             Create Account
           </button>
@@ -159,6 +160,7 @@ export default function CreateAccountPage() {
           <button
             onClick={() => router.push("/login")}
             className="border-2 text-white border-white bg-black rounded-full px-12 py-2 inline-block font-semibold hover:bg-white hover:text-black"
+            type="button"
           >
             Back to Login
           </button>

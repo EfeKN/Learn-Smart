@@ -2,6 +2,7 @@
 
 "use client";
 
+import CoursePreview from "@/app/components/course/course-preview";
 import Navbar from "@/app/components/navbar";
 import DOMPurify from "dompurify";
 import { marked } from "marked";

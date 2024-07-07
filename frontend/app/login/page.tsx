@@ -1,12 +1,12 @@
 "use client";
 
+import ForgotPasswordModal from "@/app/components/modals/forgot-password";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
-import ForgotPasswordModal from "../components/forgot-password";
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>(Cookies.get("emailCookie") || "");
@@ -26,7 +26,7 @@ export default function LoginPage() {
     // Redirect to homepage if already logged in
     const authToken = Cookies.get("authToken");
     if (authToken) {
-      router.push("/genai");
+      router.push("/home-page");
     }
   }, [router]);
 
@@ -67,7 +67,7 @@ export default function LoginPage() {
           Cookies.remove("emailCookie");
         }
 
-        router.push("/genai");
+        router.push("/home-page");
       }
     } catch (error) {
       console.error("Login error:", error);
@@ -129,7 +129,11 @@ export default function LoginPage() {
               />
               Remember Me
             </label>
-            <button className="text-xs" onClick={handleForgotPasswordClick}>
+            <button
+              className="text-xs"
+              onClick={handleForgotPasswordClick}
+              type="button"
+            >
               Forgot Password?
             </button>
           </div>
@@ -137,6 +141,7 @@ export default function LoginPage() {
             onClick={handleLogin}
             className="border-2 bg-white border-black text-black
               rounded-full px-12 py-2 inline-block font-semibold hover:bg-black hover:text-white"
+            type="button"
           >
             Login
           </button>
@@ -144,10 +149,11 @@ export default function LoginPage() {
         <div className="w-2/5 bg-black text-white rounded-tr-2xl rounded-br-2xl flex flex-col items-center justify-center py-28 px-12">
           <h2 className="text-3xl font-bold mb-10">Create Account</h2>
           <div className="border-2 w-10 border-white inline-block mb-32"></div>
-          <div className="mb-1"></div>
+          <div className="mb-1.5"></div>
           <button
             onClick={handleCreateAccount}
             className="border-2 text-white border-white bg-black rounded-full px-12 py-2 inline-block font-semibold hover:bg-white hover:text-black"
+            type="button"
           >
             Create Account
           </button>

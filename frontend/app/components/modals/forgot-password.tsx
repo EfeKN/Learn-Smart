@@ -38,7 +38,7 @@ export default function ForgotPasswordModal(
       <div className="bg-white p-8 md:p-12 rounded-lg shadow-xl max-w-md w-full">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold text-gray-900">
-            Forgot Passwords
+            Forgot Password
           </h2>
           <button
             className="text-gray-600 hover:text-gray-800 focus:outline-none"
