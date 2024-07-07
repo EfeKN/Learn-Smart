@@ -14,7 +14,7 @@ const navigateToSettings = () => {
   window.location.href = "/settings";
 };
 
-export default function FlyoutMenu({ isOpen }) {
+export default function FlyoutMenu({ isOpen }: { isOpen: boolean }) {
   if (!isOpen) return null;
 
   return (

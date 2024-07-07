@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import '@/app/style/course-card.css';
+import "@/app/style/course-card.css";
+import { useState } from "react";
 
-const CourseCard = ({ site }) => {
+const CourseCard = ({ site }: { site: any }) => {
   const [hovered, setHovered] = useState(false);
 
   const handleHover = () => {
@@ -14,7 +14,7 @@ const CourseCard = ({ site }) => {
 
   const handleClick = () => {
     // Redirect to the course's homepage when clicked
-    window.location = '/course'; // Replace with your actual route
+    window.location = "/course"; // TODO: Replace with your actual route
   };
 
   return (
@@ -28,17 +28,17 @@ const CourseCard = ({ site }) => {
       </div>
       <div className="mt-2 text-white font-semibold">{site.name}</div>
 
-      <div className={`overlay-content ${hovered ? 'active' : ''}`}>
-        <div className="overlay-text">
-          {site.name}
-        </div>
+      <div className={`overlay-content ${hovered ? "active" : ""}`}>
+        <div className="overlay-text">{site.name}</div>
       </div>
 
       <button
-        className={`absolute top-0 left-0 w-full h-full ${hovered ? 'hidden' : 'block'}`}
+        className={`absolute top-0 left-0 w-full h-full ${
+          hovered ? "hidden" : "block"
+        }`}
         onClick={handleClick}
-      >
-      </button>
+        title="Go to course homepage"
+      ></button>
     </div>
   );
 };
