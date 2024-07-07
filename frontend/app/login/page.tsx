@@ -144,7 +144,7 @@ export default function LoginPage() {
         <div className="w-2/5 bg-black text-white rounded-tr-2xl rounded-br-2xl flex flex-col items-center justify-center py-28 px-12">
           <h2 className="text-3xl font-bold mb-10">Create Account</h2>
           <div className="border-2 w-10 border-white inline-block mb-32"></div>
-          <div className="mb-1"></div>
+          <div className="mb-1.5"></div>
           <button
             onClick={handleCreateAccount}
             className="border-2 text-white border-white bg-black rounded-full px-12 py-2 inline-block font-semibold hover:bg-white hover:text-black"

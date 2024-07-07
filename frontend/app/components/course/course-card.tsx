@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import '@/app/style/course-card.css';
+import { useRouter } from 'next/navigation';
 
 const CourseCard = ({ site }) => {
   const [hovered, setHovered] = useState(false);
+  const router = useRouter();
 
   const handleHover = () => {
     setHovered(true);
@@ -13,15 +15,15 @@ const CourseCard = ({ site }) => {
   };
 
   const handleClick = () => {
-    // Redirect to the course's homepage when clicked
-    window.location = '/course'; // Replace with your actual route
+    router.push(`/course/${site.id}`);
   };
 
   return (
-    <div
+    <button
       className="course-card flex flex-col items-center p-4 bg-red-500 shadow-lg relative overflow-hidden"
       onMouseEnter={handleHover}
       onMouseLeave={handleLeave}
+      onClick={handleClick}
     >
       <div className="bg-white rounded-lg p-2">
         <img src={site.icon} alt={site.name} className="h-16 w-16" />
@@ -33,13 +35,7 @@ const CourseCard = ({ site }) => {
           {site.name}
         </div>
       </div>
-
-      <button
-        className={`absolute top-0 left-0 w-full h-full ${hovered ? 'hidden' : 'block'}`}
-        onClick={handleClick}
-      >
-      </button>
-    </div>
+    </button>
   );
 };
 

@@ -86,7 +86,6 @@ export default function Home() {
     <main>
       <Navbar />
       <div className="p-5">
-        <CoursePreview />
         <h1>Ask Gemini</h1>
         <textarea
           value={prompt}
