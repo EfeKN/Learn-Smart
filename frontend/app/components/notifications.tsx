@@ -1,4 +1,4 @@
-export default function Notifications({ isOpen }) {
+export default function Notifications({ isOpen }: { isOpen: boolean }) {
   const handleSeeMoreClick = () => {
     window.location.href = "/notifications"; // Navigate to notifications page
   };
@@ -8,7 +8,11 @@ export default function Notifications({ isOpen }) {
   if (!isOpen) return null;
 
   return (
-    <div className={`relative transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}>
+    <div
+      className={`relative transition-opacity duration-300 ${
+        isOpen ? "opacity-100" : "opacity-0"
+      }`}
+    >
       <div className="absolute right-0 mt-2 w-screen max-w-3xl">
         <div className="bg-gray-50 px-5 py-5 sm:px-8 sm:py-8 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 border-b border-black">
           <div className="flex justify-between items-center mb-4">

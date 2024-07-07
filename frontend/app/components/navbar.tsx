@@ -23,15 +23,17 @@ export default function Navbar() {
   const links = [
     {
       id: 1,
-      link: "notifications"
+      name: "notifications",
+      link: "notifications",
     },
     {
       id: 2,
-      link: "menu"
+      name: "menu",
+      link: "menu",
     },
   ];
 
-  const handleMenuClick = (menu) => {
+  const handleMenuClick = (menu: any) => {
     setCurrentMenu(currentMenu === menu ? null : menu);
   };
 
@@ -86,7 +88,10 @@ export default function Navbar() {
                     />
                   </svg>
                 </button>
-                <FlyoutMenu isOpen={currentMenu === "menu"} onClose={() => setCurrentMenu(null)} />
+                <FlyoutMenu
+                  isOpen={currentMenu === "menu"}
+                  onClose={() => setCurrentMenu(null)}
+                />
               </>
             ) : link === "notifications" ? (
               <>
@@ -97,11 +102,19 @@ export default function Navbar() {
                 >
                   <HiMiniBell className="h-5 w-5" />
                 </button>
-                <Notifications isOpen={currentMenu === "notifications"} onClose={() => setCurrentMenu(null)} />
+                <Notifications
+                  isOpen={currentMenu === "notifications"}
+                  onClose={() => setCurrentMenu(null)}
+                />
               </>
             ) : (
               <Link href={`/${link}`}>
-                <a className="text-lm font-medium text-black" onClick={handleLinkClick}>{name}</a>
+                <a
+                  className="text-lm font-medium text-black"
+                  onClick={handleLinkClick}
+                >
+                  {name}
+                </a>
               </Link>
             )}
           </li>
@@ -128,16 +141,24 @@ export default function Navbar() {
               {link === "menu" ? (
                 <>
                   <button className="text-4xl">Menu</button>
-                  <FlyoutMenu isOpen={currentMenu === "menu"} onClose={() => setCurrentMenu(null)} />
+                  <FlyoutMenu
+                    isOpen={currentMenu === "menu"}
+                    onClose={() => setCurrentMenu(null)}
+                  />
                 </>
               ) : link === "notifications" ? (
                 <>
                   <button className="text-4xl">Notifications</button>
-                  <Notifications isOpen={currentMenu === "notifications"} onClose={() => setCurrentMenu(null)} />
+                  <Notifications
+                    isOpen={currentMenu === "notifications"}
+                    onClose={() => setCurrentMenu(null)}
+                  />
                 </>
               ) : (
                 <Link href={`/${link}`}>
-                  <a className="text-4xl" onClick={handleLinkClick}>{name}</a>
+                  <a className="text-4xl" onClick={handleLinkClick}>
+                    {name}
+                  </a>
                 </Link>
               )}
             </li>

@@ -1,12 +1,12 @@
 "use client";
 
+import ForgotPasswordModal from "@/app/components/modals/forgot-password";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
-import ForgotPasswordModal from "@/app/components/modals/forgot-password";
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>(Cookies.get("emailCookie") || "");
@@ -129,7 +129,11 @@ export default function LoginPage() {
               />
               Remember Me
             </label>
-            <button className="text-xs" onClick={handleForgotPasswordClick}>
+            <button
+              className="text-xs"
+              onClick={handleForgotPasswordClick}
+              type="button"
+            >
               Forgot Password?
             </button>
           </div>
@@ -137,6 +141,7 @@ export default function LoginPage() {
             onClick={handleLogin}
             className="border-2 bg-white border-black text-black
               rounded-full px-12 py-2 inline-block font-semibold hover:bg-black hover:text-white"
+            type="button"
           >
             Login
           </button>
@@ -148,6 +153,7 @@ export default function LoginPage() {
           <button
             onClick={handleCreateAccount}
             className="border-2 text-white border-white bg-black rounded-full px-12 py-2 inline-block font-semibold hover:bg-white hover:text-black"
+            type="button"
           >
             Create Account
           </button>

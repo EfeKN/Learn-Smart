@@ -3,7 +3,7 @@ import { FaCog, FaUser } from "react-icons/fa";
 import {useRouter} from "next/navigation";
 
 
-export default function FlyoutMenu({ isOpen }) {
+export default function FlyoutMenu({ isOpen }: { isOpen: boolean }) {
   if (!isOpen) return null;
   const router = useRouter();
   const handleLogout = () => {

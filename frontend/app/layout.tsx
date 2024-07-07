@@ -1,4 +1,3 @@
-// Import type and necessary modules
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -11,7 +10,6 @@ export const metadata: Metadata = {
     "Learn Smart is a platform aimed at helping students learn more effectively.",
 };
 
-// Define props interface for RootLayout
 interface RootLayoutProps {
   children: React.ReactNode;
 }

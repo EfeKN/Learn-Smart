@@ -1,7 +1,7 @@
 "use client";
 
-import Navbar from "@/app/components/navbar";
 import CoursePreview from "@/app/components/course/course-preview";
+import Navbar from "@/app/components/navbar";
 
 export default function HomePage() {
   return (
