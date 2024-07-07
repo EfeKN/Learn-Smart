@@ -1,7 +1,11 @@
+import React, { useState } from 'react';
 import "@/app/style/course-preview.css";
 import CourseCard from "./course-card"; // Adjust path as necessary
+import CreateCourseModal from "../modals/create-course-modal";
 
 export default function CoursePreview() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const topSites = [
     {
       id: 1,
@@ -18,11 +22,14 @@ export default function CoursePreview() {
         <CourseCard key={site.id} site={site} />
       ))}
       <button
-        onClick={() => alert("Add new site functionality not implemented")}
+        onClick={() => setIsModalOpen(true)}
         className="course-card flex items-center justify-center w-48 h-32 bg-gray-200 shadow-lg text-gray-500 text-lg"
       >
         + Add Course
       </button>
+      <CreateCourseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Site">
+        <p>This is a modal content.</p>
+      </CreateCourseModal>
     </div>
   );
 }
