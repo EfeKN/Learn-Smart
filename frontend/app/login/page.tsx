@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
-import ForgotPasswordModal from "../components/forgot-password";
+import ForgotPasswordModal from "@/app/components/modals/forgot-password";
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>(Cookies.get("emailCookie") || "");
@@ -26,7 +26,7 @@ export default function LoginPage() {
     // Redirect to homepage if already logged in
     const authToken = Cookies.get("authToken");
     if (authToken) {
-      router.push("/genai");
+      router.push("/home-page");
     }
   }, [router]);
 
@@ -67,7 +67,7 @@ export default function LoginPage() {
           Cookies.remove("emailCookie");
         }
 
-        router.push("/genai");
+        router.push("/home-page");
       }
     } catch (error) {
       console.error("Login error:", error);

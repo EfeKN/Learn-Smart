@@ -8,9 +8,11 @@ import FlyoutMenu from "../components/flyout-menu";
 import Notifications from "../components/notifications";
 
 import logo from "@/assets/logo.png";
+import { HiMiniBell } from "react-icons/hi2";
 
 export default function Navbar() {
   const [nav, setNav] = useState(false);
+  const [currentMenu, setCurrentMenu] = useState(null);
   const router = useRouter();
 
   const handleLogout = () => {
@@ -21,16 +23,22 @@ export default function Navbar() {
   const links = [
     {
       id: 1,
-      name: "Notifications",
-      link: "notifications",
+      link: "notifications"
     },
     {
       id: 2,
-      name: "Menu",
-      link: "menu",
+      link: "menu"
     },
-    // Add other links as needed
   ];
+
+  const handleMenuClick = (menu) => {
+    setCurrentMenu(currentMenu === menu ? null : menu);
+  };
+
+  const handleLinkClick = () => {
+    setCurrentMenu(null);
+    setNav(false);
+  };
 
   return (
     <div className="flex justify-between items-center w-full h-20 px-4 text-black bg-white nav">
@@ -52,14 +60,48 @@ export default function Navbar() {
           <li
             key={id}
             className="nav-links px-4 cursor-pointer capitalize font-medium text-gray-500 link-underline"
+            onClick={() => handleMenuClick(link)}
           >
             {link === "menu" ? (
-              <FlyoutMenu />
+              <>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-x-1 text-sm font-semibold leading-6 text-gray-900"
+                >
+                  <u>Menu</u>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    aria-hidden="true"
+                    className={`h-5 w-5 transform transition-transform duration-300 ${
+                      currentMenu === "menu" ? "rotate-180" : "rotate-0"
+                    }`}
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0
+                      111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </button>
+                <FlyoutMenu isOpen={currentMenu === "menu"} onClose={() => setCurrentMenu(null)} />
+              </>
             ) : link === "notifications" ? (
-              <Notifications />
+              <>
+                <button
+                  type="button"
+                  className="text-lm font-medium text-black flex items-center space-x-1"
+                  title="Notifications"
+                >
+                  <HiMiniBell className="h-5 w-5" />
+                </button>
+                <Notifications isOpen={currentMenu === "notifications"} onClose={() => setCurrentMenu(null)} />
+              </>
             ) : (
               <Link href={`/${link}`}>
-                <a className="text-lm font-medium text-black">{name}</a>
+                <a className="text-lm font-medium text-black" onClick={handleLinkClick}>{name}</a>
               </Link>
             )}
           </li>
@@ -81,14 +123,21 @@ export default function Navbar() {
             <li
               key={id}
               className="px-4 cursor-pointer capitalize py-6 text-4xl"
+              onClick={() => handleMenuClick(link)}
             >
               {link === "menu" ? (
-                <FlyoutMenu onClose={() => setNav(false)} />
+                <>
+                  <button className="text-4xl">Menu</button>
+                  <FlyoutMenu isOpen={currentMenu === "menu"} onClose={() => setCurrentMenu(null)} />
+                </>
               ) : link === "notifications" ? (
-                <Notifications />
+                <>
+                  <button className="text-4xl">Notifications</button>
+                  <Notifications isOpen={currentMenu === "notifications"} onClose={() => setCurrentMenu(null)} />
+                </>
               ) : (
-                <Link onClick={() => setNav(!nav)} href={`/${link}`}>
-                  <a className="text-4xl">{name}</a>
+                <Link href={`/${link}`}>
+                  <a className="text-4xl" onClick={handleLinkClick}>{name}</a>
                 </Link>
               )}
             </li>

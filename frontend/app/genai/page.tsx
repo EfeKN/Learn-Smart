@@ -6,6 +6,7 @@ import Navbar from "@/app/components/navbar";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
 import { useEffect, useState } from "react";
+import CoursePreview from "@/app/components/course/course-preview";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
@@ -85,6 +86,7 @@ export default function Home() {
     <main>
       <Navbar />
       <div className="p-5">
+        <CoursePreview />
         <h1>Ask Gemini</h1>
         <textarea
           value={prompt}
