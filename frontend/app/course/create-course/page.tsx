@@ -1,5 +1,5 @@
 "use client";
-// Write Under Modals
+
 export default function CreateCourse() {
   return (
     <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center bg-gray-100 min-h-screen">
