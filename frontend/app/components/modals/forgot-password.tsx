@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 
 interface ForgotPasswordModalProps {
-  // Function to close the modal
   closeModal: () => void;
 }
 

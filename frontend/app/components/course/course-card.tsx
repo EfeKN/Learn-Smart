@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import '@/app/style/course-card.css';
-import { useRouter } from 'next/navigation';
+import "@/app/style/course-card.css";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-const CourseCard = ({ site }) => {
+const CourseCard = ({ site }: { site: any }) => {
   const [hovered, setHovered] = useState(false);
   const router = useRouter();
 
@@ -30,10 +30,8 @@ const CourseCard = ({ site }) => {
       </div>
       <div className="mt-2 text-white font-semibold">{site.name}</div>
 
-      <div className={`overlay-content ${hovered ? 'active' : ''}`}>
-        <div className="overlay-text">
-          {site.name}
-        </div>
+      <div className={`overlay-content ${hovered ? "active" : ""}`}>
+        <div className="overlay-text">{site.name}</div>
       </div>
     </button>
   );

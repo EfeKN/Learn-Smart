@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react';
-import './QuizCard.css'; // Assuming you have a separate CSS file for styling
+import { useState } from "react";
+import "./QuizCard.css"; // Assuming you have a separate CSS file for styling
 
 export default function QuizCard() {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -13,7 +13,7 @@ export default function QuizCard() {
   return (
     <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center bg-gray-100 min-h-screen">
       <div
-        className={`flip-card rounded-lg ${isFlipped ? 'flipped' : ''}`}
+        className={`flip-card rounded-lg ${isFlipped ? "flipped" : ""}`}
         onClick={handleCardFlip}
       >
         <div className="flip-card-inner">

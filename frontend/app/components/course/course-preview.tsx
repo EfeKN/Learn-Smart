@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
 import "@/app/style/course-preview.css";
-import CourseCard from "./course-card"; // Adjust path as necessary
+import { useState } from "react";
 import CreateCourseModal from "../modals/create-course-modal";
+import CourseCard from "./course-card"; // Adjust path as necessary
 
 export default function CoursePreview() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -28,7 +28,11 @@ export default function CoursePreview() {
         + Add Course
       </button>
       <div>
-        <CreateCourseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Site"></CreateCourseModal>
+        <CreateCourseModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          title="Add New Site"
+        ></CreateCourseModal>
       </div>
     </div>
   );
