@@ -49,59 +49,57 @@ export default function Profile() {
         </div>
       </div>
 
-      <div className="flex justify-center h-screen bg-gray-100 mr-12 mt-4">
-        <div className="p-4 shadow rounded-lg bg-white w-80">
-          <div className="flex justify-between">
-            <h1 className="font-bold text-xl">Courses</h1>
-            <div className="text-lg text-gray-700 hover:bg-blue-200">
-              See All Courses
-            </div>
+      <div className="flex justify-center h-screen mr-12 mt-4 p-4 shadow rounded-lg bg-white w-80">
+        <div className="flex justify-between">
+          <h1 className="font-bold text-xl">Courses</h1>
+          <div className="text-lg text-gray-700 hover:bg-blue-200">
+            See All Courses
           </div>
-          <div>
-            <p className="text-base text-gray-400">10 courses</p>
-            <div className="grid grid-cols-3 gap-1">
-              <div className="bg-white p-0.5">
-                <img
-                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                  title="Friend FullName"
-                />
-                <div className="font-semibold text-sm">Course FullName</div>
-              </div>
-              <div className="bg-white p-0.5">
-                <img
-                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                  title="Friend FullName"
-                />
-                <div className="font-semibold text-sm">Course FullName</div>
-              </div>
-              <div className="bg-white p-0.5">
-                <img
-                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                  title="Friend FullName"
-                />
-                <div className="font-semibold text-sm">Course FullName</div>
-              </div>
-              <div className="bg-white p-0.5">
-                <img
-                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                  title="Friend FullName"
-                />
-                <div className="font-semibold text-sm">Course FullName</div>
-              </div>
-              <div className="bg-white p-0.5">
-                <img
-                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                  title="Friend FullName"
-                />
-                <div className="font-semibold text-sm">Course FullName</div>
-              </div>
-              <div className="bg-white p-0.5">
-                <img
-                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                  title="Friend FullName"
-                />
-                <div className="font-semibold text-sm">Course FullName</div>
-              </div>
+        </div>
+        <div>
+          <p className="text-base text-gray-400">10 courses</p>
+          <div className="grid grid-cols-3 gap-1">
+            <div className="bg-white p-0.5">
+              <img
+                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                title="Friend FullName"
+              />
+              <div className="font-semibold text-sm">Course FullName</div>
+            </div>
+            <div className="bg-white p-0.5">
+              <img
+                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                title="Friend FullName"
+              />
+              <div className="font-semibold text-sm">Course FullName</div>
+            </div>
+            <div className="bg-white p-0.5">
+              <img
+                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                title="Friend FullName"
+              />
+              <div className="font-semibold text-sm">Course FullName</div>
+            </div>
+            <div className="bg-white p-0.5">
+              <img
+                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                title="Friend FullName"
+              />
+              <div className="font-semibold text-sm">Course FullName</div>
+            </div>
+            <div className="bg-white p-0.5">
+              <img
+                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                title="Friend FullName"
+              />
+              <div className="font-semibold text-sm">Course FullName</div>
+            </div>
+            <div className="bg-white p-0.5">
+              <img
+                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                title="Friend FullName"
+              />
+              <div className="font-semibold text-sm">Course FullName</div>
             </div>
           </div>
         </div>

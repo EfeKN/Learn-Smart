@@ -1,14 +1,13 @@
+import logo from "@/assets/logo.png";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
+import { HiMiniBell } from "react-icons/hi2";
 import FlyoutMenu from "../components/flyout-menu";
 import Notifications from "../components/notifications";
-
-import logo from "@/assets/logo.png";
-import { HiMiniBell } from "react-icons/hi2";
 
 export default function Navbar() {
   const [nav, setNav] = useState(false);

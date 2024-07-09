@@ -5,6 +5,7 @@ import { FaCog, FaUser } from "react-icons/fa";
 export default function FlyoutMenu({ isOpen }: { isOpen: boolean }) {
   if (!isOpen) return null;
   const router = useRouter();
+  
   const handleLogout = () => {
     Cookies.remove("authToken");
     router.push("login");
@@ -17,6 +18,7 @@ export default function FlyoutMenu({ isOpen }: { isOpen: boolean }) {
   const navigateToSettings = () => {
     router.push("settings");
   };
+
   return (
     <div className="relative z-50">
       <div className="absolute right-0 mt-1.5 w-40">
