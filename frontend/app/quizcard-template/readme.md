@@ -1,1 +1,0 @@
-This is a potential template for quizcards, location of the folder may be moved or deleted in the future
