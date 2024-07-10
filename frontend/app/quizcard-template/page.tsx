@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import "./QuizCard.css"; // Assuming you have a separate CSS file for styling
+import "./QuizCard.css";
 
 export default function QuizCard() {
   const [isFlipped, setIsFlipped] = useState(false);
