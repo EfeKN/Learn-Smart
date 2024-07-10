@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
+import {useRouter} from "next/navigation";
 import '@/app/style/course-card.css';
-import { useRouter } from 'next/navigation';
 
 const CourseCard = ({ site }) => {
   const [hovered, setHovered] = useState(false);
-  const router = useRouter();
-
+  const router = useRouter()
   const handleHover = () => {
     setHovered(true);
   };
@@ -29,7 +28,6 @@ const CourseCard = ({ site }) => {
         <img src={site.icon} alt={site.name} className="h-16 w-16" />
       </div>
       <div className="mt-2 text-white font-semibold">{site.name}</div>
-
       <div className={`overlay-content ${hovered ? 'active' : ''}`}>
         <div className="overlay-text">
           {site.name}

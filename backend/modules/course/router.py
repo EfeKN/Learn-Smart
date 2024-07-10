@@ -30,6 +30,7 @@ async def get_course(course_id: int, current_user: dict = Depends(auth.get_curre
 
     return course
 
+
 @router.post("/create")
 async def create_course(course: CourseCreationRequest, current_user: dict = Depends(auth.get_current_user)):
     """

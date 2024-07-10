@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,7 +7,6 @@ import { useState } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import FlyoutMenu from "../components/flyout-menu";
 import Notifications from "../components/notifications";
-
 import logo from "@/assets/logo.png";
 import { HiMiniBell } from "react-icons/hi2";
 
@@ -14,6 +14,7 @@ export default function Navbar() {
   const [nav, setNav] = useState(false);
   const [currentMenu, setCurrentMenu] = useState(null);
   const router = useRouter();
+  const navRef = useRef();
 
   const handleLogout = () => {
     Cookies.remove("authToken");
@@ -33,7 +34,7 @@ export default function Navbar() {
     },
   ];
 
-  const handleMenuClick = (menu: any) => {
+  const handleMenuClick = (menu) => {
     setCurrentMenu(currentMenu === menu ? null : menu);
   };
 
@@ -42,8 +43,22 @@ export default function Navbar() {
     setNav(false);
   };
 
+  const handleClickOutside = (event) => {
+    if (navRef.current && !navRef.current.contains(event.target)) {
+      setCurrentMenu(null);
+      setNav(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="flex justify-between items-center w-full h-20 px-4 text-black bg-white nav">
+    <div className="flex justify-between items-center w-full h-20 px-4 text-black bg-white nav" ref={navRef}>
       <div>
         <h1 className="text-5xl font-signature ml-2">
           <Image

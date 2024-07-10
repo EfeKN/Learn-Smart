@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default function HomePage() {
+export default function PageHandler() {
   const router = useRouter();
 
   useEffect(() => {
@@ -16,7 +16,7 @@ export default function HomePage() {
   }, [router]);
 
   return (
-    <div>
+    <div className="bg-transparent min-h-screen">
       <h1>Redirecting to login...</h1>
     </div>
   );
