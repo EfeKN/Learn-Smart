@@ -3,7 +3,7 @@ import google.generativeai as genai
 import shutil, os
 import json, jsonpickle
 
-from controllers.filemanager import FileFactory
+from controllers.filemanager import GFile
 from controllers import authentication as auth
 from modules.user.model import User
 from database.dbmanager import ChatDB, CourseDB
@@ -53,13 +53,12 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
             ChatDB.delete(chat["chat_id"])
             raise HTTPException(status_code=400, detail="Invalid file extension.")
         
-        factory = FileFactory() # Create a factory object
         storage_dir = os.path.join(FILES_DIR, f"chat_{chat['chat_id']}") # construct the storage directory
         os.makedirs(storage_dir, exist_ok=True) # create a directory to store the chat's files
         slides_furl = os.path.join(storage_dir, f"{generate_hash(name, strategy="uuid")}.{extension}") # construct the file path
         
         try:
-            file = factory(file=slides) # Get the file manager object based on the file extension
+            file = GFile(file=slides)
             file.save(slides_furl) # save the file in file system
             generator = slide_generator(slides_furl) # create a generator object to yield slides one by one
             dumped_generator = jsonpickle.encode(generator) # dump the generator object into a string
@@ -244,10 +243,8 @@ async def send_message(chat_id: int, text: str, file: UploadFile = File(None),
         filename = file.filename
         name, extension = splitext(filename) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
 
-        factory = FileFactory() # Create a factory object
-
         try:
-            file = factory(file=file) # Get the file manager object based on the file extension
+            file = GFile(file=file)
             
             hashed_fname = f"{generate_hash(name, strategy="timestamp")}.{extension}" # e.g. <hashed_name>_<actual_name>.pdf
             os.makedirs(f"{FILES_DIR}/chat_{chat_id}", exist_ok=True) # create a directory for the chat's files

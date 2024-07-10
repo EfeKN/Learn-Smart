@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 import os
 
 from controllers import authentication as auth
-from controllers.filemanager import FileFactory
+from controllers.filemanager import GFile
 from modules.user.model import User
 from controllers import FILES_DIR
 from tools import generate_hash, splitext
@@ -29,10 +29,8 @@ def upload_file(file: UploadFile = File(...), current_user: User = Depends(auth.
     filename = file.filename
     name, extension = splitext(filename) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
 
-    factory = FileFactory()
-
     try:
-        file = factory(path=filename, file=file) # Get the file object based on the file extension
+        file = GFile(file=file)
 
         # Generate a unique filename, while preserving the original filename for retrieval
         hashed_fname = f"{generate_hash(name, strategy="uuid")}_{name}.{extension}" # e.g. <hashed_name>_<actual_name>.pdf
@@ -66,10 +64,9 @@ def delete_file(filename: str, current_user: User = Depends(auth.get_current_use
     Raises:
         HTTPException: If the file is not found or if there is a value error.
     """
-    factory = FileFactory()
 
     try:
-        file = factory(path=filename)
+        file = GFile(path=filename)
         file.delete()
         return {"filename": filename}
     
