@@ -69,14 +69,14 @@ Use python 3.12.4
 
 ## Docker Setup
 
-1. Create a .env file inside the `frontend` folder, then populate it with the following string: `BACKEND_API_URL=http://backend:8000/api`
+1. Create a .env file inside the `frontend` folder as described above.
 
 2. Make sure you create a .env file inside the `backend` folder as described above but change DATABASE_URL= (your MySQL DB URI, example: `mysql://\<username>:\<password>@database/<database_name>`) instead of using @localhost use @database.
 
 3. Create a .env file inside Learn-Smart project folder and populate it with the followin string: `ROOT_PASSWORD=<your_password>` you can change the password as you wish
 
-4. Make sure docker is running and run the following command line: `docker compose up`.
+4. Make sure docker is running and run the following command lines: `docker compose build` then `docker compose up`.
 
-5. If you make changes to the database do: `docker compose rm` and `docker volume rm learn-smart_my-db` then do `docker compose up`
+5. If you make changes to the database do: `docker compose rm` and `docker volume rm learn-smart_my-db` then do `docker compose build` then `docker compose up`
 
 6. If you get an error indicating that port 3306 is being used, stop mysql in your machine or change the port in the docker-compose.yml as `3307:3306`.
