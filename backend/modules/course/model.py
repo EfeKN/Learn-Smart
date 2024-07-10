@@ -13,9 +13,9 @@ class Course(Base):
     __tablename__ = 'courses'
 
     course_id = Column(Integer, primary_key=True, index=True)
-    course_name = Column(String(255), index=True) # e.g. Operating Systems
-    course_title = Column(String(16)) # e.g. CS 342
-    description = Column(String(1024))
+    course_name = Column(String(255), nullable=False) # e.g. Operating Systems
+    course_title = Column(String(16), unique=True) # e.g. CS 342
+    description = Column(String(1024), nullable=True)
     syllabus_url = Column(String(255), nullable=True)
     course_img_url = Column(String(255), nullable=True) # nullable for now (generate an image for the course in the future)
     user_id = Column(Integer, ForeignKey('users.user_id'))
@@ -34,5 +34,7 @@ class Course(Base):
             "course_id": self.course_id,
             "course_name": self.course_name,
             "description": self.description,
-            "user_id": self.user_id
+            "user_id": self.user_id,
+            "syllabus_url": self.syllabus_url,
+            "course_img_url": self.course_img_url
         }

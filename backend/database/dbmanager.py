@@ -343,7 +343,7 @@ class CourseDB(DatabaseInterface):
     """
 
     @staticmethod
-    def create(name: str, description: str, user_id: int):
+    def create(name: str, title: str, description: str, user_id: int):
         """
         Create a new course in the database.
 
@@ -358,11 +358,12 @@ class CourseDB(DatabaseInterface):
         Raises:
             ValueError: If a course with the provided name already exists for the user.
         """
-        course = CourseDB.fetch(course_name=name, user_id=user_id)
+        course = CourseDB.fetch(course_title=title, user_id=user_id)
         if course:
-            raise ValueError(f"Course with provided name already exists for user {user_id}")
+            raise ValueError(f"Course {title} with provided name already exists for user {user_id}")
 
-        course = Course(course_name=name, description=description, user_id=user_id) # create a new course object
+        course = Course(course_name=name, course_title=title,
+                        description=description, user_id=user_id) # create a new course object
         
         # save the user object in the database
         with db_connection as db:
@@ -380,6 +381,7 @@ class CourseDB(DatabaseInterface):
         Args:
             course_id (int): The ID of the course.
             course_name (str): The name of the course.
+            course_title (str): The title of the course.
             user_id (int): The ID of the user.
             all (bool, optional): If True, fetches all matching courses. If False (default), fetches only the first matching course.
 
@@ -392,9 +394,10 @@ class CourseDB(DatabaseInterface):
         course_id = kwargs.get("course_id", None)
         course_name = kwargs.get("course_name", None)
         user_id = kwargs.get("user_id", None)
+        course_title = kwargs.get("course_title", None)
         all = kwargs.get("all", False)
 
-        if not any([course_id, course_name, user_id]): # check if any query parameters are provided
+        if not any([course_id, course_name, user_id, course_title]): # check if any query parameters are provided
             raise ValueError("No query parameters provided")
         
         # Create a list of filters based on the provided query parameters
@@ -405,6 +408,8 @@ class CourseDB(DatabaseInterface):
             filters.append(Course.course_name == course_name)
         if user_id:
             filters.append(Course.user_id == user_id)
+        if course_title:
+            filters.append(Course.course_title == course_title)
 
         with db_connection as db:
             query = db.query(Course).filter(and_(*filters)) # apply filters to the query
