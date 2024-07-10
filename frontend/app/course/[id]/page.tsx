@@ -5,16 +5,22 @@ import backendAPI from '@/environment/backend_api';
 import Cookies from 'js-cookie';
 import '@/app/style/course-homepage.css';
 import Navbar from '@/app/components/navbar';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-const CourseHomepage = ({ params }) => {
+
+const CourseHomepage = ({ params }: { params: any }) => {
   const [course, setCourse] = useState(null);
-  const [token, setToken] = useState(null);
+  const [token, setToken] = useState<string | null>(null);
   const [folders, setFolders] = useState([]);
   const [newFolderName, setNewFolderName] = useState('');
+  
+  const router = useRouter();
+  const currentPath = router.asPath;
 
   useEffect(() => {
     const storedToken = Cookies.get('authToken');
-    setToken(storedToken);
+    setToken(storedToken || null);
   }, []);
 
   useEffect(() => {
@@ -68,9 +74,9 @@ const CourseHomepage = ({ params }) => {
         <div className="button-grid">
           <button className="button flashcards">Flashcards</button>
           <button className="button quizzes">Quizzes</button>
-          <button className="button instructor">
-            Go to your {course.course_name} Instructor (chatbot)
-          </button>
+          <Link href={`${currentPath}/instructor`} className="button instructor">
+              Go to your {course.course_name} Instructor (chatbot)
+          </Link>
           <button className="button study-plan">Weekly study plan</button>
           <button className="button syllabus">Upload/Update Syllabus</button>
           <div className="folders">

@@ -81,8 +81,7 @@ def get_current_user(current_user: dict = Depends(auth.get_current_user)):
     Returns:
         User: The current authenticated user.
     """
-    # courses = UserDB.fetch(current_user["user_id"])
-    courses = CourseDB.fetch(user_id=current_user["user_id"])
+    courses = CourseDB.fetch(user_id=current_user["user_id"], all=True)
     current_user["courses"] = courses # add the user's courses to response
     current_user.pop("hashed_password") # remove the hashed password from the response
     return current_user
