@@ -16,6 +16,8 @@ class Course(Base):
     course_name = Column(String(255), index=True) # e.g. Operating Systems
     course_title = Column(String(16)) # e.g. CS 342
     description = Column(String(1024))
+    syllabus_url = Column(String(255), nullable=True)
+    course_img_url = Column(String(255), nullable=True) # nullable for now (generate an image for the course in the future)
     user_id = Column(Integer, ForeignKey('users.user_id'))
 
     user = relationship("User", back_populates="courses")

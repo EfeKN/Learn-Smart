@@ -4,6 +4,7 @@ import uuid
 import os
 import dotenv
 
+from logger import logger
 from database.connection import db_connection
 
 # Function to generate hash of a given string based on the strategy
@@ -21,6 +22,7 @@ def generate_hash(filename, strategy="sha256"):
 # Invoke the db_connection to create tables
 def create_tables(drop: bool = False):
     if drop:
+        logger.info("Dropping tables...")
         db_connection.drop_tables()
     db_connection.create_tables()
 
