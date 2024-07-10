@@ -40,6 +40,6 @@ def setup():
 
 # Split filename and extension
 def splitext(filename: str):
-    base_name = os.path.splitext(filename)[0]
-    extension = os.path.splitext(filename)[-1][1:]
+    base_name = os.path.splitext(filename)[0].lower()
+    extension = os.path.splitext(filename)[-1][1:].lower()
     return base_name, extension

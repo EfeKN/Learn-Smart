@@ -1,6 +1,6 @@
 import "@/app/style/course-preview.css";
 import { useState } from "react";
-import CreateCourseModal from "../modals/create-course-modal";
+import CreateCourseModal from "../components/modals/create-course-modal";
 import CourseCard from "./course-card"; // Adjust path as necessary
 
 export default function CoursePreview() {
