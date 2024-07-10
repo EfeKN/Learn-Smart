@@ -12,7 +12,7 @@ from docx import Document
 from fastapi import UploadFile
 from abc import ABC, abstractmethod
 from PIL import Image
-from tools import get_extension
+from tools import splitext
 
 
 class BaseFile(ABC):
@@ -145,13 +145,12 @@ class ImageFile(BaseFile):
     """
 
     def __init__(self, file: UploadFile = None, path: str = None):
+        ext = splitext(file.filename if file else path if path else "")[1] # extension of the file
+        if ext not in ["png", "jpeg", "jpg"]:
+            raise ValueError("Unsupported extension: " + ext)
+        if file and file.content_type not in ["image/png", "image/jpeg", "image/jpg"]:
+            raise ValueError("Unsupported content type: " + file.content_type)
         super().__init__(file, path)
-        if self.file and self.file.content_type not in ["image/png", "image/jpeg", "image/jpg"]:
-            raise ValueError(f"Unsupported content type: {self.file.content_type}")
-        if self.file and get_extension(self.file.filename) not in ["png", "jpeg", "jpg"]:
-            raise ValueError(f"Unsupported extension: {get_extension(self.file.filename)}")
-        if self.path and get_extension(self.path) not in ["png", "jpeg", "jpg"]:
-            raise ValueError(f"Unsupported extension: {get_extension(self.path)}")
 
     def save(self, path: str, size: tuple = (256, 256)):
         """
@@ -216,13 +215,12 @@ class PresentationFile(BaseFile):
     """
 
     def __init__(self, file: UploadFile = None, path: str = None):
+        ext = splitext(file.filename if file else path if path else "")[1]
+        if ext != "pptx":
+            raise ValueError("Unsupported extension: " + ext)
+        if file and file.content_type != "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+            raise ValueError("Unsupported content type: " + file.content_type)
         super().__init__(file, path)
-        if self.file and self.file.content_type != "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-            raise ValueError(f"Unsupported content type: {self.file.content_type}")
-        if self.file and get_extension(self.file.filename) != "pptx":
-            raise ValueError(f"Unsupported extension: {get_extension(self.file.filename)}")
-        if self.path and get_extension(self.path) != "pptx":
-            raise ValueError(f"Unsupported extension: {get_extension(self.path)}")
 
     def content(self):
         """
@@ -285,13 +283,12 @@ class PDFFile(BaseFile):
     """
 
     def __init__(self, file: UploadFile = None, path: str = None):
+        ext = splitext(file.filename if file else path if path else "")[1]
+        if ext != "pdf":
+            raise ValueError("Unsupported extension: " + ext)
+        if file and file.content_type != "application/pdf":
+            raise ValueError("Unsupported content type: " + file.content_type)
         super().__init__(file, path)
-        if self.file and self.file.content_type != "application/pdf":
-            raise ValueError(f"Unsupported content type: {self.file.content_type}")
-        if self.path and get_extension(self.path) != "pdf":
-            raise ValueError(f"Unsupported extension: {get_extension(self.path)}")
-        if self.file and get_extension(self.file.filename) != "pdf":
-            raise ValueError(f"Unsupported extension: {get_extension(self.file.filename)}")
 
     def content(self):
         """
@@ -351,13 +348,12 @@ class WordFile(BaseFile):
     """
 
     def __init__(self, file: UploadFile = None, path: str = None):
+        ext = splitext(file.filename if file else path if path else "")[1]
+        if ext != "docx":
+            raise ValueError("Unsupported extension: " + ext)
+        if file and file.content_type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            raise ValueError("Unsupported content type: " + file.content_type)
         super().__init__(file, path)
-        if self.file and self.file.content_type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-            raise ValueError(f"Unsupported content type: {self.file.content_type}")
-        if self.file and get_extension(self.file.filename) != "docx":
-            raise ValueError(f"Unsupported extension: {get_extension(self.file.filename)}")
-        if self.path and get_extension(self.path) != "docx":
-            raise ValueError(f"Unsupported extension: {get_extension(self.path)}")
 
     # TODO: not tested with a docx file
     def content(self):
@@ -421,10 +417,10 @@ class FileFactory:
             ValueError: If no file or path is provided.
             ValueError: If the file extension is not supported.
         """
-        if not file and not path:
+        if not (file or path):
             raise ValueError("No file or path provided.")
         
-        extension = get_extension(path if path is not None else file.filename)
+        extension = splitext(path if path else file.filename)
 
         if extension not in self.file_types:
             raise ValueError(f"Unsupported file extension: {extension}")
