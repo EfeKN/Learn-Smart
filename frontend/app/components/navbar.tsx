@@ -2,7 +2,7 @@ import Cookies from "js-cookie";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import {useEffect, useRef, useState} from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import FlyoutMenu from "../components/flyout-menu";
 import Notifications from "../components/notifications";

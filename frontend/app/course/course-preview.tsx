@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import "@/app/style/course-preview.css";
 import CourseCard from "./course-card";
 import CreateCourseModal from "@/app/components/modals/create-course-modal";
-import Id from "@/app/course/[id]/page";
+import CourseHomepage from "@/app/course/[id]/page";
 
 export default function CoursePreview() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,7 +24,7 @@ export default function CoursePreview() {
   return (
     <div>
       {selectedCourse ? (
-        <Id course={selectedCourse} />
+        <CourseHomepage course={selectedCourse} />
       ) : (
         <div className="flex space-x-4">
           {topSites.map((site) => (
