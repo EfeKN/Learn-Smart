@@ -36,3 +36,10 @@ def setup():
 
     if not os.path.exists(FILES_DIR):
         os.makedirs(FILES_DIR)
+
+
+# Split filename and extension
+def splitext(filename: str):
+    base_name = os.path.splitext(filename)[0]
+    extension = os.path.splitext(filename)[-1][1:]
+    return base_name, extension

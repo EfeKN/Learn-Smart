@@ -4,6 +4,7 @@ After migration to AWS S3, modify the save and delete methods in the FileManager
 classes to interact with the S3 bucket instead of the local file system.
 """
 
+from io import BytesIO
 import os
 import pymupdf
 from pptx import Presentation
@@ -11,303 +12,420 @@ from docx import Document
 from fastapi import UploadFile
 from abc import ABC, abstractmethod
 from PIL import Image
+from tools import get_extension
 
-class FileManager(ABC):
+
+class BaseFile(ABC):
     """
-    Abstract base class for file managers.
-    """
+    Base class for file management.
 
-    @abstractmethod
-    def save(self, path: str, file: UploadFile):
-        """
-        Save the uploaded file to the specified path.
+    Attributes:
+        file (UploadFile): The file to be managed.
+        path (str): The path where the file is saved.
 
-        Args:
-        - path (str): The path where the file should be saved.
-        - file (UploadFile): The uploaded file to be saved.
-        """
-        pass
-
-    @abstractmethod
-    def delete(self, path: str):
-        """
-        Delete the file at the specified path.
-
-        Args:
-        - path (str): The path of the file to be deleted.
-        """
-        pass
-
-    @abstractmethod
-    def get(self, path: str):
-        """
-        Get the file at the specified path.
-
-        Args:
-        - path (str): The path of the file to be retrieved.
-
-        Returns:
-        - bytes: The content of the file.
-        """
-        pass
-
-
-class ImageManager(FileManager):
-    """
-    A class that handles image file operations.
-    """
-
-    def save(self, path: str, file: UploadFile, size: tuple = (256, 256)):
-        """
-        Saves the image file to the specified path, resizing it to the given size.
-
-        Args:
-        - path (str): The path where the image file should be saved.
-        - file (UploadFile): The image file to be saved.
-        - size (tuple, optional): The desired size of the saved image. Defaults to (256, 256).
-
-        Returns:
-        - None
-            
-        """
-        file_content = file.file.read()
-
-        with open(path, "wb") as file:
-            file.write(file_content)
-
-        img = Image.open(path)
-        img = img.resize(size=size)
-        img.save(path)
-
-    def delete(self, path):
-        """
-        Deletes a file at the specified path.
-
-        Args:
-        - path (str): The path of the file to be deleted.
-
-        Raises:
-        - FileNotFoundError: If the file does not exist at the specified path.
-        - PermissionError: If the user does not have permission to delete the file.
-
-        Returns:
-        - None
-        """
-        os.remove(path)
-        
-    def get(self, path):
-        """
-        Retrieves an image from the specified path.
-
-        Args:
-        - path (str): The path to the image file.
-
-        Returns:
-        - PIL.Image.Image: The image object.
-
-        """
-        img = Image.open(path)
-        return img
-
-
-class PDFManager(FileManager):
-    """
-    A class that provides functionality for managing PDF files.
+    Methods:
+        save(path: str): Save the file to the specified path.
+        delete(): Delete the file.
+        content(): Abstract method to get the content of the file.
+        get(): Abstract method to get the file.
     """
 
     class ResourceWrapper:
         """
-        A helper context manager class that wraps a resource object.
+        A context manager that wraps a resource and provides additional functionality.
 
-        This class provides a convenient way to manage resources that need to be properly closed
-        after they are used within a 'with' block.
+        This class allows you to use a resource as a context manager, ensuring that the resource
+        is properly closed when exiting the context. It also provides a way to access attributes
+        of the resource directly.
 
-        Args:
-        - obj (pymupdf.Document): The resource object to be wrapped.
+        Usage:
+        ```
+        file = FileFactory()(path="file.pdf")
+        with file.get() as pdf:
+            # do something
+
+        DON'T use file.resource directly as the resource may not be closed properly.
+        ```
 
         Attributes:
-        - obj (pymupdf.Document): The wrapped resource object.
-
+            resource: The resource object to be wrapped.
         """
-        def __init__(self, obj: pymupdf.Document):
-            self.obj = obj
+
+        def __init__(self, resource):
+            self.resource = resource
 
         def __enter__(self):
-            """
-            Returns the object to be used within the 'with' block.
-            """
-            return self.obj
+            return self.resource
 
         def __exit__(self, exc_type, exc_val, exc_tb):
-            """
-            Closes the object when exiting the context manager.
-            """
-            # Ensure the object is properly closed
-            self.obj.close()
-            
-    def save(self, path: str, file: UploadFile):
+            if hasattr(self.resource, 'close'):
+                self.resource.close()
+
+        def __getattr__(self, attr):
+            return getattr(self.resource, attr)
+
+    def __init__(self, file: UploadFile = None, path: str = None):
+        self.file = file
+        self.path = path
+
+    def save(self, path: str):
         """
-        Saves the uploaded file to the specified path.
+        Save the file to the specified path.
 
         Args:
-        - path (str): The path where the file should be saved.
-        - file (UploadFile): The uploaded file object.
-
-        Returns:
-        - None
-
-        """
-        file_content = file.file.read()
-
-        with open(path, "wb") as file:
-            file.write(file_content)
-
-    def delete(self, path):
-        """
-        Deletes a file at the specified path.
-
-        Args:
-        - path (str): The path of the file to be deleted.
+            path (str): The path where the file should be saved.
 
         Raises:
-        - FileNotFoundError: If the file does not exist at the specified path.
-        - PermissionError: If the user does not have permission to delete the file.
-
-        Returns:
-        - None
-
+            OSError: If the file already exists in the specified path.
+            ValueError: If no file is provided to be saved.
         """
-        os.remove(path)
-
-    def get(self, path):
-        """
-        Opens a PDF document at the specified path and returns a resource wrapper.
-
-        Args:
-        - path (str): The path to the PDF document.
-
-        Returns:
-        - PDFManager.ResourceWrapper: A resource wrapper for the opened PDF document. \
-            The document should be used within a 'with' block to ensure it is properly closed.
-        """
-        doc = pymupdf.open(path)
-        return PDFManager.ResourceWrapper(doc)
-
-
-class SlidesManager(FileManager):
-    """
-    A class that manages slides files.
-    """
-
-    def save(self, path: str, file: UploadFile):
-        """
-        Saves the file content to the specified path.
-
-        Args:
-        - path (str): The path where the file should be saved.
-        - file (UploadFile): The file to be saved.
-
-        Returns:
-        - None
-        """
-        file_content = file.file.read()
-
+        if self.path:
+            return
+        if os.path.exists(path):
+            raise OSError(f"File already exists in path {path}")
+        if not self.file:
+            raise ValueError("No file provided to be saved.")
+        
         with open(path, "wb") as file:
-            file.write(file_content)
+            file.write(self.file.file.read())
 
-    def delete(self, path):
+        self.path = path
+
+    def delete(self):
         """
-        Deletes the file at the specified path.
+        Delete the file.
+
+        If the file does not exist or no path is set, this method does nothing.
+        """
+        if not self.path:
+            return
+        if not os.path.exists(self.path):
+            return
+        os.remove(self.path)
+        self.path = None
+
+    @abstractmethod
+    def content(self):
+        """
+        Abstract method to get the content of the file.
+
+        This method should be implemented in the derived classes.
+        """
+        pass
+
+    @abstractmethod
+    def get(self):
+        """
+        Abstract method to get the file.
+
+        This method should be implemented in the derived classes.
+        """
+        pass
+
+
+class ImageFile(BaseFile):
+    """
+    Represents an image file.
+
+    Args:
+        file (UploadFile, optional): The uploaded file object. Defaults to None.
+        path (str, optional): The path to the file. Defaults to None.
+
+    Raises:
+        ValueError: If the content type or extension of the file is not supported.
+
+    Attributes:
+        file (UploadFile): The uploaded file object.
+        path (str): The path to the file.
+
+    Methods:
+        save: Saves the image file with optional resizing.
+        content: Returns the content of the image file.
+        get: Returns the image file as a ResourceWrapper object.
+    """
+
+    def __init__(self, file: UploadFile = None, path: str = None):
+        super().__init__(file, path)
+        if self.file and self.file.content_type not in ["image/png", "image/jpeg", "image/jpg"]:
+            raise ValueError(f"Unsupported content type: {self.file.content_type}")
+        if self.file and get_extension(self.file.filename) not in ["png", "jpeg", "jpg"]:
+            raise ValueError(f"Unsupported extension: {get_extension(self.file.filename)}")
+        if self.path and get_extension(self.path) not in ["png", "jpeg", "jpg"]:
+            raise ValueError(f"Unsupported extension: {get_extension(self.path)}")
+
+    def save(self, path: str, size: tuple = (256, 256)):
+        """
+        Saves the image file with optional resizing.
 
         Args:
-        - path (str): The path of the file to be deleted.
+            path (str): The path to save the image file.
+            size (tuple, optional): The desired size of the image. Defaults to (256, 256).
+        """
+        super().save(path)
+        with Image.open(self.path) as img: # resize to the given size
+            img.thumbnail(size)
+            img.save(self.path)
+
+    def content(self):
+        """
+        Returns the content of the image file.
+
+        Returns:
+            Image: The image object representing the content of the file.
 
         Raises:
-        - FileNotFoundError: If the file does not exist at the specified path.
-        - PermissionError: If the user does not have permission to delete the file.
+            ValueError: If no file is provided.
+        """
+        if not self.path and not self.file:
+            raise ValueError("No file provided.")
+        if self.path:            
+            return Image.open(self.path)
+        
+        return Image.open(self.file.file)
+    
+    def get(self):
+        """
+        Returns the image file as a ResourceWrapper object.
 
         Returns:
-        - None
+            ResourceWrapper: The image file wrapped in a ResourceWrapper object.
         """
-        os.remove(path)
-
-    def get(self, path):
-        """
-        Returns a Presentation object for the file at the specified path.
-
-        Args:
-        - path (str): The path of the file.
-
-        Returns:
-        - Presentation: A Presentation object representing the file.
-        """
-        return Presentation(path)
+        img = Image.open(self.path)
+        return self.ResourceWrapper(img)
     
 
-class DocumentManager(FileManager):
+class PresentationFile(BaseFile):
     """
-    A class that manages documents, including saving, deleting, and retrieving them.
+    Represents a presentation file.
+
+    Args:
+        file (UploadFile, optional): The uploaded file. Defaults to None.
+        path (str, optional): The path to the file. Defaults to None.
+
+    Raises:
+        ValueError: If the content type or extension of the file is not supported.
+
+    Attributes:
+        file (UploadFile): The uploaded file.
+        path (str): The path to the file.
+
+    Methods:
+        content(): Extracts the text content from the presentation file.
+        get(): Retrieves the presentation resource.
+
     """
 
-    def save(self, path: str, file: UploadFile):
+    def __init__(self, file: UploadFile = None, path: str = None):
+        super().__init__(file, path)
+        if self.file and self.file.content_type != "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+            raise ValueError(f"Unsupported content type: {self.file.content_type}")
+        if self.file and get_extension(self.file.filename) != "pptx":
+            raise ValueError(f"Unsupported extension: {get_extension(self.file.filename)}")
+        if self.path and get_extension(self.path) != "pptx":
+            raise ValueError(f"Unsupported extension: {get_extension(self.path)}")
+
+    def content(self):
         """
-        Saves the given file to the specified path.
-
-        Args:
-        - path (str): The path where the file should be saved.
-        - file (UploadFile): The file to be saved.
+        Extracts the text content from the presentation file.
 
         Returns:
-        - None
-        """
-        file_content = file.file.read()
-
-        with open(path, "wb") as file:
-            file.write(file_content)
-
-    def delete(self, path):
-        """
-        Deletes the file at the specified path.
-
-        Args:
-        - path (str): The path of the file to be deleted.
+            str: The extracted text content.
 
         Raises:
-        - FileNotFoundError: If the file does not exist at the specified path.
-        - PermissionError: If the user does not have permission to delete the file.
+            ValueError: If no file is provided.
+
+        """
+        if not self.path and not self.file:
+            raise ValueError("No file provided.")
+        
+        text = ""
+
+        if self.path:
+            presentation = Presentation(self.path)
+        else:
+            presentation = Presentation(BytesIO(self.file.file.read()))
+        for slide in presentation.slides:
+            for shape in slide.shapes:
+                if not shape.has_text_frame:
+                    continue
+                text += shape.text_frame.text
+        return text
+    
+    def get(self):
+        """
+        Retrieves the presentation resource.
 
         Returns:
-        - None
-        """
-        os.remove(path)
+            ResourceWrapper: The presentation resource.
 
-    def get(self, path):
         """
-        Retrieves the document at the specified path.
+        presentation = Presentation(self.path)
+        return self.ResourceWrapper(presentation)
+    
+
+class PDFFile(BaseFile):
+    """
+    Represents a PDF file.
+
+    Args:
+        file (UploadFile, optional): The uploaded file object. Defaults to None.
+        path (str, optional): The path to the file. Defaults to None.
+
+    Raises:
+        ValueError: If the content type or extension of the file is not supported.
+
+    Attributes:
+        file (UploadFile): The uploaded file object.
+        path (str): The path to the file.
+
+    Methods:
+        content(): Returns the content of the PDF file as text.
+        get(): Returns a resource wrapper for the PDF file.
+
+    """
+
+    def __init__(self, file: UploadFile = None, path: str = None):
+        super().__init__(file, path)
+        if self.file and self.file.content_type != "application/pdf":
+            raise ValueError(f"Unsupported content type: {self.file.content_type}")
+        if self.path and get_extension(self.path) != "pdf":
+            raise ValueError(f"Unsupported extension: {get_extension(self.path)}")
+        if self.file and get_extension(self.file.filename) != "pdf":
+            raise ValueError(f"Unsupported extension: {get_extension(self.file.filename)}")
+
+    def content(self):
+        """
+        Returns the content of the PDF file as text.
+
+        Returns:
+            str: The content of the PDF file.
+
+        Raises:
+            ValueError: If no file is provided.
+
+        """
+        if not self.path and not self.file:
+            raise ValueError("No file provided.")
+        
+        # TODO: if file size is not too large and there aren't many pages, convert to images
+
+        # TODO: Do testing with contents
+        if self.path:
+            with pymupdf.open(self.path) as doc:
+                return chr(12).join([page.get_text() for page in doc])
+        
+        # TODO: find a solution for large pdf files such as books
+        with pymupdf.open(stream=BytesIO(self.file.file.read()), filetype="pdf") as doc:
+            return chr(12).join([page.get_text() for page in doc])
+
+    def get(self):
+        """
+        Returns a resource wrapper for the PDF file.
+
+        Returns:
+            ResourceWrapper: A resource wrapper for the PDF file.
+
+        """
+        doc = pymupdf.open(self.path)
+        return self.ResourceWrapper(doc)
+    
+
+class WordFile(BaseFile):
+    """
+    Represents a Word file.
+
+    Args:
+        file (UploadFile, optional): The uploaded file. Defaults to None.
+        path (str, optional): The file path. Defaults to None.
+
+    Raises:
+        ValueError: If the content type or extension is unsupported.
+
+    Attributes:
+        file (UploadFile): The uploaded file.
+        path (str): The file path.
+
+    Methods:
+        content: Returns the content of the Word file.
+        get: Returns a resource wrapper for the Word file.
+    """
+
+    def __init__(self, file: UploadFile = None, path: str = None):
+        super().__init__(file, path)
+        if self.file and self.file.content_type != "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+            raise ValueError(f"Unsupported content type: {self.file.content_type}")
+        if self.file and get_extension(self.file.filename) != "docx":
+            raise ValueError(f"Unsupported extension: {get_extension(self.file.filename)}")
+        if self.path and get_extension(self.path) != "docx":
+            raise ValueError(f"Unsupported extension: {get_extension(self.path)}")
+
+    # TODO: not tested with a docx file
+    def content(self):
+        """
+        Returns the content of the Word file.
+
+        Returns:
+            str: The content of the Word file.
+        
+        Raises:
+            ValueError: If no file is provided.
+        """
+        if not self.path and not self.file:
+            raise ValueError("No file provided.")
+        
+        if self.path:
+            doc = Document(self.path)
+        else:
+            doc = Document(BytesIO(self.file.file.read()))
+        # TODO: Do testing
+        return chr(12).join([para.text for para in doc.paragraphs])
+
+    def get(self):
+        """
+        Returns a resource wrapper for the Word file.
+
+        Returns:
+            ResourceWrapper: The resource wrapper for the Word file.
+        """
+        doc = Document(self.path)
+        return self.ResourceWrapper(doc)
+    
+
+class FileFactory:
+    """
+    A factory class for creating different types of files based on their extensions.
+    """
+
+    def __init__(self):
+        self.file_types = {
+            "pdf": PDFFile,
+            "pptx": PresentationFile,
+            "docx": WordFile,
+            "png": ImageFile,
+            "jpg": ImageFile,
+            "jpeg": ImageFile
+        }
+
+    def __call__(self, file: UploadFile = None, path: str = None):
+        """
+        Creates an instance of a file based on the provided file or path.
 
         Args:
-        - path (str): The path of the document to be retrieved.
+            file (UploadFile, optional): The file to be processed. Defaults to None.
+            path (str, optional): The path to the file. Defaults to None.
 
         Returns:
-        - Document: The retrieved document.
+            An instance of the corresponding file type based on the file extension.
+
+        Raises:
+            ValueError: If no file or path is provided.
+            ValueError: If the file extension is not supported.
         """
-        return Document(path)
-
-
-class FileManagerFactory:
-    """
-    Factory class for creating file managers based on the file type.
-    """
-
-    def __call__(self, type):
-        if type in ["png", "jpg", "jpeg"]:
-            return ImageManager()
-        elif type == 'pdf':
-            return PDFManager()
-        elif type == 'pptx':
-            return SlidesManager()
-        elif type == 'docx':
-            return DocumentManager()
-        else:
-            raise ValueError(f"Invalid file type provided: {type}. Available values are 'png', 'jpg', 'jpeg', 'pdf', 'pptx', 'docx'")
+        if not file and not path:
+            raise ValueError("No file or path provided.")
         
+        extension = get_extension(path if path is not None else file.filename)
+
+        if extension not in self.file_types:
+            raise ValueError(f"Unsupported file extension: {extension}")
+        return self.file_types[extension](file=file, path=path)

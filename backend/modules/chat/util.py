@@ -4,7 +4,7 @@ import pymupdf
 import os
 from PIL import Image
 
-from tools import generate_hash
+from tools import generate_hash, splitext
 
 def slide_generator(path: str):
     """Generator to yield slides one by one.
@@ -31,8 +31,8 @@ def slide_generator(path: str):
         else:
             raise Exception(f"Unsupported operating system: {system}")
 
-    name, extension = os.path.splitext(path)
-    if extension == ".pptx":
+    name, extension = splitext(path)
+    if extension == "pptx":
         convert_pptx_to_pdf(path, f"{name}.pdf")
         path = f"{name}.pdf"
 
@@ -59,7 +59,7 @@ def get_chat_filenames(user_id: int, course_id: int, chat_id: int):
 
 
 def get_generator_path(slides_path: str):
-    return os.path.splitext(slides_path)[0] + "_generator.txt"
+    return splitext(slides_path)[0] + "_generator.txt"
 
 def get_chat_metadata_path(history_path: str):
-    return os.path.splitext(history_path)[0] + "_metadata.json"
+    return splitext(history_path)[0] + "_metadata.json"
