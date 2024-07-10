@@ -12,16 +12,9 @@ from tools import create_tables, setup
 
 from logger import logger
 
-__DROP__ = False # flag variable to drop tables, must be set when the database schema changes
-                 # reset to False after the first run, otherwise the database will be reset every
-                 # time the server starts.
-
 app = FastAPI()  # create the FastAPI app
 
-if __DROP__:
-    logger.info("Recreating tables...")
-
-create_tables(drop=__DROP__)  # re/create the database tables
+create_tables(drop=False)  # re/create the database tables
 setup()  # setup the environment
 
 # Add CORS middleware to allow cross-origin requests

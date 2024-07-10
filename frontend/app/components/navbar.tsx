@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import Link from "next/link";
@@ -34,7 +33,7 @@ export default function Navbar() {
     },
   ];
 
-  const handleMenuClick = (menu) => {
+  const handleMenuClick = (menu: any) => {
     setCurrentMenu(currentMenu === menu ? null : menu);
   };
 
@@ -65,13 +64,12 @@ export default function Navbar() {
             className="hover:transition ease-in-out delay-150 hover:decoration-solid"
             src={logo}
             alt="logo"
-            width={50}
-            height={50}
+            width={200}
+            height={200}
           />
         </h1>
       </div>
 
-      {/* Desktop Navigation */}
       <ul className="hidden md:flex items-center">
         {links.map(({ id, name, link }) => (
           <li
@@ -105,6 +103,7 @@ export default function Navbar() {
                 </button>
                 <FlyoutMenu
                   isOpen={currentMenu === "menu"}
+                  // TODO: Cagri please check these
                   onClose={() => setCurrentMenu(null)}
                 />
               </>
@@ -119,6 +118,7 @@ export default function Navbar() {
                 </button>
                 <Notifications
                   isOpen={currentMenu === "notifications"}
+                  // TODO: Cagri please check these
                   onClose={() => setCurrentMenu(null)}
                 />
               </>
@@ -158,6 +158,7 @@ export default function Navbar() {
                   <button className="text-4xl">Menu</button>
                   <FlyoutMenu
                     isOpen={currentMenu === "menu"}
+                    // TODO: Cagri please check these
                     onClose={() => setCurrentMenu(null)}
                   />
                 </>
@@ -166,6 +167,7 @@ export default function Navbar() {
                   <button className="text-4xl">Notifications</button>
                   <Notifications
                     isOpen={currentMenu === "notifications"}
+                    // TODO: Cagri please check these
                     onClose={() => setCurrentMenu(null)}
                   />
                 </>

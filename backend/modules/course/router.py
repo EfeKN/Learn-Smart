@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 
 from controllers import authentication as auth
-from database.dbmanager import CourseDB
+from database.dbmanager import CourseDB, ChatDB
 from modules.course.schemas import CourseCreationRequest
 
 router = APIRouter(prefix="/course", tags=["Course"])
@@ -27,6 +27,9 @@ async def get_course(course_id: int, current_user: dict = Depends(auth.get_curre
     # This can happen if the user tries to view a course they don't own
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
+
+    chats = ChatDB.fetch(course_id=course_id, all=True)
+    course["chats"] = [{chat["chat_id"]: chat["title"]} for chat in chats] # add chat titles to course
 
     return course
 

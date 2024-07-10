@@ -1,23 +1,24 @@
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 import { FaCog, FaUser } from "react-icons/fa";
-import {useRouter} from "next/navigation";
-
 
 export default function FlyoutMenu({ isOpen }: { isOpen: boolean }) {
   if (!isOpen) return null;
   const router = useRouter();
+  
   const handleLogout = () => {
     Cookies.remove("authToken");
-    router.push('login');
+    router.push("login");
   };
 
   const navigateToProfile = () => {
-     router.push('profile');
+    router.push("profile");
   };
 
   const navigateToSettings = () => {
-     router.push('settings');
+    router.push("settings");
   };
+
   return (
     <div className="relative z-50">
       <div className="absolute right-0 mt-1.5 w-40">

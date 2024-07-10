@@ -40,9 +40,13 @@ export default function CoursePreview() {
           >
             + Add Course
           </button>
-          <CreateCourseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Add New Site">
-            <p>This is a modal content.</p>
-          </CreateCourseModal>
+          <div>
+            <CreateCourseModal
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              title="Add New Site"
+            ></CreateCourseModal>
+          </div>
         </div>
       )}
       {selectedCourse && (

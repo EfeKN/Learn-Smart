@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 import os
 
 from controllers import authentication as auth
-from controllers.filemanager import FileManagerFactory
+from controllers.filemanager import GFile
 from modules.user.model import User
 from controllers import FILES_DIR
-from tools import generate_hash
+from tools import generate_hash, splitext
 
 router = APIRouter(prefix="/files", tags=["Files"])
 
@@ -27,12 +27,10 @@ def upload_file(file: UploadFile = File(...), current_user: User = Depends(auth.
     TODO: This endpoint is not likely to be used. To be replaced (e.g. upload syllabus and send API call to LLM).
     """
     filename = file.filename
-    name, extension = filename.rsplit(".", 1) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
-
-    factory = FileManagerFactory() # Create a factory object
+    name, extension = splitext(filename) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
 
     try:
-        file_manager = factory(extension) # Get the file manager object based on the file extension
+        file = GFile(file=file)
 
         # Generate a unique filename, while preserving the original filename for retrieval
         hashed_fname = f"{generate_hash(name, strategy="uuid")}_{name}.{extension}" # e.g. <hashed_name>_<actual_name>.pdf
@@ -40,7 +38,7 @@ def upload_file(file: UploadFile = File(...), current_user: User = Depends(auth.
         os.makedirs(f"{FILES_DIR}/user_{current_user['user_id']}", exist_ok=True) # create a directory for the user's files, e.g. syllabus
         path = os.path.join(FILES_DIR, f"user_{current_user['user_id']}", hashed_fname) # construct the file path
 
-        file_manager.save(path, file) # save the file in file system
+        file.save(path) # save the file in file system
 
         return {"status": "File uploaded successfully.", "filename": filename}
     
@@ -66,12 +64,10 @@ def delete_file(filename: str, current_user: User = Depends(auth.get_current_use
     Raises:
         HTTPException: If the file is not found or if there is a value error.
     """
-    factory = FileManagerFactory()
-    extension = filename.split(".")[-1]
 
     try:
-        file_manager = factory(extension)
-        file_manager.delete(f"{FILES_DIR}/{filename}")
+        file = GFile(path=filename)
+        file.delete()
         return {"filename": filename}
     
     except FileNotFoundError:

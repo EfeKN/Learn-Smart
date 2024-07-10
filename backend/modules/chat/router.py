@@ -3,11 +3,11 @@ import google.generativeai as genai
 import shutil, os
 import json, jsonpickle
 
-from controllers.filemanager import FileManagerFactory
+from controllers.filemanager import GFile
 from controllers import authentication as auth
 from modules.user.model import User
 from database.dbmanager import ChatDB, CourseDB
-from tools import generate_hash
+from tools import generate_hash, splitext
 from modules.chat.util import *
 from modules.chat import CHATS_DIR
 from controllers import FILES_DIR
@@ -48,20 +48,18 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
     slides_furl, slides_fname = None, None # initialize the slides name and URL
     if slides: # then it means we're creating a chat in slides mode
         slides_fname = slides.filename
-        name, extension = os.path.splitext(slides_fname) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
-        extension = extension[1:] # remove the dot from the extension
+        name, extension = splitext(slides_fname) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
         if extension not in ["pptx", "pdf"]:
             ChatDB.delete(chat["chat_id"])
             raise HTTPException(status_code=400, detail="Invalid file extension.")
         
-        factory = FileManagerFactory() # Create a factory object
         storage_dir = os.path.join(FILES_DIR, f"chat_{chat['chat_id']}") # construct the storage directory
         os.makedirs(storage_dir, exist_ok=True) # create a directory to store the chat's files
         slides_furl = os.path.join(storage_dir, f"{generate_hash(name, strategy="uuid")}.{extension}") # construct the file path
         
         try:
-            file_manager = factory(extension) # Get the file manager object based on the file extension
-            file_manager.save(slides_furl, slides) # save the file in file system
+            file = GFile(file=slides)
+            file.save(slides_furl) # save the file in file system
             generator = slide_generator(slides_furl) # create a generator object to yield slides one by one
             dumped_generator = jsonpickle.encode(generator) # dump the generator object into a string
 
@@ -240,23 +238,21 @@ async def send_message(chat_id: int, text: str, file: UploadFile = File(None),
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
 
-    img, prompt = None, text # img: the image file to be sent in the chat (if any)
-    if file: # file is uploaded to be sent to the LLM
+    file_content, prompt = None, text
+    if file: # if file is uploaded to be sent to the LLM
         filename = file.filename
-        name, extension = os.path.splitext(filename) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
-        extension = extension[1:] # remove the dot from the extension
-
-        factory = FileManagerFactory() # Create a factory object
+        name, extension = splitext(filename) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
 
         try:
-            file_manager = factory(extension) # Get the file manager object based on the file extension
+            file = GFile(file=file)
+            
             hashed_fname = f"{generate_hash(name, strategy="timestamp")}.{extension}" # e.g. <hashed_name>_<actual_name>.pdf
-
             os.makedirs(f"{FILES_DIR}/chat_{chat_id}", exist_ok=True) # create a directory for the chat's files
             path = os.path.join(FILES_DIR, f"chat_{chat_id}", hashed_fname) # construct the file path
 
-            file_manager.save(path, file) # save the file in file system
-            img = file_manager.get(path) # get the file from the file system 
+            # file.save(path) # save the file in file system
+            file_content = file.content() # get the file from the file system
+
             # TODO: assuming the file is an image for now
             # o/w, we'll get TypeError: Could not create `Blob`, expected `Blob`, `dict` or an `Image` type(`PIL.Image.Image` or `IPython.display.Image`)
     
@@ -273,7 +269,7 @@ async def send_message(chat_id: int, text: str, file: UploadFile = File(None),
     chat = genai.GenerativeModel("gemini-1.5-flash").start_chat(history=history) # Initialize the chat model with the chat history so far
 
     # TODO: streaming response
-    if img:
+    if file_content:
         metadata = get_chat_metadata_path(history_url) # chat metadata file path
         new_data = {"id": len(history), "media_url": path}
     
@@ -283,7 +279,7 @@ async def send_message(chat_id: int, text: str, file: UploadFile = File(None),
                     data = json.load(file)
                     data.append(new_data)
                 except Exception as e:
-                    file_manager.delete(path) # delete the file from the file system
+                    file.delete() # delete the file from the file system
                     raise HTTPException(status_code=500, detail=f"Internal server error occured: {str(e)}")
         else:
             data = [new_data]
@@ -291,7 +287,8 @@ async def send_message(chat_id: int, text: str, file: UploadFile = File(None),
         # Write the updated content back to the file
         with open(metadata, "w") as file:
             json.dump(data, file, indent=4)
-        response = chat.send_message([prompt, img])
+
+        response = chat.send_message([prompt, file_content])
     else:
         response = chat.send_message(prompt)
 
