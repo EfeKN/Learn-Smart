@@ -6,7 +6,7 @@ import Cookies from 'js-cookie';
 import '@/app/style/course-homepage.css';
 import Navbar from '@/app/components/navbar';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 
 const CourseHomepage = ({ params }: { params: any }) => {
@@ -16,7 +16,8 @@ const CourseHomepage = ({ params }: { params: any }) => {
   const [newFolderName, setNewFolderName] = useState('');
   
   const router = useRouter();
-  const currentPath = router.asPath;
+  const pathname = usePathname();
+  console.log(pathname);
 
   useEffect(() => {
     const storedToken = Cookies.get('authToken');
@@ -74,7 +75,7 @@ const CourseHomepage = ({ params }: { params: any }) => {
         <div className="button-grid">
           <button className="button flashcards">Flashcards</button>
           <button className="button quizzes">Quizzes</button>
-          <Link href={`${currentPath}/instructor`} className="button instructor">
+          <Link href={`${pathname}/instructor`} className="button instructor">
               Go to your {course.course_name} Instructor (chatbot)
           </Link>
           <button className="button study-plan">Weekly study plan</button>
