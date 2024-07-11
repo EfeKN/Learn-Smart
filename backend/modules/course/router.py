@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 import os, shutil
 
 from middleware import authentication as auth
 from database.dbmanager import CourseDB, ChatDB
-from modules.course.schemas import CourseCreationRequest
+from modules.course.schemas import CourseCreationRequest, CourseUpdateRequest
 from modules.chat.util import *
 
 router = APIRouter(prefix="/course", tags=["Course"])
@@ -59,7 +59,8 @@ async def get_course_chats(course_id: int, current_user: dict = Depends(auth.get
 
 
 @router.post("/create")
-async def create_course(course: CourseCreationRequest, current_user: dict = Depends(auth.get_current_user)):
+async def create_course(course: CourseCreationRequest, current_user: dict = Depends(auth.get_current_user), 
+                        syllabus_file: UploadFile = File(None)):
     """
     Create a new course.
 
@@ -72,6 +73,10 @@ async def create_course(course: CourseCreationRequest, current_user: dict = Depe
 
     Raises:
         HTTPException: If there is an error creating the course.
+
+    TODO:
+        Syllabus uploads must go to LLM to generate weekly study plans.
+        File structure must be updated too.
     """
     try:
         course = CourseDB.create(name=course.course_name, description=course.description, 
@@ -124,3 +129,37 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
         # TODO: delete quiz and flashcards too
 
     return {"message": "Course deleted successfully."}
+
+@router.put("/{course_id}")
+async def update_course(course_id: int, course: CourseUpdateRequest, 
+                        current_user: dict = Depends(auth.get_current_user),
+                        syllabus_file: UploadFile = File(None)):
+    """
+    Update a course.
+
+    Args:
+        course_id (int): The ID of the course to update.
+        course (CourseUpdateRequest): The updated course details.
+        current_user (dict, optional): The current user. Defaults to Depends(auth.get_current_user).
+    
+    Returns:
+        The updated course.
+
+    Raises:
+        HTTPException: If there is an error updating the course.
+
+    TODO:
+        Syllabus updates must go to LLM. syllabus_url field would change too.
+    """
+    course = CourseDB.fetch(course_id=course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found.")
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+    
+    try:
+        course = CourseDB.update(course_id=course_id, course_name=course.course_name, description=course.description, 
+                                course_code=course.course_code)
+        return course
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

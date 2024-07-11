@@ -445,18 +445,51 @@ class CourseDB(DatabaseInterface):
             return result.to_dict() if result else None # return a single course dict or None
 
     @staticmethod
-    def update(obj):
+    def update(course_id: int, **kwargs):
         """
-        Updates a course in the database.
+        Update the course details in the database.
 
         Args:
-        - obj: The course object to be updated.
+            course_id (int): The ID of the course to update.
+            **kwargs: Keyword arguments for the fields to update. Possible keyword arguments include:
+                - course_name (str): The new name for the course.
+                - course_code (str): The new code for the course.
+                - description (str): The new description for the course.
+                - syllabus_url (str): The new syllabus URL for the course.
+                - course_img_url (str): The new image URL for the course.
 
         Returns:
-        - dict: A dictionary representation of the updated course object.
+            dict: A dictionary representing the updated course details.
 
+        Raises:
+            ValueError: If the course with the specified ID is not found in the database.
         """
-        pass
+        course_name: str = kwargs.get("course_name", None)
+        course_code: str = kwargs.get("course_code", None)
+        description: str = kwargs.get("description", None)
+        syllabus_url: str = kwargs.get("syllabus_url", None)
+        course_img_url: str = kwargs.get("course_img_url", None)
+
+        with db_connection as db:
+            course = db.query(Course).filter(Course.course_id == course_id).first()
+            if not course:
+                raise ValueError(f"Course with ID {course_id} not found")
+
+            if course_name:
+                course.course_name = course_name
+            if course_code:
+                course.course_code = course_code
+            if description:
+                course.description = description
+            if syllabus_url:
+                course.syllabus_url = syllabus_url
+            if course_img_url:
+                course.course_img_url = course_img_url
+
+            db.commit()
+            db.refresh(course)
+
+            return course.to_dict()
 
     @staticmethod
     def delete(**kwargs):
@@ -507,4 +540,3 @@ class CourseDB(DatabaseInterface):
             db.commit()
         
         return ret
-
