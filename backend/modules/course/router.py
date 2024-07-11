@@ -73,9 +73,8 @@ async def create_course(course: CourseCreationRequest, current_user: dict = Depe
     """
     try:
         course = CourseDB.create(name=course.course_name, description=course.description, 
-                                title= course.course_title, user_id=current_user["user_id"])
+                                code= course.course_code, user_id=current_user["user_id"])
         return course
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    

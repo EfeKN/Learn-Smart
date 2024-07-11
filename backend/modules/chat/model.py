@@ -15,12 +15,10 @@ class Chat(Base):
     title = Column(String(150), nullable=False)
     course_id = Column(Integer, ForeignKey('courses.course_id'))
     history_url = Column(String(255))
-
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     slides_mode = Column(Boolean, default=False)
     slides_fname = Column(String(255), nullable=True) # slides file name, e.g. Lecture_1.pptx
     slides_furl = Column(String(255), nullable=True) # slides file URL, e.g. ./.../<ffb1e29cc1...>.pptx
-
-    started_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # quiz relationships, quiz URLs, might be added here
 

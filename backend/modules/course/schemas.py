@@ -8,8 +8,8 @@ class CourseCreationRequest(BaseModel):
     Attributes:
         course_name (str): The name of the course. # Example: Operating Systems
         description (str): The description of the course.
-        course_title (str): The title of the course. # Example: CS 342
+        course_code (str): The title of the course. # Example: CS 342
     """
     course_name: str
-    course_title: str
+    course_code: str
     description: Optional[str] = None

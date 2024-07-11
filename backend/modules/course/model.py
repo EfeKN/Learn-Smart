@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, Integer, ForeignKey, String, DateTime, func
 from sqlalchemy.orm import relationship
 
 from database.connection import db_connection
@@ -14,12 +14,12 @@ class Course(Base):
 
     course_id = Column(Integer, primary_key=True, index=True)
     course_name = Column(String(255), nullable=False) # e.g. Operating Systems
-    course_title = Column(String(16), unique=True) # e.g. CS 342
+    course_code = Column(String(16), unique=True) # e.g. CS 342
     description = Column(String(1024), nullable=True)
     syllabus_url = Column(String(255), nullable=True)
     course_img_url = Column(String(255), nullable=True) # nullable for now (generate an image for the course in the future)
     user_id = Column(Integer, ForeignKey('users.user_id'))
-
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
     user = relationship("User", back_populates="courses")
     chats = relationship("Chat", back_populates="course")
 
@@ -34,6 +34,7 @@ class Course(Base):
             "course_id": self.course_id,
             "course_name": self.course_name,
             "description": self.description,
+            "course_code": self.course_code, # e.g. "CS 342"
             "user_id": self.user_id,
             "syllabus_url": self.syllabus_url,
             "course_img_url": self.course_img_url
