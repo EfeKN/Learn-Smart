@@ -40,7 +40,7 @@ class BaseFile(ABC):
 
         Usage:
         ```
-        file = FileFactory(path="file.pdf")
+        file = FileFactory()(path="file.pdf")
         with file.get() as pdf:
             # do something
 
@@ -387,13 +387,12 @@ class WordFile(BaseFile):
         return self.ResourceWrapper(doc)
     
 
-class GFile:
+class FileFactory:
     """
-    A "G"eneric factory class for creating different types of files based on their extensions.
+    A factory class for creating different types of files based on their extensions.
     """
-
-    def __init__(self, file: UploadFile = None, path: str = None):
-        file_types = {
+    def __init__(self):
+        self.file_types = {
             "pdf": PDFFile,
             "pptx": PresentationFile,
             "docx": WordFile,
@@ -402,11 +401,13 @@ class GFile:
             "jpeg": ImageFile
         }
 
+    def __call__(self, file: UploadFile = None, path: str = None):
+
         if not (file or path):
             raise ValueError("No file or path provided.")
         
-        extension = splitext(path if path else file.filename)
+        extension = splitext(path if path else file.filename)[1]
 
-        if extension not in file_types:
+        if extension not in self.file_types:
             raise ValueError(f"Unsupported file extension: {extension}")
-        return file_types[extension](file=file, path=path) # delegate the creation of the file to the corresponding class
+        return self.file_types[extension](file=file, path=path) # delegate the creation of the file to the corresponding class

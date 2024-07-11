@@ -13,11 +13,11 @@ class Chat(Base):
     __tablename__ = 'chats'
     chat_id = Column(Integer, primary_key=True, index=True)
     title = Column(String(150), nullable=False)
-    course_id = Column(Integer, ForeignKey('courses.course_id'))
+    course_id = Column(Integer, ForeignKey('courses.course_id'), nullable=False)
     history_url = Column(String(255))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     slides_mode = Column(Boolean, default=False)
-    slides_fname = Column(String(255), nullable=True) # slides file name, e.g. Lecture_1.pptx
+    slides_fname = Column(String(255), nullable=True) # slides' original file name, e.g. Lecture_1.pptx
     slides_furl = Column(String(255), nullable=True) # slides file URL, e.g. ./.../<ffb1e29cc1...>.pptx
 
     # quiz relationships, quiz URLs, might be added here
@@ -39,5 +39,5 @@ class Chat(Base):
             "slides_mode": self.slides_mode,
             "slides_fname": self.slides_fname,
             "slides_furl": self.slides_furl,
-            "started_at": self.started_at
+            "created_at": self.created_at
         }

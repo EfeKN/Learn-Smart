@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 import modules.user.schemas as schemas
 from database.dbmanager import UserDB, CourseDB
-from controllers import authentication as auth
+from middleware import authentication as auth
 
 router = APIRouter(prefix="/users", tags=["User"])
 

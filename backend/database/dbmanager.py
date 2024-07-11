@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from sqlalchemy import and_
 
 from database.connection import db_connection
-from controllers import authentication as auth
+from middleware import authentication as auth
 
 from modules.user.model import User
 from modules.chat.model import Chat
@@ -306,6 +306,7 @@ class ChatDB(DatabaseInterface):
             if title:
                 chat.title = title                
             if history_url:
+                print("Updating history URL to:", history_url)
                 chat.history_url = history_url
             if slides_fname:
                 chat.slides_fname = slides_fname
@@ -318,24 +319,47 @@ class ChatDB(DatabaseInterface):
             return chat.to_dict()
 
     @staticmethod
-    def delete(chat_id: int):
+    def delete(**kwargs):
         """
-        Deletes a chat from the database based on the provided chat_id.
+        Deletes a chat from the database.
 
         Args:
-            chat_id (int): The ID of the chat to be deleted.
+        - **kwargs: Additional keyword arguments for specifying query parameters.
+            - chat_id (int): The ID of the chat to be deleted.
+            - course_id (int): The ID of the course associated with the chat to be deleted.
+            - all (bool): Flag indicating whether to delete all matching chats or just the first one. Default is False.
 
-        Raises:
-            ValueError: If the chat with the provided chat_id is not found in the database.
         """
-        with db_connection as db:
-            chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
-            if chat:
-                db.delete(chat)
-                db.commit()
-            else:
-                raise ValueError(f"Chat with ID {chat_id} not found")
+        chat_id = kwargs.get("chat_id", None)
+        course_id = kwargs.get("course_id", None)
+        all = kwargs.get("all", False)
 
+        if not any([chat_id, course_id]):
+            raise ValueError("No query parameters provided")
+        
+        # Create a list of filters based on the provided query parameters
+        filters = []
+        if chat_id:
+            filters.append(Chat.chat_id == chat_id)
+        if course_id:
+            filters.append(Chat.course_id == course_id)
+        
+        with db_connection as db:
+            query = db.query(Chat).filter(and_(*filters))
+            result = query.all() if all else [query.first()]
+            print(query)
+            print(query.all())
+            print(result)
+            if not result:
+                return []
+            
+            ret = []
+            for chat in result:
+                ret.append(chat.to_dict())
+                db.delete(chat)
+            db.commit()
+
+        return ret
 
 class CourseDB(DatabaseInterface):
     """
@@ -360,7 +384,7 @@ class CourseDB(DatabaseInterface):
         """
         course = CourseDB.fetch(course_code=code, user_id=user_id)
         if course:
-            raise ValueError(f"Course {code} with provided name already exists for user {user_id}")
+            raise ValueError(f"Course {code} already exists for user {user_id}")
 
         course = Course(course_name=name, course_code=code,
                         description=description, user_id=user_id) # create a new course object
@@ -441,6 +465,46 @@ class CourseDB(DatabaseInterface):
 
         Args:
         - **kwargs: Additional keyword arguments for specifying query parameters.
-
+            - course_id (int): The ID of the course to be deleted.
+            - course_name (str): The name of the course to be deleted.
+            - user_id (int): The ID of the user who owns the course to be deleted.
+            - course_code (str): The title of the course to be deleted.
+            - all (bool): Flag indicating whether to delete all matching courses or just the first one. Default is False.
+        
+        Returns:
+        - list: A list of dictionaries representing the deleted courses.
         """
-        pass
+        course_id = kwargs.get("course_id", None)
+        course_name = kwargs.get("course_name", None)
+        user_id = kwargs.get("user_id", None)
+        course_code = kwargs.get("course_code", None)
+        all = kwargs.get("all", False)
+
+        if not any([course_id, course_name, user_id, course_code]): # check if any query parameters are provided
+            raise ValueError("No query parameters provided")
+        
+        # Create a list of filters based on the provided query parameters
+        filters = []
+        if course_id:
+            filters.append(Course.course_id == course_id)
+        if course_name:
+            filters.append(Course.course_name == course_name)
+        if user_id:
+            filters.append(Course.user_id == user_id)
+        if course_code:
+            filters.append(Course.course_code == course_code)
+        
+        with db_connection as db:
+            query = db.query(Course).filter(and_(*filters))
+            result = query.all() if all else [query.first()]
+            if not result:
+                return []
+            
+            ret = []
+            for course in result:
+                ret.append(course.to_dict())
+                db.delete(course)
+            db.commit()
+        
+        return ret
+

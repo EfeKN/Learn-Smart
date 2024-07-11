@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
+import os, shutil
 
-from controllers import authentication as auth
+from middleware import authentication as auth
 from database.dbmanager import CourseDB, ChatDB
 from modules.course.schemas import CourseCreationRequest
+from modules.chat.util import *
 
 router = APIRouter(prefix="/course", tags=["Course"])
 
@@ -78,3 +80,47 @@ async def create_course(course: CourseCreationRequest, current_user: dict = Depe
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@router.delete("/{course_id}")
+async def delete_course(course_id: int, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Delete a course.
+
+    Args:
+        course_id (int): The ID of the course to delete.
+        current_user (dict, optional): The current user. Defaults to Depends(auth.get_current_user).
+    
+    Returns:
+        Success message.
+
+    Raises:
+        HTTPException: If there is an error deleting the course.
+    """
+    course = CourseDB.fetch(course_id=course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found.")
+
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+
+    syllabus_url = course["syllabus_url"]
+    if syllabus_url and os.path.exists(syllabus_url): os.remove(syllabus_url)
+    course_img_url = course["course_img_url"]
+    if course_img_url and os.path.exists(course_img_url): os.remove(course_img_url)
+    
+    chats = ChatDB.delete(course_id=course_id, all=True) # delete all chats associated with the course
+    CourseDB.delete(course_id=course_id) # delete the course
+    for chat in chats:
+        history_url, slides_furl = chat["history_url"], chat["slides_furl"]
+        metadata_url = get_chat_metadata_path(history_url) if history_url else None
+        generator_url = get_generator_path(slides_furl) if slides_furl else None
+        items_folder = get_chat_folder_name(chat["chat_id"])
+
+        if history_url and os.path.exists(history_url): os.remove(history_url)
+        if items_folder and os.path.exists(items_folder): shutil.rmtree(items_folder)
+        if slides_furl and os.path.exists(slides_furl): os.remove(slides_furl)
+        if metadata_url and os.path.exists(metadata_url): os.remove(metadata_url)
+        if generator_url and os.path.exists(generator_url): os.remove(generator_url)
+
+        # TODO: delete quiz and flashcards too
+
+    return {"message": "Course deleted successfully."}

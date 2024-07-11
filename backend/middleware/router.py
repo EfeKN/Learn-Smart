@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 import os
 
-from controllers import authentication as auth
-from controllers.filemanager import GFile
+from middleware import authentication as auth
+from middleware.filemanager import FileFactory
 from modules.user.model import User
-from controllers import FILES_DIR
+from middleware import FILES_DIR
 from tools import generate_hash, splitext
 
 router = APIRouter(prefix="/files", tags=["Files"])
@@ -30,7 +30,7 @@ def upload_file(file: UploadFile = File(...), current_user: User = Depends(auth.
     name, extension = splitext(filename) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
 
     try:
-        file = GFile(file=file)
+        file = FileFactory()(file=file)
 
         # Generate a unique filename, while preserving the original filename for retrieval
         hashed_fname = f"{generate_hash(name, strategy="uuid")}_{name}.{extension}" # e.g. <hashed_name>_<actual_name>.pdf
@@ -66,7 +66,7 @@ def delete_file(filename: str, current_user: User = Depends(auth.get_current_use
     """
 
     try:
-        file = GFile(path=filename)
+        file = FileFactory()(path=filename)
         file.delete()
         return {"filename": filename}
     
