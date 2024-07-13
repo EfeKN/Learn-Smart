@@ -18,8 +18,7 @@ export default function CourseHomepage({ params }: { params: any }) {
   const pathname = usePathname();
 
   useEffect(() => {
-    const storedToken = Cookies.get("authToken");
-    setToken(storedToken || null);
+    setToken(Cookies.get("authToken") || null);
   }, []);
 
   useEffect(() => {
@@ -36,6 +35,7 @@ export default function CourseHomepage({ params }: { params: any }) {
           Authorization: `Bearer ${token}`,
         },
       });
+
       setCourse(response.data); // Assuming response.data contains the course data
       if (response.data.folders) {
         setFolders(response.data.folders); // Assuming folders data is part of response
@@ -54,7 +54,7 @@ export default function CourseHomepage({ params }: { params: any }) {
     setNewFolderName("");
   };
 
-  const handleFolderNameChange = (e) => {
+  const handleFolderNameChange = (e: any) => {
     setNewFolderName(e.target.value);
   };
 

@@ -23,7 +23,11 @@
 }
 
 .course-card:hover .overlay-content {
-  clip-path: polygon(0% 0%, 75% 0%, 0% 100%); /* Adjust clip-path to reveal the diagonal shape */
+  clip-path: polygon(
+    0% 0%,
+    75% 0%,
+    0% 100%
+  ); /* Adjust clip-path to reveal the diagonal shape */
   opacity: 1;
 }
 

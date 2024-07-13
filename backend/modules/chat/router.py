@@ -65,6 +65,7 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
         HTTPException: If the file extension is invalid.
 
     """
+    
     course = CourseDB.fetch(course_id=course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found.")

@@ -45,6 +45,7 @@ async def get_chats(course_id: int, current_user: dict = Depends(auth.get_curren
     Returns:
         list: A list of chat messages.
     """
+    
     course = CourseDB.fetch(course_id=course_id)
 
     if not course:
@@ -58,7 +59,7 @@ async def get_chats(course_id: int, current_user: dict = Depends(auth.get_curren
     chats = ChatDB.fetch(course_id=course_id, all=True)
     return {"chats": [{"chat_id": chat["chat_id"], 
                        "title": chat["title"]} for chat in chats]} # return chat titles along with chat IDs
-
+    
 
 @router.post("/create")
 async def create_course(course_name: str = Form(...), course_code: str = Form(...),
@@ -178,7 +179,7 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
         raise HTTPException(status_code=404, detail="Course not found.")
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
-    print(course["description"])
+
     try:
         course = CourseDB.update(course_id=course_id, course_name=course["course_name"], 
                                  description=course["description"], course_code=course["course_code"])

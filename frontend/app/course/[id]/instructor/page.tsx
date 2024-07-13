@@ -1,23 +1,33 @@
 "use client";
 
 import CreateChatModal from "@/app/components/modals/create-chat-modal";
+import backendAPI from "@/environment/backend_api";
+import Cookies from "js-cookie";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
+interface Chat {
+  id: number;
+  title: string;
+}
+
 export default function InstructorPage() {
-  const [chats, setChats] = useState<{ id: number; title: string }[]>([]);
+  const [chats, setChats] = useState<Chat[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
   const params = useParams<{ id: string }>();
   const id = params.id;
 
   useEffect(() => {
-    // Placeholder data for chats
-    setChats([
-      { id: 1, title: "Chat 1" },
-      { id: 2, title: "Chat 2" },
-      { id: 3, title: "Chat 3" },
-    ]);
+    console.log(Cookies.get("authToken"));
+    setToken(Cookies.get("authToken") || null);
   }, []);
+
+  useEffect(() => {
+    if (token) {
+      fetchChats(id);
+    }
+  }, [token]);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -25,6 +35,28 @@ export default function InstructorPage() {
 
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+
+  const fetchChats = async (id: string) => {
+    try {
+      const response = await backendAPI.get(`/course/chats/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // Map the chat data to the curent chat state
+
+      let chats: Chat[] = response.data.chats.map((chat: any) => ({
+        id: chat.chat_id,
+        title: chat.title,
+      }));
+
+      setChats(chats);
+    } catch (error) {
+      console.error("Error fetching chats data:", error);
+    }
   };
 
   return (

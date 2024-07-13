@@ -4,6 +4,7 @@ interface CreateChatModalProps {
   isOpen: boolean;
   closeModal: () => void;
 }
+
 export default function CreateChatModal(modalProps: CreateChatModalProps) {
   if (!modalProps.isOpen) return null;
 
