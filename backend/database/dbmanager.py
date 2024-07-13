@@ -456,7 +456,7 @@ class CourseDB(DatabaseInterface):
                 - course_code (str): The new code for the course.
                 - description (str): The new description for the course.
                 - syllabus_url (str): The new syllabus URL for the course.
-                - course_img_url (str): The new image URL for the course.
+                - img_url (str): The new image URL for the course.
 
         Returns:
             dict: A dictionary representing the updated course details.
@@ -468,7 +468,7 @@ class CourseDB(DatabaseInterface):
         course_code: str = kwargs.get("course_code", None)
         description: str = kwargs.get("description", None)
         syllabus_url: str = kwargs.get("syllabus_url", None)
-        course_img_url: str = kwargs.get("course_img_url", None)
+        img_url: str = kwargs.get("img_url", None)
 
         with db_connection as db:
             course = db.query(Course).filter(Course.course_id == course_id).first()
@@ -483,8 +483,8 @@ class CourseDB(DatabaseInterface):
                 course.description = description
             if syllabus_url:
                 course.syllabus_url = syllabus_url
-            if course_img_url:
-                course.course_img_url = course_img_url
+            if img_url:
+                course.img_url = img_url
 
             db.commit()
             db.refresh(course)

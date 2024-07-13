@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
+from typing import Optional
+from fastapi import APIRouter, Depends, Form, HTTPException, File, UploadFile
 import os, shutil
 
 from middleware import authentication as auth
@@ -33,10 +34,10 @@ async def get_course(course_id: int, current_user: dict = Depends(auth.get_curre
     return course
 
 @router.get("/chats/{course_id}")
-async def get_course_chats(course_id: int, current_user: dict = Depends(auth.get_current_user)):
+async def get_chats(course_id: int, current_user: dict = Depends(auth.get_current_user)):
     """
     Get all chats for a course.
-
+    
     Args:
         course_id (int): The ID of the course.
         current_user (User): The current authenticated user (used for authentication).
@@ -55,12 +56,16 @@ async def get_course_chats(course_id: int, current_user: dict = Depends(auth.get
         raise HTTPException(status_code=403, detail="Forbidden.")
 
     chats = ChatDB.fetch(course_id=course_id, all=True)
-    return {"chats": [{chat["chat_id"]: chat["title"]} for chat in chats]} # return chat titles along with chat IDs
+    return {"chats": [{"chat_id": chat["chat_id"], 
+                       "title": chat["title"]} for chat in chats]} # return chat titles along with chat IDs
 
 
 @router.post("/create")
-async def create_course(course: CourseCreationRequest, current_user: dict = Depends(auth.get_current_user), 
-                        syllabus_file: UploadFile = File(None)):
+async def create_course(course_name: str = Form(...), course_code: str = Form(...),
+                        description: Optional[str] = Form(None), 
+                        syllabus_file: UploadFile = File(None),
+                        img_file: UploadFile = File(None),
+                        current_user: dict = Depends(auth.get_current_user)):
     """
     Create a new course.
 
@@ -78,9 +83,13 @@ async def create_course(course: CourseCreationRequest, current_user: dict = Depe
         Syllabus uploads must go to LLM to generate weekly study plans.
         File structure must be updated too.
     """
+
+    # pydantic input validation
+    # _ = CourseCreationRequest(course_name=course_name, course_code=course_code, description=description)
+
     try:
-        course = CourseDB.create(name=course.course_name, description=course.description, 
-                                code= course.course_code, user_id=current_user["user_id"])
+        course = CourseDB.create(name=course_name, description=description, 
+                                code= course_code, user_id=current_user["user_id"])
         return course
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -109,8 +118,8 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
 
     syllabus_url = course["syllabus_url"]
     if syllabus_url and os.path.exists(syllabus_url): os.remove(syllabus_url)
-    course_img_url = course["course_img_url"]
-    if course_img_url and os.path.exists(course_img_url): os.remove(course_img_url)
+    img_url = course["img_url"]
+    if img_url and os.path.exists(img_url): os.remove(img_url)
     
     chats = ChatDB.delete(course_id=course_id, all=True) # delete all chats associated with the course
     CourseDB.delete(course_id=course_id) # delete the course
@@ -120,7 +129,7 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
         generator_url = get_generator_path(slides_furl) if slides_furl else None
         items_folder = get_chat_folder_name(chat["chat_id"])
 
-        if history_url and os.path.exists(history_url): os.remove(history_url)
+        if os.path.exists(history_url): os.remove(history_url)
         if items_folder and os.path.exists(items_folder): shutil.rmtree(items_folder)
         if slides_furl and os.path.exists(slides_furl): os.remove(slides_furl)
         if metadata_url and os.path.exists(metadata_url): os.remove(metadata_url)
@@ -131,35 +140,48 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
     return {"message": "Course deleted successfully."}
 
 @router.put("/{course_id}")
-async def update_course(course_id: int, course: CourseUpdateRequest, 
-                        current_user: dict = Depends(auth.get_current_user),
-                        syllabus_file: UploadFile = File(None)):
+async def update_course(course_id: int, course_name: Optional[str] = Form(None),
+                        course_code: Optional[str] = Form(None),
+                        description: Optional[str] = Form(None),
+                        syllabus_file: UploadFile = File(None),
+                        img_file: UploadFile = File(None),
+                        current_user: dict = Depends(auth.get_current_user)):
     """
-    Update a course.
+    Update a course with the given course_id.
 
-    Args:
-        course_id (int): The ID of the course to update.
-        course (CourseUpdateRequest): The updated course details.
-        current_user (dict, optional): The current user. Defaults to Depends(auth.get_current_user).
-    
+    Parameters:
+    - course_id (int): The ID of the course to update.
+    - course_name (Optional[str]): The updated name of the course (default: None).
+    - course_code (Optional[str]): The updated code of the course (default: None).
+    - description (Optional[str]): The updated description of the course (default: None).
+    - syllabus_file (UploadFile): The updated syllabus file (default: None).
+    - img_file (UploadFile): The updated image file (default: None).
+    - current_user (dict): The current user's information.
+
     Returns:
-        The updated course.
+    - Updated course information.
 
     Raises:
-        HTTPException: If there is an error updating the course.
+    - HTTPException(404): If the course is not found.
+    - HTTPException(403): If the user is not authorized to update the course.
+    - HTTPException(400): If there is a value error during the update process.
 
     TODO:
         Syllabus updates must go to LLM. syllabus_url field would change too.
     """
+
+    # pydantic input validation
+    # _ = CourseUpdateRequest(course_name=course_name, course_code=course_code, description=description)
+
     course = CourseDB.fetch(course_id=course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found.")
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
-    
+    print(course["description"])
     try:
-        course = CourseDB.update(course_id=course_id, course_name=course.course_name, description=course.description, 
-                                course_code=course.course_code)
+        course = CourseDB.update(course_id=course_id, course_name=course["course_name"], 
+                                 description=course["description"], course_code=course["course_code"])
         return course
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
