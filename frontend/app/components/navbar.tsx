@@ -34,6 +34,12 @@ export default function Navbar() {
       link: "menu",
       component: renderMenu,
     },
+    {
+      id: 3,
+      name: "logout",
+      link: "logout",
+      component: renderLogout,
+    },
   ];
 
   function handleMenuClick(menu: any) {
@@ -117,6 +123,18 @@ export default function Navbar() {
     );
   }
 
+  function renderLogout(): JSX.Element {
+    return (
+      <button
+        type="button"
+        onClick={handleLogout}
+        className="text-lm font-medium text-black"
+      >
+        Logout
+      </button>
+    );
+  }
+
   return (
     <div
       className="flex justify-between items-center w-full h-20 px-4 text-black bg-white nav"
@@ -141,13 +159,7 @@ export default function Navbar() {
             className="nav-navbarElements px-4 cursor-pointer capitalize font-medium text-gray-500 link-underline"
             onClick={() => handleMenuClick(link)}
           >
-            {link === "menu" ? (
-              component()
-            ) : link === "notifications" ? (
-              component()
-            ) : (
-              <></>
-            )}
+            {component()}
           </li>
         ))}
       </ul>
