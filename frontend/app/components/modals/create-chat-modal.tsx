@@ -1,11 +1,10 @@
-'use client';
-
-import React from 'react';
+"use client";
 
 interface CreateChatModalProps {
   isOpen: boolean;
   closeModal: () => void;
 }
+
 export default function CreateChatModal(modalProps: CreateChatModalProps) {
   if (!modalProps.isOpen) return null;
 
@@ -41,16 +40,21 @@ export default function CreateChatModal(modalProps: CreateChatModalProps) {
         <hr className="mb-4 border-gray-200 w-full" />
         <div className="flex justify-between">
           <div className="mr-4 p-4 border rounded">
-            <p className="mb-4">If you want, you can upload your course slides and your instructor will explain the concepts!</p>
+            <p className="mb-4">
+              If you want, you can upload your course slides and your instructor
+              will explain the concepts!
+            </p>
             <button
               className="w-full mb-4 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700"
-              onClick={() => alert('Upload button clicked')}
+              onClick={() => alert("Upload button clicked")}
             >
               Upload Slides...
             </button>
           </div>
           <div className="p-4 border rounded">
-            <p className="mb-4">You can also chat with your LLM instructor too!</p>
+            <p className="mb-4">
+              You can also chat with your LLM instructor too!
+            </p>
           </div>
         </div>
         <div className="flex justify-center mt-4">
@@ -66,4 +70,4 @@ export default function CreateChatModal(modalProps: CreateChatModalProps) {
       </div>
     </div>
   );
-};
+}

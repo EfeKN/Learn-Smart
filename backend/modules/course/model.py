@@ -34,7 +34,7 @@ class Course(Base):
             "course_id": self.course_id,
             "course_name": self.course_name,
             "description": self.description,
-            "course_code": self.course_code, # e.g. "CS 342"
+            "course_code": self.course_code,
             "user_id": self.user_id,
             "syllabus_url": self.syllabus_url,
             "img_url": self.img_url

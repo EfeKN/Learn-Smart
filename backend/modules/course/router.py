@@ -47,6 +47,7 @@ async def get_chats(course_id: int, current_user: dict = Depends(auth.get_curren
     Returns:
         list: A list of chat messages.
     """
+    
     course = CourseDB.fetch(course_id=course_id)
 
     if not course:
@@ -60,7 +61,7 @@ async def get_chats(course_id: int, current_user: dict = Depends(auth.get_curren
     chats = ChatDB.fetch(course_id=course_id, all=True)
     return {"chats": [{"chat_id": chat["chat_id"], 
                        "title": chat["title"]} for chat in chats]} # return chat titles along with chat IDs
-
+    
 
 @router.post("/create")
 async def create_course(course_name: str = Form(...), course_code: str = Form(...),

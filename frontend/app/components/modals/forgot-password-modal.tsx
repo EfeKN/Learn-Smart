@@ -12,21 +12,22 @@ export default function ForgotPasswordModal(
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await fetch("/api/password/reset", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.json();
+    await fetch("/api/password/reset", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    })
+      .then((response) => {
+        const data = response.json();
 
-      // TODO: Handle response from backend
-      console.log(data);
-    } catch (error) {
-      console.error("Error sending password reset request:", error);
-    }
+        // TODO: Handle response from backend
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error("Error sending password reset request:", error);
+      });
 
     // Close modal after submission
     forgotPasswordModalProps.closeModal();

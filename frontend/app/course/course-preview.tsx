@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import "@/app/style/course-preview.css";
-import CourseCard from "./course-card";
 import CreateCourseModal from "@/app/components/modals/create-course-modal";
 import CourseHomepage from "@/app/course/[id]/page";
+import "@/app/style/course-preview.css";
+import { useState } from "react";
+import CourseCard from "./course-card";
 
 export default function CoursePreview() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,14 +17,14 @@ export default function CoursePreview() {
     },
   ];
 
-  const handleSelectCourse = (course) => {
+  const handleSelectCourse = (course: any) => {
     setSelectedCourse(course);
   };
 
   return (
     <div>
       {selectedCourse ? (
-        <CourseHomepage course={selectedCourse} />
+        <CourseHomepage params={selectedCourse} />
       ) : (
         <div className="flex space-x-4">
           {topSites.map((site) => (
@@ -50,7 +50,11 @@ export default function CoursePreview() {
         </div>
       )}
       {selectedCourse && (
-        <button onClick={() => setSelectedCourse(null)} className="toggle-button">
+        <button
+          onClick={() => setSelectedCourse(null)}
+          className="toggle-button"
+          type="button"
+        >
           Back to Course List
         </button>
       )}

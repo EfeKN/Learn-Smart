@@ -1,27 +1,24 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import backendAPI from '@/environment/backend_api';
-import Cookies from 'js-cookie';
-import '@/app/style/course-homepage.css';
-import Navbar from '@/app/components/navbar';
-import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
+import Navbar from "@/app/components/navbar";
+import "@/app/style/course-homepage.css";
+import backendAPI from "@/environment/backend_api";
+import Cookies from "js-cookie";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-
-const CourseHomepage = ({ params }: { params: any }) => {
-  const [course, setCourse] = useState(null);
+export default function CourseHomepage({ params }: { params: any }) {
+  const [course, setCourse] = useState<{ course_name: string } | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [folders, setFolders] = useState([]);
-  const [newFolderName, setNewFolderName] = useState('');
-  
+  const [folders, setFolders] = useState<{ id: number; name: string }[]>([]);
+  const [newFolderName, setNewFolderName] = useState("");
+
   const router = useRouter();
   const pathname = usePathname();
-  console.log(pathname);
 
   useEffect(() => {
-    const storedToken = Cookies.get('authToken');
-    setToken(storedToken || null);
+    setToken(Cookies.get("authToken") || null);
   }, []);
 
   useEffect(() => {
@@ -30,33 +27,35 @@ const CourseHomepage = ({ params }: { params: any }) => {
     }
   }, [token, params.id]);
 
-  const fetchCourseData = async (courseId) => {
-    try {
-      const response = await backendAPI.get(`/course/${courseId}`, {
+  const fetchCourseData = async (courseId: string) => {
+    await backendAPI
+      .get(`/course/${courseId}`, {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+      })
+      .then((response) => {
+        setCourse(response.data); // Assuming response.data contains the course data
+        if (response.data.folders) {
+          setFolders(response.data.folders); // Assuming folders data is part of response
+        } else {
+          setFolders([]); // Initialize folders as an empty array if no folders data is present
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching course data:", error);
       });
-      setCourse(response.data); // Assuming response.data contains the course data
-      if (response.data.folders) {
-        setFolders(response.data.folders); // Assuming folders data is part of response
-      } else {
-        setFolders([]); // Initialize folders as an empty array if no folders data is present
-      }
-    } catch (error) {
-      console.error('Error fetching course data:', error);
-    }
   };
 
   const handleCreateFolder = () => {
     // Implement logic to create a new folder and update state
     const newFolder = { id: folders.length + 1, name: newFolderName }; // Example new folder structure
     setFolders([...folders, newFolder]);
-    setNewFolderName('');
+    setNewFolderName("");
   };
 
-  const handleFolderNameChange = (e) => {
+  const handleFolderNameChange = (e: any) => {
     setNewFolderName(e.target.value);
   };
 
@@ -73,13 +72,21 @@ const CourseHomepage = ({ params }: { params: any }) => {
           <h2>{course.course_name}</h2>
         </div>
         <div className="button-grid">
-          <button className="button flashcards">Flashcards</button>
-          <button className="button quizzes">Quizzes</button>
+          <button className="button flashcards" type="button">
+            Flashcards
+          </button>
+          <button className="button quizzes" type="button">
+            Quizzes
+          </button>
           <Link href={`${pathname}/instructor`} className="button instructor">
-              Go to your {course.course_name} Instructor (chatbot)
+            Go to your {course.course_name} Instructor (chatbot)
           </Link>
-          <button className="button study-plan">Weekly study plan</button>
-          <button className="button syllabus">Upload/Update Syllabus</button>
+          <button className="button study-plan" type="button">
+            Weekly study plan
+          </button>
+          <button className="button syllabus" type="button">
+            Upload/Update Syllabus
+          </button>
           <div className="folders">
             <h3>My Folders</h3>
             <div className="folder-list">
@@ -100,13 +107,13 @@ const CourseHomepage = ({ params }: { params: any }) => {
                 value={newFolderName}
                 onChange={handleFolderNameChange}
               />
-              <button onClick={handleCreateFolder}>Create Folder</button>
+              <button onClick={handleCreateFolder} type="button">
+                Create Folder
+              </button>
             </div>
           </div>
         </div>
       </div>
     </main>
   );
-};
-
-export default CourseHomepage;
+}

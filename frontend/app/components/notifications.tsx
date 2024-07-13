@@ -1,10 +1,10 @@
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function Notifications({ isOpen }: { isOpen: boolean }) {
   const router = useRouter();
   const handleSeeMoreClick = () => {
     const router = useRouter();
-    router.push("/notifications")
+    router.push("/notifications");
   };
 
   const notifications = [1, 2, 3, 4, 5];
