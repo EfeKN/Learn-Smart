@@ -1,4 +1,8 @@
-import React, { useState } from "react";
+import backendAPI from "@/environment/backend_api";
+import FormData from "form-data";
+import Cookies from "js-cookie";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 interface ModalProps {
   isOpen: boolean;
@@ -7,28 +11,57 @@ interface ModalProps {
 }
 
 export default function CreateCourseModal(modalProps: ModalProps) {
-  if (!modalProps.isOpen) return null;
+  if (!modalProps.isOpen) {
+    return null;
+  }
 
   const [courseName, setCourseName] = useState("");
-  const [placeHolderInput, setPlaceHolderInput] = useState("");
+  const [courseCode, setCourseCode] = useState("");
+  const [description, setDescription] = useState("");
   const [formError, setFormError] = useState("");
+  const [token, setToken] = useState<string | null>(null);
+  const params = useParams<{ id: string }>();
+  const id = params.id;
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    setToken(Cookies.get("authToken") || null);
+  }, []);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     // Validate if all fields are filled
-    if (!courseName || !placeHolderInput) {
+    if (!courseName || !courseCode || !description) {
       setFormError("Please fill out all fields.");
       return;
     }
 
-    // TODO: ADD TO DATABASE LOGIC HERE
-    console.log("Course Name:", courseName);
-    console.log("Placeholder:", placeHolderInput);
+    const form = new FormData();
+
+    form.append("course_name", courseName);
+    form.append("course_code", courseCode);
+    form.append("description", description);
+    form.append("img_url", null);
+    form.append("syllabus_url", null);
+
+    await backendAPI
+      .post(`/course/create`, form, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching chats data:", error);
+      });
 
     // Close the modal after submission
     modalProps.onClose();
-  };
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-15 backdrop-blur">
@@ -39,6 +72,7 @@ export default function CreateCourseModal(modalProps: ModalProps) {
             onClick={modalProps.onClose}
             className="text-gray-500 hover:text-gray-700"
             title="Close Modal"
+            type="button"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -64,7 +98,6 @@ export default function CreateCourseModal(modalProps: ModalProps) {
             >
               Course Name:
             </label>
-
             <input
               type="text"
               id="courseName"
@@ -76,21 +109,37 @@ export default function CreateCourseModal(modalProps: ModalProps) {
             />
 
             <label
-              htmlFor="placeHolderInput"
+              htmlFor="courseCode"
               className="block mt-4 mb-2 font-medium text-gray-700"
             >
-              Placeholder:
+              Course Code:
             </label>
-
             <input
               type="text"
-              id="placeHolderInput"
-              name="placeHolderInput"
-              value={placeHolderInput}
-              onChange={(e) => setPlaceHolderInput(e.target.value)}
+              id="courseCode"
+              name="courseCode"
+              value={courseCode}
+              onChange={(e) => setCourseCode(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-              placeholder="Placeholder..."
+              placeholder="Enter course code..."
             />
+
+            <label
+              htmlFor="description"
+              className="block mt-4 mb-2 font-medium text-gray-700"
+            >
+              Description:
+            </label>
+            <textarea
+              id="description"
+              name="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              placeholder="Enter description..."
+            ></textarea>
+
+            {/* TODO syllabus and image */}
 
             {formError && (
               <p className="text-red-500 text-sm mt-2">{formError}</p>

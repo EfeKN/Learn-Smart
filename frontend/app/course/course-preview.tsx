@@ -1,8 +1,8 @@
-import CreateCourseModal from "@/app/components/modals/create-course-modal";
 import CourseHomepage from "@/app/course/[id]/page";
 import "@/app/style/course-preview.css";
 import { useState } from "react";
 import CourseCard from "./course-card";
+import CreateCourseModal from "./create-course-modal";
 
 export default function CoursePreview() {
   const [isModalOpen, setIsModalOpen] = useState(false);
