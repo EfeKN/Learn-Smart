@@ -86,6 +86,9 @@ class BaseFile(ABC):
         if not self.file:
             raise ValueError("No file provided to be saved.")
         
+        directory = os.path.dirname(path) # directory part of the path
+        os.makedirs(directory, exist_ok=True)
+        
         with open(path, "wb") as file:
             file.write(self.file.file.read())
 

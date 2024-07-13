@@ -7,6 +7,10 @@ import dotenv
 from logger import logger
 from database.connection import db_connection
 
+dotenv.load_dotenv()
+CHATS_DIR = os.getenv("CHATS_DIR", "./chat_histories")
+FILES_DIR = os.getenv("FILES_DIR", "./files")
+
 # Function to generate hash of a given string based on the strategy
 def generate_hash(filename, strategy="sha256"):
     if strategy == "sha256":
@@ -28,11 +32,6 @@ def create_tables(drop: bool = False):
 
 
 def setup():
-    dotenv.load_dotenv()
-
-    CHATS_DIR = os.getenv("CHATS_DIR", "./chat_histories")
-    FILES_DIR = os.getenv("FILES_DIR", "./files")
-
     if not os.path.exists(CHATS_DIR):
         os.makedirs(CHATS_DIR)
 
@@ -45,3 +44,4 @@ def splitext(filename: str):
     base_name = os.path.splitext(filename)[0].lower()
     extension = os.path.splitext(filename)[-1][1:].lower()
     return base_name, extension
+    
