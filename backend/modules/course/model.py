@@ -17,7 +17,7 @@ class Course(Base):
     course_code = Column(String(16), unique=True) # e.g. CS 342
     description = Column(String(1024), nullable=True)
     syllabus_url = Column(String(255), nullable=True)
-    course_img_url = Column(String(255), nullable=True) # nullable for now (generate an image for the course in the future)
+    img_url = Column(String(255), nullable=True) # nullable for now (generate an image for the course in the future)
     user_id = Column(Integer, ForeignKey('users.user_id'))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     user = relationship("User", back_populates="courses")
@@ -37,5 +37,5 @@ class Course(Base):
             "course_code": self.course_code, # e.g. "CS 342"
             "user_id": self.user_id,
             "syllabus_url": self.syllabus_url,
-            "course_img_url": self.course_img_url
+            "img_url": self.img_url
         }
