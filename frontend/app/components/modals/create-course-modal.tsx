@@ -64,6 +64,7 @@ export default function CreateCourseModal(modalProps: ModalProps) {
             >
               Course Name:
             </label>
+
             <input
               type="text"
               id="courseName"
@@ -80,6 +81,7 @@ export default function CreateCourseModal(modalProps: ModalProps) {
             >
               Placeholder:
             </label>
+
             <input
               type="text"
               id="placeHolderInput"
@@ -93,18 +95,8 @@ export default function CreateCourseModal(modalProps: ModalProps) {
             {formError && (
               <p className="text-red-500 text-sm mt-2">{formError}</p>
             )}
-
-            {/*
-            <label htmlFor="courseDescription" className="block mt-4 mb-2 font-medium text-gray-700">Course Description:</label>
-            <textarea
-              id="courseDescription"
-              name="courseDescription"
-              rows="3"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none focus:outline-none focus:border-blue-500"
-              placeholder="Enter course description..."
-            ></textarea>
-            */}
           </div>
+
           <div className="flex justify-end pt-2">
             <button
               type="button"
