@@ -45,35 +45,36 @@ export default function LoginPage() {
       password: password,
     };
 
-    try {
-      const response = await backendAPI.post("/users/login", formData, {
+    await backendAPI
+      .post("/users/login", formData, {
         headers: {
           Accept: "application/json",
           "Content-Type": "application/x-www-form-urlencoded",
         },
-      });
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          alert("Login successful");
 
-      if (response.status === 200) {
-        alert("Login successful");
+          const data = response.data;
 
-        const data = response.data;
+          // Store the token in a cookie
+          Cookies.set("authToken", data["access_token"], { expires: 3 });
 
-        // Store the token in a cookie
-        Cookies.set("authToken", data["access_token"], { expires: 3 });
+          // Remember email if "Remember Me" checkbox is checked
+          if (rememberMe) {
+            Cookies.set("emailCookie", email, { expires: 3 });
+          } else {
+            Cookies.remove("emailCookie");
+          }
 
-        // Remember email if "Remember Me" checkbox is checked
-        if (rememberMe) {
-          Cookies.set("emailCookie", email, { expires: 3 });
-        } else {
-          Cookies.remove("emailCookie");
+          router.push("/home-page");
         }
-
-        router.push("/home-page");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      alert("Login failed");
-    }
+      })
+      .catch((error) => {
+        console.error("Login error:", error);
+        alert("Login failed");
+      });
   };
 
   const handleCreateAccount = () => {

@@ -28,23 +28,24 @@ export default function CourseHomepage({ params }: { params: any }) {
   }, [token, params.id]);
 
   const fetchCourseData = async (courseId: string) => {
-    try {
-      const response = await backendAPI.get(`/course/${courseId}`, {
+    await backendAPI
+      .get(`/course/${courseId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+      })
+      .then((response) => {
+        setCourse(response.data); // Assuming response.data contains the course data
+        if (response.data.folders) {
+          setFolders(response.data.folders); // Assuming folders data is part of response
+        } else {
+          setFolders([]); // Initialize folders as an empty array if no folders data is present
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching course data:", error);
       });
-
-      setCourse(response.data); // Assuming response.data contains the course data
-      if (response.data.folders) {
-        setFolders(response.data.folders); // Assuming folders data is part of response
-      } else {
-        setFolders([]); // Initialize folders as an empty array if no folders data is present
-      }
-    } catch (error) {
-      console.error("Error fetching course data:", error);
-    }
   };
 
   const handleCreateFolder = () => {

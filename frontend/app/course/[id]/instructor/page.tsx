@@ -38,25 +38,26 @@ export default function InstructorPage() {
   };
 
   const fetchChats = async (id: string) => {
-    try {
-      const response = await backendAPI.get(`/course/chats/${id}`, {
+    await backendAPI
+      .get(`/course/chats/${id}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+      })
+      .then((response) => {
+        // Map the chat data to the curent chat state
+
+        let chats: Chat[] = response.data.chats.map((chat: any) => ({
+          id: chat.chat_id,
+          title: chat.title,
+        }));
+
+        setChats(chats);
+      })
+      .catch((error) => {
+        console.error("Error fetching chats data:", error);
       });
-
-      // Map the chat data to the curent chat state
-
-      let chats: Chat[] = response.data.chats.map((chat: any) => ({
-        id: chat.chat_id,
-        title: chat.title,
-      }));
-
-      setChats(chats);
-    } catch (error) {
-      console.error("Error fetching chats data:", error);
-    }
   };
 
   return (
