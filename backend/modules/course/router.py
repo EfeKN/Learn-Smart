@@ -3,9 +3,11 @@ from fastapi import APIRouter, Depends, Form, HTTPException, File, UploadFile
 import os, shutil
 
 from middleware import authentication as auth
+from middleware.filemanager import FileFactory
 from database.dbmanager import CourseDB, ChatDB
 from modules.course.schemas import CourseCreationRequest, CourseUpdateRequest
 from modules.chat.util import *
+from modules.course.util import *
 
 router = APIRouter(prefix="/course", tags=["Course"])
 
@@ -86,11 +88,19 @@ async def create_course(course_name: str = Form(...), course_code: str = Form(..
     """
 
     # pydantic input validation
-    # _ = CourseCreationRequest(course_name=course_name, course_code=course_code, description=description)
-
+    _ = CourseCreationRequest(course_name=course_name, course_code=course_code, description=description)
     try:
+        img_ext = splitext(img_file.filename)[1]
+        if img_ext not in ["png", "jpg", "jpeg"]:
+            raise ValueError("Invalid image format. Please upload a PNG, JPG, or JPEG file.")
         course = CourseDB.create(name=course_name, description=description, 
-                                code= course_code, user_id=current_user["user_id"])
+                                code=course_code, user_id=current_user["user_id"])
+        img_file = FileFactory()(img_file)
+        course_img_path = get_course_img_path(course["course_id"])
+        img_file.save(course_img_path, size=(256, 256))
+
+        CourseDB.update(course_id=course["course_id"], img_url=course_img_path)
+        course["img_url"] = course_img_path # update response with the image URL
         return course
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -144,6 +154,9 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
 async def update_course(course_id: int, course_name: Optional[str] = Form(None),
                         course_code: Optional[str] = Form(None),
                         description: Optional[str] = Form(None),
+                        update_description: bool = Form(False), # flag variable indicating whether to update the 
+                                                                # description (necessary because description is
+                                                                # optional and might be None)
                         syllabus_file: UploadFile = File(None),
                         img_file: UploadFile = File(None),
                         current_user: dict = Depends(auth.get_current_user)):
@@ -172,7 +185,7 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
     """
 
     # pydantic input validation
-    # _ = CourseUpdateRequest(course_name=course_name, course_code=course_code, description=description)
+    _ = CourseUpdateRequest(course_name=course_name, course_code=course_code, description=description)
 
     course = CourseDB.fetch(course_id=course_id)
     if not course:
@@ -181,8 +194,9 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
         raise HTTPException(status_code=403, detail="Forbidden.")
 
     try:
-        course = CourseDB.update(course_id=course_id, course_name=course["course_name"], 
-                                 description=course["description"], course_code=course["course_code"])
+        course = CourseDB.update(course_id=course_id, course_name=course_name, 
+                                 description=("" if description is None and update_description else description),
+                                 course_code=course_code)
         return course
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

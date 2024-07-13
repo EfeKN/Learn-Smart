@@ -479,7 +479,7 @@ class CourseDB(DatabaseInterface):
                 course.course_name = course_name
             if course_code:
                 course.course_code = course_code
-            if description:
+            if description is not None: # might be empty string
                 course.description = description
             if syllabus_url:
                 course.syllabus_url = syllabus_url

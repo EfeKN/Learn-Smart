@@ -75,8 +75,6 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
     chat = ChatDB.create(course_id=course_id, title=title, slides_mode=bool(slides))
     history_fname, _ = generate_chat_fnames(current_user["user_id"], course_id, chat["chat_id"])
     history_url = os.path.join(CHATS_DIR, history_fname) # chat history file path
-    print("History URL:")
-    print(history_url)
 
     slides_furl, slides_fname = None, None # initialize the slides name and URL
     if slides: # then it means we're creating a chat in slides mode
@@ -116,7 +114,7 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
     return {"chat": chat, "message": "Chat created successfully."}
 
 
-@router.get("/chat/{chat_id}")
+@router.get("/{chat_id}")
 async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
     """
     Retrieve a chat by its ID and return the chat details along with its history.
@@ -175,7 +173,7 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
     return chat
 
 
-@router.get("/chat/{chat_id}/next_slide")
+@router.get("/{chat_id}/next_slide")
 def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_user)):
     """
     Get the next slide content for a given chat.
