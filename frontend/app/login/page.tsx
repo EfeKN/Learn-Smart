@@ -23,6 +23,7 @@ export default function LoginPage() {
       setEmail(emailCookie);
       setRememberMe(true);
     }
+
     // Redirect to homepage if already logged in
     const authToken = Cookies.get("authToken");
     if (authToken) {
@@ -81,10 +82,10 @@ export default function LoginPage() {
 
   return (
     <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center bg-gray-100 min-h-screen">
-      {/* ForgotPasswordModal */}
       {showForgotPasswordModal && (
         <ForgotPasswordModal closeModal={closeModal} />
       )}
+
       <div className="bg-white text-black rounded-2xl shadow-2xl flex w-2/3 max-w-4xl">
         <div className="w-3/5 p-5">
           <div className="text-left font-bold mb-12">
