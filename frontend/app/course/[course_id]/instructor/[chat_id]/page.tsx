@@ -1,11 +1,6 @@
 import { useParams } from "next/navigation";
 import React, { useState } from "react";
-
-interface Message {
-  id: number;
-  content: string;
-  sender: string;
-}
+import { Message } from "../../../../types";
 
 export default function ChatInterface() {
   const params = useParams<{ chat_id: string }>();
@@ -13,8 +8,8 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(event.target.value);
   };
 
   const handleSendMessage = () => {

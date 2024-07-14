@@ -1,17 +1,11 @@
-import React, {useState} from 'react';
-import Folder from '@/app/components/folder';
+import Folder from "@/app/components/folder";
+import { useState } from "react";
+import { FolderListParameters } from "../types";
 
-interface FolderType {
-  name: string;
-  folders: FolderType[];
-}
-
-interface FolderListProps {
-  folders: FolderType[];
-  handleDrop: (item: FolderType, targetFolder: FolderType) => void;
-}
-
-const FolderList: React.FC<FolderListProps> = ({ folders, handleDrop }) => {
+export default function FolderList({
+  folders,
+  handleDrop,
+}: FolderListParameters) {
   const [openFolders, setOpenFolders] = useState<string[]>([]);
 
   const toggleFolder = (folderName: string) => {
@@ -35,6 +29,4 @@ const FolderList: React.FC<FolderListProps> = ({ folders, handleDrop }) => {
       ))}
     </div>
   );
-};
-
-export default FolderList;
+}

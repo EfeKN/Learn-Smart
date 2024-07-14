@@ -1,25 +1,14 @@
-import React from 'react';
-import { useDrag, useDrop } from 'react-dnd';
+import { useDrag, useDrop } from "react-dnd";
+import { FolderParameters, FolderType } from "../types";
 
-const ItemTypes = {
-  FOLDER: 'folder',
-};
-
-interface FolderType {
-  name: string;
-  folders: FolderType[];
-}
-
-interface FolderProps {
-  folder: FolderType;
-  onDrop: (item: FolderType, folder: FolderType) => void;
-  toggleFolder: (folderName: string) => void;
-  isOpen: boolean;
-}
-
-const Folder: React.FC<FolderProps> = ({ folder, onDrop, toggleFolder, isOpen }) => {
+export default function Folder({
+  folder,
+  onDrop,
+  toggleFolder,
+  isOpen,
+}: FolderParameters) {
   const [{ isOver }, drop] = useDrop({
-    accept: ItemTypes.FOLDER,
+    accept: "folder",
     drop: (item: FolderType) => onDrop(item, folder),
     collect: (monitor) => ({
       isOver: !!monitor.isOver(),
@@ -27,7 +16,7 @@ const Folder: React.FC<FolderProps> = ({ folder, onDrop, toggleFolder, isOpen })
   });
 
   const [{ isDragging }, drag] = useDrag({
-    type: ItemTypes.FOLDER,
+    type: "folder",
     item: folder,
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
@@ -35,9 +24,21 @@ const Folder: React.FC<FolderProps> = ({ folder, onDrop, toggleFolder, isOpen })
   });
 
   return (
-    <div ref={drag} className={`bg-gray-700 p-4 rounded-lg text-center ${isDragging ? 'opacity-50' : ''}`}>
-      <div ref={drop} className={`folder-drop-area ${isOver ? 'bg-gray-600' : ''}`}>
-        <button onClick={() => toggleFolder(folder.name)} className="flex flex-col items-center">
+    <div
+      ref={drag}
+      className={`bg-gray-700 p-4 rounded-lg text-center ${
+        isDragging ? "opacity-50" : ""
+      }`}
+    >
+      <div
+        ref={drop}
+        className={`folder-drop-area ${isOver ? "bg-gray-600" : ""}`}
+      >
+        <button
+          onClick={() => toggleFolder(folder.name)}
+          className="flex flex-col items-center"
+          type="button"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -57,13 +58,17 @@ const Folder: React.FC<FolderProps> = ({ folder, onDrop, toggleFolder, isOpen })
         {isOpen && folder.folders.length > 0 && (
           <div className="subfolders mt-2">
             {folder.folders.map((subFolder, index) => (
-              <Folder key={index} folder={subFolder} onDrop={onDrop} toggleFolder={toggleFolder} isOpen={isOpen} />
+              <Folder
+                key={index}
+                folder={subFolder}
+                onDrop={onDrop}
+                toggleFolder={toggleFolder}
+                isOpen={isOpen}
+              />
             ))}
           </div>
         )}
       </div>
     </div>
   );
-};
-
-export default Folder;
+}

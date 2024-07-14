@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
-
-interface ForgotPasswordModalProps {
-  closeModal: () => void;
-}
+import { ForgotPasswordModalParameters } from "../../types";
 
 export default function ForgotPasswordModal(
-  forgotPasswordModalProps: ForgotPasswordModalProps
+  forgotPasswordModalProps: ForgotPasswordModalParameters
 ) {
   const [email, setEmail] = useState<string>("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     await fetch("/api/password/reset", {
       method: "POST",
       headers: {

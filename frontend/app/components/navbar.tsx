@@ -46,6 +46,7 @@ export default function Navbar() {
     setCurrentMenu(currentMenu === menu ? null : menu);
   }
 
+  // TODO: make this functional or remove
   function handleLinkClick() {
     setCurrentMenu(null);
     setNav(false);

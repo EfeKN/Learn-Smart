@@ -5,22 +5,17 @@ import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-
-interface Chat {
-  id: number;
-  title: string;
-}
+import { Chat } from "../../../types";
 
 export default function InstructorPage() {
   const [chats, setChats] = useState<Chat[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string>("");
   const params = useParams<{ course_id: string }>();
   const course_id = params.course_id;
 
   useEffect(() => {
-    console.log(Cookies.get("authToken"));
-    setToken(Cookies.get("authToken") || null);
+    setToken(Cookies.get("authToken") || "");
   }, []);
 
   useEffect(() => {
@@ -47,7 +42,6 @@ export default function InstructorPage() {
       })
       .then((response) => {
         // Map the chat data to the curent chat state
-
         let chats: Chat[] = response.data.chats.map((chat: any) => ({
           id: chat.chat_id,
           title: chat.title,

@@ -32,26 +32,30 @@ export default function LoginPage() {
   }, [router]);
 
   const handleForgotPasswordClick = () => {
-    setShowForgotPasswordModal(true); // Open the modal
+    // Open the modal
+    setShowForgotPasswordModal(true);
   };
 
   const closeModal = () => {
-    setShowForgotPasswordModal(false); // Close the modal
+    // Close the modal
+    setShowForgotPasswordModal(false);
   };
 
   const handleLogin = async () => {
-    const formData = {
-      username: email,
-      password: password,
-    };
-
     await backendAPI
-      .post("/users/login", formData, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/x-www-form-urlencoded",
+      .post(
+        "/users/login",
+        {
+          username: email,
+          password: password,
         },
-      })
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      )
       .then((response) => {
         if (response.status === 200) {
           alert("Login successful");

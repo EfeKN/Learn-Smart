@@ -1,7 +1,7 @@
 import { useRouter } from "next/navigation";
+import { NotificationsParameters } from "../types";
 
-export default function Notifications({ isOpen }: { isOpen: boolean }) {
-  const router = useRouter();
+export default function Notifications({ isOpen }: NotificationsParameters) {
   const handleSeeMoreClick = () => {
     const router = useRouter();
     router.push("/notifications");

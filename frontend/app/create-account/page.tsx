@@ -7,14 +7,6 @@ import { FaRegEnvelope, FaRegUser } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
 import { RiShieldUserLine } from "react-icons/ri";
 
-interface parameterDictionary {
-  [key: string]: string;
-  name: string;
-  nickname: string;
-  email: string;
-  password: string;
-}
-
 export default function CreateAccountPage() {
   const [name, setName] = useState<string>("");
   const [nickname, setNickname] = useState<string>("");
@@ -34,19 +26,10 @@ export default function CreateAccountPage() {
       return pass === passConfirm;
     };
 
-    const parameterDictionary: parameterDictionary = {
-      name: name,
-      nickname: nickname,
-      email: email,
-      password: password,
-    };
-
-    for (let key in parameterDictionary) {
-      const value: string = parameterDictionary[key];
-      if (!value) {
-        alert("Please fill in all fields!");
-        return;
-      }
+    // Check if all fields are filled
+    if (!name || !nickname || !email || !password || !confirmPassword) {
+      alert("Please fill out all fields");
+      return;
     }
 
     if (!validateEmail(email)) {
@@ -60,12 +43,21 @@ export default function CreateAccountPage() {
     }
 
     await backendAPI
-      .post("/users/create", parameterDictionary, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
+      .post(
+        "/users/create",
+        {
+          name: name,
+          nickname: nickname,
+          email: email,
+          password: password,
         },
-      })
+        {
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+        }
+      )
       .then((response) => {
         if (response.status === 200) {
           alert("Account created successfully");

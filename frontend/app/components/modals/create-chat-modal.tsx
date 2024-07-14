@@ -1,11 +1,8 @@
 "use client";
 
-interface CreateChatModalProps {
-  isOpen: boolean;
-  closeModal: () => void;
-}
+import { CreateChatModalParameters } from "@/app/types";
 
-export default function CreateChatModal(modalProps: CreateChatModalProps) {
+export default function CreateChatModal(modalProps: CreateChatModalParameters) {
   if (!modalProps.isOpen) return null;
 
   return (

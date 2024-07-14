@@ -1,8 +1,9 @@
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { FaCog, FaUser } from "react-icons/fa";
+import { FlyoutMenuParameters } from "../types";
 
-export default function FlyoutMenu({ isOpen }: { isOpen: boolean }) {
+export default function FlyoutMenu({ isOpen }: FlyoutMenuParameters) {
   if (!isOpen) return null;
   const router = useRouter();
 
