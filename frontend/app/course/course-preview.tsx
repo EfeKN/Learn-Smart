@@ -48,7 +48,7 @@ export default function CoursePreview() {
       {selectedCourseId ? (
         <CourseHomepage />
       ) : (
-        <div className="flex space-x-4">
+        <div className="flex flex-wrap gap-4">
           {courses.map((course) => (
             <CourseCard key={course.course_id} course={course} />
           ))}
