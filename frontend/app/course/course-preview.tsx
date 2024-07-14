@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "@/app/style/course-preview.css";
 import CourseCard from "./course-card";
-import CreateCourseModal from "@/app/components/modals/create-course-modal";
+import CreateCourseModal from "@/app/course/create-course-modal";
 import CourseHomepage from "@/app/course/[id]/page";
 import Cookies from "js-cookie";
 import backendAPI from "@/environment/backend_api";
