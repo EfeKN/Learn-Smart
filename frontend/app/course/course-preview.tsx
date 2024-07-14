@@ -38,6 +38,10 @@ export default function CoursePreview() {
     }
   };
 
+  const handleSelectCourse = (course: Course) => {
+    setSelectedCourseId(course.course_id);
+  };
+
   return (
     <div>
       {selectedCourseId ? (
