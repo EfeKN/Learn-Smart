@@ -1,7 +1,7 @@
 import "@/app/style/course-card.css";
 import type { CourseCardParameters } from "@/app/types";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function CourseCard(parameters: CourseCardParameters) {
   const [hovered, setHovered] = useState(false);
@@ -18,11 +18,6 @@ export default function CourseCard(parameters: CourseCardParameters) {
   const handleClick = () => {
     router.push(`/course/${parameters.course.course_id}`);
   };
-
-  // TODO remove below
-  useEffect(() => {
-    console.log(parameters.course);
-  }, [parameters]);
 
   return (
     <main>

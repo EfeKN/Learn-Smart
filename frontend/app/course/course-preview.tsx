@@ -1,4 +1,4 @@
-import CourseHomepage from "@/app/course/[id]/page";
+import CourseHomepage from "@/app/course/[course_id]/page";
 import CreateCourseModal from "@/app/course/create-course-modal";
 import "@/app/style/course-preview.css";
 import backendAPI from "@/environment/backend_api";
@@ -38,22 +38,14 @@ export default function CoursePreview() {
     }
   };
 
-  const handleSelectCourse = (course: Course) => {
-    setSelectedCourseId(course.course_id);
-  };
-
   return (
     <div>
       {selectedCourseId ? (
-        <CourseHomepage id={selectedCourseId} />
+        <CourseHomepage />
       ) : (
         <div className="flex space-x-4">
           {courses.map((course) => (
-            <CourseCard
-              key={course.course_id}
-              course={course}
-              onSelect={handleSelectCourse}
-            />
+            <CourseCard key={course.course_id} course={course} />
           ))}
           <button
             onClick={() => setIsModalOpen(true)}

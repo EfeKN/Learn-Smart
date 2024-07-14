@@ -17,8 +17,8 @@ export default function CreateCourseModal(
   const [course_description, setDescription] = useState("");
   const [formError, setFormError] = useState("");
   const [token, setToken] = useState<string>("");
-  const params = useParams<{ id: string }>();
-  const id = params.id;
+  const params = useParams<{ course_id: string }>();
+  const course_id = params.course_id;
 
   useEffect(() => {
     setToken(Cookies.get("authToken") || "");

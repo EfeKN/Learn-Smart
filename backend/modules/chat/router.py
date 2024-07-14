@@ -84,7 +84,7 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
             ChatDB.delete(chat["chat_id"])
             raise HTTPException(status_code=400, detail=f"Invalid file extension: {extension}")
         
-        storage_dir = get_chat_folder_name(chat["chat_id"]) # construct the storage directory
+        storage_dir = get_chat_folder_path(chat["chat_id"]) # construct the storage directory
         os.makedirs(storage_dir, exist_ok=True) # create a directory to store the chat's files
         slides_furl = os.path.join(storage_dir, f"{generate_hash(name, strategy="uuid")}.{extension}") # construct the file path
         

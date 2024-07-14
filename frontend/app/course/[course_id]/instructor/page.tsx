@@ -15,8 +15,8 @@ export default function InstructorPage() {
   const [chats, setChats] = useState<Chat[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [token, setToken] = useState<string | null>(null);
-  const params = useParams<{ id: string }>();
-  const id = params.id;
+  const params = useParams<{ course_id: string }>();
+  const course_id = params.course_id;
 
   useEffect(() => {
     console.log(Cookies.get("authToken"));
@@ -25,7 +25,7 @@ export default function InstructorPage() {
 
   useEffect(() => {
     if (token) {
-      fetchChats(id);
+      fetchChats(course_id);
     }
   }, [token]);
 
@@ -79,7 +79,7 @@ export default function InstructorPage() {
       </div>
       <div className="flex-1 p-4">
         <h2 className="text-2xl">
-          Instructor Page for Course ID: {id || "Loading..."}
+          Instructor Page for Course ID: {course_id || "Loading..."}
         </h2>
       </div>
       <CreateChatModal isOpen={isModalOpen} closeModal={closeModal} />

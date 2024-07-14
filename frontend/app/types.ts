@@ -1,6 +1,5 @@
 export interface CourseCardParameters {
   course: Course;
-  onSelect: (course: Course) => void;
 }
 
 export interface CreateCourseModalParameters {
@@ -9,9 +8,7 @@ export interface CreateCourseModalParameters {
   onClose: () => void;
 }
 
-export interface CourseHomepageParameters {
-  id: string;
-}
+export interface CourseHomepageParameters {}
 
 export interface Course {
   course_id: string;

@@ -126,6 +126,32 @@ class BaseFile(ABC):
         pass
 
 
+class GenericFile(BaseFile):
+    """
+    Represents a generic file.
+
+    Args:
+        file (UploadFile, optional): The uploaded file. Defaults to None.
+        path (str, optional): The path to the file. Defaults to None.
+
+    Attributes:
+        file (UploadFile): The uploaded file.
+        path (str): The path to the file.
+
+    Methods:
+        content(): Returns the content of the file.
+        get(): Returns the file as a ResourceWrapper object.
+    """
+    def __init__(self, file: UploadFile = None, path: str = None):
+        super().__init__(file, path)
+
+    def content(self):
+        raise RuntimeError("Cannot call content() on generic files.")
+
+    def get(self):
+        raise RuntimeError("Cannot call get() on generic files.")
+
+
 class ImageFile(BaseFile):
     """
     Represents an image file.
@@ -308,7 +334,7 @@ class PDFFile(BaseFile):
             raise ValueError("No file provided.")
         
         # TODO: if file size is not too large and there aren't many pages, convert to images
-
+        # TODO: we may also need OCR here, for scanned PDFs
         # TODO: Do testing with contents
         if self.path:
             with pymupdf.open(self.path) as doc:
@@ -405,12 +431,7 @@ class FileFactory:
         }
 
     def __call__(self, file: UploadFile = None, path: str = None):
-
-        if not (file or path):
-            raise ValueError("No file or path provided.")
-        
-        extension = splitext(path if path else file.filename)[1]
-
+        extension = splitext(path if path else file.filename if file else "")[1]
         if extension not in self.file_types:
-            raise ValueError(f"Unsupported file extension: {extension}")
+            return GenericFile(file=file, path=path)
         return self.file_types[extension](file=file, path=path) # delegate the creation of the file to the corresponding class

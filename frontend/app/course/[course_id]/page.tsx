@@ -5,7 +5,7 @@ import "@/app/style/course-homepage.css";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   FaBook,
@@ -20,6 +20,8 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
   const [course, setCourse] = useState<Course>();
   const [token, setToken] = useState<string>("");
   const pathname = usePathname();
+  const params = useParams<{ course_id: string }>();
+  const course_id = params.course_id;
 
   useEffect(() => {
     setToken(Cookies.get("authToken") || "");
@@ -27,9 +29,9 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
 
   useEffect(() => {
     if (token) {
-      fetchCourseData(parameters.id);
+      fetchCourseData(course_id);
     }
-  }, [token, parameters.id]);
+  }, [token, course_id]);
 
   const fetchCourseData = async (course_id: string) => {
     await backendAPI
