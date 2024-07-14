@@ -1,3 +1,5 @@
+"use client";
+
 import logo from "@/assets/chatbot-logo.jpg";
 import Image from "next/image";
 import { useState } from "react";

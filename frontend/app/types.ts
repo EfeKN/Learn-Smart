@@ -2,6 +2,13 @@ export interface CourseCardParameters {
   course: Course;
 }
 
+export interface LoadingButtonParameters {
+  type: "button" | "submit" | "reset";
+  text: string;
+  loadingText: string;
+  handleClick: (e?: React.FormEvent<HTMLFormElement>) => Promise<void>;
+}
+
 export interface CreateCourseModalParameters {
   isOpen: boolean;
   onClose: () => void;

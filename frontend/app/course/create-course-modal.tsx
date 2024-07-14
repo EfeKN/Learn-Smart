@@ -5,6 +5,7 @@ import { FaRegImages, FaFilePdf } from "react-icons/fa6";
 import { TbFileTypeDocx } from "react-icons/tb";
 
 import backendAPI from '@/environment/backend_api';
+import LoadingButton from '../components/loading-button';
 
 export default function CreateCourseModal(
   modalProps: CreateCourseModalParameters
@@ -18,8 +19,8 @@ export default function CreateCourseModal(
   const [iconError, setIconError] = useState('');
   const [token, setToken] = useState("");
 
+  // reset form fields
   const resetFields = () => {
-    // reset form fields
     setCourseCode("");
     setCourseName("");
     setCourseDescription("");
@@ -33,22 +34,17 @@ export default function CreateCourseModal(
     setToken(Cookies.get("authToken") || "");
   }, []);
 
-  const documentMimeTypes: Record<string, string> = {
-    'application/pdf': 'pdf',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
-  };
-  const imageMimeTypes: Record<string, string> = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-  };
+  const documentMimeTypes = ['application/pdf', 
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  const imageMimeTypes = ['image/jpeg', 'image/png'];
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<any>>, setError: React.Dispatch<React.SetStateAction<string>>, type: string) {
     const file = e.target.files && e.target.files[0];
-    if (file && type === "document" && file.type in documentMimeTypes) {
+    if (file && type === "document" && documentMimeTypes.includes(file.type)) {
       setter(file);
       setError('');
       console.log(`Selected file: ${file.name}`);
-    } else if (file && type === "image" && file.type in imageMimeTypes) {
+    } else if (file && type === "image" && imageMimeTypes.includes(file.type)) {
       setter(file);
       setError('');
       console.log(`Selected file: ${file.name}`);
@@ -204,12 +200,7 @@ export default function CreateCourseModal(
             >
               Cancel
             </button>
-            <button
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg"
-            >
-              Create
-            </button>
+            <LoadingButton handleClick={handleSubmit} type="submit" text="Create" loadingText="Creating course..." />
           </div>
         </form>
       </div>
