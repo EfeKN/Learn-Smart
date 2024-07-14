@@ -473,19 +473,24 @@ class CourseDB(DatabaseInterface):
         study_plan_url: str = kwargs.get("study_plan_url", None)
 
         with db_connection as db:
-            course = db.query(Course).filter(Course.course_id == course_id).first()
+            course: Course = db.query(Course).filter(Course.course_id == course_id).first()
             if not course:
                 raise ValueError(f"Course with ID {course_id} not found")
 
             if course_name:
                 course.course_name = course_name
-            if course_code:
+            if course_code: # must be unique per user
+                query_result = db.query(Course).filter(Course.course_code == course_code,
+                                                Course.user_id == course.user_id,
+                                                Course.course_id != course.course_id).first()
+                if query_result:
+                    raise ValueError(f"Course with code {course_code} already exists")
                 course.course_code = course_code
-            if course_description is not None: # might be empty string
+            if course_description is not None:
                 course.course_description = course_description
-            if syllabus_url is not None: # might be empty string
+            if syllabus_url is not None:
                 course.syllabus_url = syllabus_url
-            if icon_url is not None: # might be empty string
+            if icon_url is not None:
                 course.icon_url = icon_url
             if study_plan_url is not None:
                 course.study_plan_url = study_plan_url

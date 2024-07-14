@@ -45,3 +45,7 @@ def splitext(filename: str):
     extension = os.path.splitext(filename)[-1][1:].lower()
     return base_name, extension
     
+# Validate file extension
+def validate_file_extension(filename, valid_extensions: list[str]):
+    ext = splitext(filename)[1].lower()
+    return (ext in [extension.lower() for extension in valid_extensions]) # whether the extension is in the list

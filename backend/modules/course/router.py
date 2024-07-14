@@ -9,6 +9,7 @@ from database.dbmanager import CourseDB, ChatDB
 from modules.course.schemas import CourseCreationRequest, CourseUpdateRequest
 from modules.chat.util import *
 from modules.course.util import *
+from tools import validate_file_extension
 from . import WEEKLY_STUDY_PLAN_PROMPT
 
 router = APIRouter(prefix="/course", tags=["Course"])
@@ -83,58 +84,47 @@ async def create_course(course_name: str = Form(...), course_code: str = Form(..
 
     Raises:
         HTTPException: If there is an error creating the course.
-
-    TODO:
-        Syllabus uploads must go to LLM to generate weekly study plans.
-        File structure must be updated too.
     """
 
     # pydantic input validation
     _ = CourseCreationRequest(course_name=course_name, course_code=course_code, course_description=course_description)
-    icon_ext = (splitext(icon_file.filename)[1] if icon_file else None)
-    syllabus_ext = (splitext(syllabus_file.filename)[1] if syllabus_file else None)
     
     course_icon_path, syllabus_path, study_plan_path = None, None, None
+    course = None
     try:
-        if icon_ext and icon_ext not in ["png", "jpg", "jpeg"]:
-            raise ValueError("Invalid image format. Please upload a PNG, JPG, or JPEG file.")
-        if syllabus_ext and syllabus_ext not in ["pdf", "docx"]:
-            raise ValueError("Invalid syllabus format. Please upload a PDF or a DOCX file.")
+        valid_image_formats, valid_syllabus_formats = ["png", "jpg", "jpeg"], ["pdf", "docx"]
+        if icon_file and not validate_file_extension(icon_file.filename, valid_image_formats):
+            raise ValueError(f"Invalid image format. Available formats: {', '.join(valid_image_formats)}")
+        if syllabus_file and not validate_file_extension(syllabus_file.filename, valid_syllabus_formats):
+            raise ValueError(f"Invalid syllabus format. Avaiable formats: {', '.join(valid_syllabus_formats)}")
         
         course = CourseDB.create(course_name=course_name, course_description=course_description, 
                                 course_code=course_code, user_id=current_user["user_id"])
         if icon_file:
-            icon_file = FileFactory()(icon_file)
             course_icon_path = get_course_icon_path(course["course_id"])
-            icon_file.save(course_icon_path, size=(256, 256))
+            icon_file = FileFactory()(file=icon_file).save(course_icon_path, size=(256, 256))
             course["icon_url"] = course_icon_path # update response dict. with the image URL
 
         if syllabus_file:
-            syllabus_file = FileFactory()(syllabus_file)
             syllabus_path = get_course_syllabus_path(course["course_id"])
+            syllabus_file = FileFactory()(file=syllabus_file)
             syllabus_file.save(syllabus_path)
             course["syllabus_url"] = syllabus_path # update response dict. with the syllabus URL
 
             # send the syllabus to LLM for weekly study plan generation
-            model = genai.GenerativeModel("gemini-1.5-flash")
-            
-            response = model.generate_content([WEEKLY_STUDY_PLAN_PROMPT, syllabus_file.content()]).text
-            study_plan_path = get_study_plan_path(course["course_id"])
-
-            with open(study_plan_path, 'w') as file:
-                file.write(response)
+            study_plan_path = create_study_plan(syllabus_file.content(), course["course_id"])
             course["study_plan_url"] = study_plan_path # update response dict. with the study plan URL
 
         CourseDB.update(course_id=course["course_id"], icon_url=course_icon_path, syllabus_url=syllabus_path,
                         study_plan_url=study_plan_path)
         return course
-    except ValueError as e:
+    except Exception as e:
         # Rollback changes
         if course_icon_path: FileFactory()(path=course_icon_path).delete()
         if syllabus_path: FileFactory()(path=syllabus_path).delete()
         if study_plan_path: FileFactory()(path=study_plan_path).delete()
-        
-        CourseDB.delete(course_id=course["course_id"])
+        if course: CourseDB.delete(course_id=course["course_id"])
+
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/{course_id}")
@@ -233,35 +223,29 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
     if update_icon and icon_file is None:
         FileFactory()(path=course["icon_url"]).delete() # delete old image
     elif update_icon and icon_file:
-        icon_ext = splitext(icon_file.filename)[1]
-        if icon_ext not in ["png", "jpg", "jpeg"]:
+        if not validate_file_extension(icon_file.filename, ["png", "jpg", "jpeg"]):
             raise HTTPException(status_code=400, detail="Invalid image format. Please upload a PNG, JPG, or JPEG file.")
         FileFactory()(path=course["icon_url"]).delete() # delete old image
 
         new_icon_path = get_course_icon_path(course_id)
-        new_icon_file = FileFactory()(icon_file)
+        new_icon_file = FileFactory()(file=icon_file)
         new_icon_file.save(new_icon_path, size=(256, 256))
 
     if update_syllabus and syllabus_file is None:
         FileFactory()(path=course["syllabus_url"]).delete() # delete old syllabus
+        FileFactory()(path=course["study_plan_url"]).delete() # delete old study plan
     elif update_syllabus and syllabus_file:
-        syllabus_ext = splitext(syllabus_file.filename)[1]
-        if syllabus_ext not in ["pdf", "docx"]:
+        if not validate_file_extension(syllabus_file.filename, ["pdf", "docx"]):
             raise HTTPException(status_code=400, detail="Invalid syllabus format. Please upload a PDF or a DOCX file.")
         FileFactory()(path=course["syllabus_url"]).delete() # delete old syllabus
         FileFactory()(path=course["study_plan_url"]).delete() # delete old study plan
-
+        
         new_syllabus_path = get_course_syllabus_path(course_id)
-        new_study_plan_path = get_study_plan_path(course_id)
-
         syllabus_file = FileFactory()(syllabus_file)
         syllabus_file.save(new_syllabus_path)
 
         # send the new syllabus to LLM for weekly study plan generation
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content([WEEKLY_STUDY_PLAN_PROMPT, syllabus_file.content()]).text
-        with open(new_study_plan_path, 'w') as file:
-            file.write(response)
+        new_study_plan_path = create_study_plan(syllabus_file.content(), course_id)
 
     try:
         course = CourseDB.update(course_id=course_id, course_name=course_name, course_code=course_code,

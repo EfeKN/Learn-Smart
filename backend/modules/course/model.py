@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey, String, DateTime, func
+from sqlalchemy import Column, Integer, ForeignKey, String, DateTime, func, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from database.connection import db_connection
@@ -14,7 +14,7 @@ class Course(Base):
 
     course_id = Column(Integer, primary_key=True, index=True)
     course_name = Column(String(255), nullable=False) # e.g. Operating Systems
-    course_code = Column(String(16), unique=True) # e.g. CS 342
+    course_code = Column(String(16)) # e.g. CS 342
     course_description = Column(String(1024), nullable=True)
     syllabus_url = Column(String(255), nullable=True)
     study_plan_url = Column(String(255), nullable=True)
@@ -23,6 +23,9 @@ class Course(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     user = relationship("User", back_populates="courses")
     chats = relationship("Chat", back_populates="course")
+
+    # Add a unique constraint for user_id and course_code
+    __table_args__ = (UniqueConstraint('user_id', 'course_code', name='user_course_unique'),)
 
     def to_dict(self):
         """
