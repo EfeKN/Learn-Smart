@@ -1,36 +1,64 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from "react";
 import "@/app/style/course-preview.css";
 import CourseCard from "./course-card";
 import CreateCourseModal from "@/app/components/modals/create-course-modal";
 import CourseHomepage from "@/app/course/[id]/page";
+import Cookies from "js-cookie";
+import backendAPI from "@/environment/backend_api";
+
+type CourseType = {
+  course_id: string;
+  course_name: string;
+  description: string;
+  course_title: string;
+  icon: string;
+};
 
 export default function CoursePreview() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState(null); // State to track selected course
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [courses, setCourses] = useState<CourseType[]>([]);
 
-  const topSites = [
-    {
-      id: 1,
-      name: "Reddit",
-      icon: "https://www.redditinc.com/assets/images/site/reddit-logo.png",
-      homepageUrl: "https://www.reddit.com/",
-    },
-  ];
+  useEffect(() => {
+    const storedToken = Cookies.get("authToken");
+    setToken(storedToken);
+  }, []);
 
-  const handleSelectCourse = (course) => {
-    setSelectedCourse(course);
+  useEffect(() => {
+    if (token) {
+      fetchCourses();
+    }
+  }, [token]);
+
+  const fetchCourses = async () => {
+    try {
+      const response = await backendAPI.get(`/users/me`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCourses(response.data["courses"]);
+    } catch (error) {
+      console.error("Error fetching course data:", error);
+    }
+  };
+
+  const handleSelectCourse = (course: CourseType) => {
+    setSelectedCourseId(course.course_id);
   };
 
   return (
     <div>
-      {selectedCourse ? (
-        <CourseHomepage course={selectedCourse} />
+      {selectedCourseId ? (
+        <CourseHomepage />
       ) : (
         <div className="flex space-x-4">
-          {topSites.map((site) => (
+          {courses.map((course) => (
             <CourseCard
-              key={site.id}
-              site={site}
+              key={course.course_id}
+              course={course}
               onSelect={handleSelectCourse} // Set selected course on click
             />
           ))}
@@ -45,12 +73,12 @@ export default function CoursePreview() {
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               title="Add New Site"
-            ></CreateCourseModal>
+            />
           </div>
         </div>
       )}
-      {selectedCourse && (
-        <button onClick={() => setSelectedCourse(null)} className="toggle-button">
+      {selectedCourseId && (
+        <button onClick={() => setSelectedCourseId(null)} className="toggle-button">
           Back to Course List
         </button>
       )}

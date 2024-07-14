@@ -103,7 +103,6 @@ export default function Navbar() {
                 </button>
                 <FlyoutMenu
                   isOpen={currentMenu === "menu"}
-                  // TODO: Cagri please check these
                   onClose={() => setCurrentMenu(null)}
                 />
               </>
@@ -118,7 +117,6 @@ export default function Navbar() {
                 </button>
                 <Notifications
                   isOpen={currentMenu === "notifications"}
-                  // TODO: Cagri please check these
                   onClose={() => setCurrentMenu(null)}
                 />
               </>
@@ -158,7 +156,6 @@ export default function Navbar() {
                   <button className="text-4xl">Menu</button>
                   <FlyoutMenu
                     isOpen={currentMenu === "menu"}
-                    // TODO: Cagri please check these
                     onClose={() => setCurrentMenu(null)}
                   />
                 </>
@@ -167,7 +164,6 @@ export default function Navbar() {
                   <button className="text-4xl">Notifications</button>
                   <Notifications
                     isOpen={currentMenu === "notifications"}
-                    // TODO: Cagri please check these
                     onClose={() => setCurrentMenu(null)}
                   />
                 </>
