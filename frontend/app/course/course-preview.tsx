@@ -38,8 +38,9 @@ export default function CoursePreview() {
     }
   };
 
-  const handleSelectCourse = (course: Course) => {
-    setSelectedCourseId(course.course_id);
+  const handleCourseCreation = () => {
+    setIsModalOpen(false);
+    fetchCourses();
   };
 
   return (
@@ -63,6 +64,7 @@ export default function CoursePreview() {
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
               modalTitle="Add New Site"
+              onCourseCreation={handleCourseCreation}
             />
           </div>
         </div>

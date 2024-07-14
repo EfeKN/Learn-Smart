@@ -4,8 +4,9 @@ export interface CourseCardParameters {
 
 export interface CreateCourseModalParameters {
   isOpen: boolean;
-  modalTitle: string;
   onClose: () => void;
+  modalTitle: string;
+  onCourseCreation: () => void;
 }
 
 export interface CourseHomepageParameters {}

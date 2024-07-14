@@ -1,50 +1,50 @@
-import backendAPI from "@/environment/backend_api";
-import FormData from "form-data";
-import Cookies from "js-cookie";
-import { useParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { CreateCourseModalParameters } from "../types";
+import Cookies from 'js-cookie';
+import { useState, useEffect } from 'react';
+import { CreateCourseModalParameters } from '../types';
+import backendAPI from '@/environment/backend_api';
 
 export default function CreateCourseModal(
   modalProps: CreateCourseModalParameters
 ) {
-  if (!modalProps.isOpen) {
-    return null;
-  }
+  const [courseName, setCourseName] = useState('');
+  const [courseCode, setCourseCode] = useState('');
+  const [courseDescription, setCourseDescription] = useState('');
+  const [syllabus, setSyllabus] = useState(null);
+  const [icon, setIcon] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [token, setToken] = useState("");
 
-  const [course_name, setCourseName] = useState("");
-  const [courseCode, setCourseCode] = useState("");
-  const [course_description, setDescription] = useState("");
-  const [formError, setFormError] = useState("");
-  const [token, setToken] = useState<string>("");
-  const params = useParams<{ course_id: string }>();
-  const course_id = params.course_id;
+  const resetFields = () => {
+    // reset form fields
+    setCourseCode("");
+    setCourseName("");
+    setCourseDescription("");
+    setSyllabus(null);
+    setIcon(null);
+  }
 
   useEffect(() => {
     setToken(Cookies.get("authToken") || "");
   }, []);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function handleFileChange (e: React.ChangeEvent<HTMLInputElement>, setter: React.Dispatch<React.SetStateAction<any>>) {
+    if (e.target.files && e.target.files.length > 0)
+      setter(e.target.files[0]);
+  };
 
-    // Validate if all fields are filled
-    if (!course_name || !courseCode || !course_description) {
-      setFormError("Please fill out all fields.");
-      return;
-    }
-
-    // Create form data to send to backend
-
-    const form = new FormData();
-
-    form.append("course_name", course_name);
-    form.append("course_code", courseCode);
-    form.append("course_description", course_description);
-    form.append("icon_url", null);
-    form.append("syllabus_url", null);
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    const formData = new FormData();
+    formData.append("course_name", courseName);
+    formData.append("course_code", courseCode);
+    formData.append("course_description", courseDescription);
+    if (syllabus) formData.append("syllabus_file", syllabus);
+    if (icon) formData.append("icon_file", icon);
 
     await backendAPI
-      .post(`/course/create`, form, {
+      .post(`/course/create`, formData, {
         headers: {
           Accept: "application/json",
           Authorization: `Bearer ${token}`,
@@ -52,112 +52,91 @@ export default function CreateCourseModal(
         },
       })
       .then((response) => {
-        console.log("Course created successfully:", response.data);
+          modalProps.onCourseCreation();
+          console.log("Course created successfully:", response.data);
       })
       .catch((error) => {
-        console.error("Error fetching chats data:", error);
+        console.error("Error creating course:", error);
+        alert("Error creating course.");
       });
-
-    // Close the modal after submission
+    resetFields();
     modalProps.onClose();
-  }
+  };
+
+  const handleCancel = () => {
+    resetFields();
+    modalProps.onClose();
+  };
+
+  if (!modalProps.isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-15 backdrop-blur">
-      <div className="relative w-full max-w-lg p-4 mx-auto bg-white rounded-lg shadow-xl">
-        <div className="flex justify-between items-center pb-3 border-b dark:border-gray-600">
-          <h2 className="text-xl font-semibold">{modalProps.modalTitle}</h2>
-          <button
-            onClick={modalProps.onClose}
-            className="text-gray-500 hover:text-gray-700"
-            title="Close Modal"
-            type="button"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
+    <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center">
+      <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+        <h2 className="text-2xl mb-4">Create Course</h2>
         <form onSubmit={handleSubmit}>
-          <div className="p-4">
-            <label
-              htmlFor="course_name"
-              className="block mb-2 font-medium text-gray-700"
-            >
-              Course Name:
-            </label>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="courseName">Course Name</label>
             <input
+              id="courseName"
               type="text"
-              id="course_name"
-              name="course_name"
-              value={course_name}
+              value={courseName}
               onChange={(e) => setCourseName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-              placeholder="Enter course name..."
+              className="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-700 text-white"
+              required
             />
-
-            <label
-              htmlFor="courseCode"
-              className="block mt-4 mb-2 font-medium text-gray-700"
-            >
-              Course Code:
-            </label>
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="courseCode">Course Code</label>
             <input
-              type="text"
               id="courseCode"
-              name="courseCode"
+              type="text"
               value={courseCode}
               onChange={(e) => setCourseCode(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-              placeholder="Enter course code..."
+              className="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-700 text-white"
+              required
             />
-
-            <label
-              htmlFor="course_description"
-              className="block mt-4 mb-2 font-medium text-gray-700"
-            >
-              Description:
-            </label>
-            <textarea
-              id="course_description"
-              name="course_description"
-              value={course_description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-              placeholder="Enter course_description..."
-            ></textarea>
-
-            {/* TODO syllabus and image */}
-
-            {formError && (
-              <p className="text-red-500 text-sm mt-2">{formError}</p>
-            )}
           </div>
-
-          <div className="flex justify-end pt-2">
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="description">Description (optional)</label>
+            <textarea
+              id="description"
+              value={courseDescription}
+              onChange={(e) => setCourseDescription(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-700 text-white"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="syllabus">Syllabus (optional)</label>
+            <input
+              id="syllabus"
+              type="file"
+              onChange={(e) => handleFileChange(e, setSyllabus)}
+              className="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-700 text-white"
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-1" htmlFor="image">Image (optional)</label>
+            <input
+              id="image"
+              type="file"
+              onChange={(e) => handleFileChange(e, setIcon)}
+              className="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-700 text-white"
+            />
+          </div>
+          <div className="flex justify-end">
             <button
               type="button"
-              onClick={modalProps.onClose}
-              className="px-4 py-2 mr-2 text-sm text-white bg-red-500 rounded hover:bg-red-700"
+              onClick={handleCancel}
+              className="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg mr-2"
             >
-              Discard
+              Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 ml-2 text-sm text-white bg-blue-500 rounded hover:bg-blue-700"
+              className="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2 px-4 rounded-lg"
             >
-              Add Course
+              Create
             </button>
           </div>
         </form>
