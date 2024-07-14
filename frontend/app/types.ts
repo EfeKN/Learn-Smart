@@ -50,9 +50,9 @@ export interface FolderType {
 export interface Course {
   course_id: string;
   course_name: string;
-  course_title: string;
+  course_code: string;
   course_description: string;
-  course_icon: string;
+  icon_url: string;
 }
 
 export interface Message {

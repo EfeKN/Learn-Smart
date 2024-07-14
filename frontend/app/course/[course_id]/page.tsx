@@ -7,13 +7,7 @@ import Cookies from "js-cookie";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import {
-  FaBook,
-  FaCalendarAlt,
-  FaClipboardList,
-  FaUpload,
-  FaUserTie,
-} from "react-icons/fa";
+import { FaBook, FaCalendarAlt, FaClipboardList, FaUpload, FaUserTie } from "react-icons/fa";
 import { Course, CourseHomepageParameters } from "../../types";
 
 export default function CourseHomepage(parameters: CourseHomepageParameters) {

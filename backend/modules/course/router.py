@@ -14,6 +14,7 @@ from . import WEEKLY_STUDY_PLAN_PROMPT
 
 router = APIRouter(prefix="/course", tags=["Course"])
 
+
 @router.get("/{course_id}")
 async def get_course(course_id: int, current_user: dict = Depends(auth.get_current_user)):
     """
@@ -38,11 +39,12 @@ async def get_course(course_id: int, current_user: dict = Depends(auth.get_curre
 
     return course
 
+
 @router.get("/chats/{course_id}")
 async def get_chats(course_id: int, current_user: dict = Depends(auth.get_current_user)):
     """
     Get all chats for a course.
-    
+
     Args:
         course_id (int): The ID of the course.
         current_user (User): The current authenticated user (used for authentication).
@@ -50,7 +52,7 @@ async def get_chats(course_id: int, current_user: dict = Depends(auth.get_curren
     Returns:
         list: A list of chat messages.
     """
-    
+
     course = CourseDB.fetch(course_id=course_id)
 
     if not course:
@@ -62,13 +64,13 @@ async def get_chats(course_id: int, current_user: dict = Depends(auth.get_curren
         raise HTTPException(status_code=403, detail="Forbidden.")
 
     chats = ChatDB.fetch(course_id=course_id, all=True)
-    return {"chats": [{"chat_id": chat["chat_id"], 
-                       "title": chat["title"]} for chat in chats]} # return chat titles along with chat IDs
-    
+    return {"chats": [{"chat_id": chat["chat_id"],
+                       "title": chat["title"]} for chat in chats]}  # return chat titles along with chat IDs
+
 
 @router.post("/create")
 async def create_course(course_name: str = Form(...), course_code: str = Form(...),
-                        course_description: Optional[str] = Form(None), 
+                        course_description: Optional[str] = Form(None),
                         syllabus_file: UploadFile = File(None),
                         icon_file: UploadFile = File(None),
                         current_user: dict = Depends(auth.get_current_user)):
@@ -78,7 +80,7 @@ async def create_course(course_name: str = Form(...), course_code: str = Form(..
     Args:
         course (CourseCreationRequest): The course details.
         current_user (dict, optional): The current user. Defaults to Depends(auth.get_current_user).
-    
+
     Returns:
         The created course.
 
@@ -88,7 +90,7 @@ async def create_course(course_name: str = Form(...), course_code: str = Form(..
 
     # pydantic input validation
     _ = CourseCreationRequest(course_name=course_name, course_code=course_code, course_description=course_description)
-    
+
     course_icon_path, syllabus_path, study_plan_path = None, None, None
     course = None
     try:
@@ -97,23 +99,23 @@ async def create_course(course_name: str = Form(...), course_code: str = Form(..
             raise ValueError(f"Invalid image format. Available formats: {', '.join(valid_image_formats)}")
         if syllabus_file and not validate_file_extension(syllabus_file.filename, valid_syllabus_formats):
             raise ValueError(f"Invalid syllabus format. Avaiable formats: {', '.join(valid_syllabus_formats)}")
-        
-        course = CourseDB.create(course_name=course_name, course_description=course_description, 
-                                course_code=course_code, user_id=current_user["user_id"])
+
+        course = CourseDB.create(course_name=course_name, course_description=course_description,
+                                 course_code=course_code, user_id=current_user["user_id"])
         if icon_file:
             course_icon_path = get_course_icon_path(course["course_id"])
             icon_file = FileFactory()(file=icon_file).save(course_icon_path, size=(256, 256))
-            course["icon_url"] = course_icon_path # update response dict. with the image URL
+            course["icon_url"] = course_icon_path  # update response dict. with the image URL
 
         if syllabus_file:
             syllabus_path = get_course_syllabus_path(course["course_id"])
             syllabus_file = FileFactory()(file=syllabus_file)
             syllabus_file.save(syllabus_path)
-            course["syllabus_url"] = syllabus_path # update response dict. with the syllabus URL
+            course["syllabus_url"] = syllabus_path  # update response dict. with the syllabus URL
 
             # send the syllabus to LLM for weekly study plan generation
             study_plan_path = create_study_plan(syllabus_file.content(), course["course_id"])
-            course["study_plan_url"] = study_plan_path # update response dict. with the study plan URL
+            course["study_plan_url"] = study_plan_path  # update response dict. with the study plan URL
 
         CourseDB.update(course_id=course["course_id"], icon_url=course_icon_path, syllabus_url=syllabus_path,
                         study_plan_url=study_plan_path)
@@ -127,6 +129,7 @@ async def create_course(course_name: str = Form(...), course_code: str = Form(..
 
         raise HTTPException(status_code=400, detail=str(e))
 
+
 @router.delete("/{course_id}")
 async def delete_course(course_id: int, current_user: dict = Depends(auth.get_current_user)):
     """
@@ -135,7 +138,7 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
     Args:
         course_id (int): The ID of the course to delete.
         current_user (dict, optional): The current user. Defaults to Depends(auth.get_current_user).
-    
+
     Returns:
         Success message.
 
@@ -155,9 +158,9 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
     if icon_url: FileFactory()(path=icon_url).delete()
     study_plan_url = course["study_plan_url"]
     if study_plan_url: FileFactory()(path=study_plan_url).delete()
-    
-    chats = ChatDB.delete(course_id=course_id, all=True) # delete all chats associated with the course
-    CourseDB.delete(course_id=course_id) # delete the course
+
+    chats = ChatDB.delete(course_id=course_id, all=True)  # delete all chats associated with the course
+    CourseDB.delete(course_id=course_id)  # delete the course
     for chat in chats:
         history_url, slides_furl = chat["history_url"], chat["slides_furl"]
         metadata_url = get_chat_metadata_path(history_url) if history_url else None
@@ -174,17 +177,18 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
 
     return {"message": "Course deleted successfully."}
 
+
 @router.put("/{course_id}")
 async def update_course(course_id: int, course_name: Optional[str] = Form(None),
                         course_code: Optional[str] = Form(None),
                         course_description: Optional[str] = Form(None),
-                        update_description: bool = Form(False), # flag variable indicating whether to update the 
-                                                                # course_description (necessary because course_description is
-                                                                # optional and might be None)
+                        update_description: bool = Form(False),  # flag variable indicating whether to update the
+                        # course_description (necessary because course_description is
+                        # optional and might be None)
                         syllabus_file: UploadFile = File(None),
-                        update_syllabus: bool = Form(False), # flag variable indicating whether to update the syllabus
+                        update_syllabus: bool = Form(False),  # flag variable indicating whether to update the syllabus
                         icon_file: UploadFile = File(None),
-                        update_icon: bool = Form(False), # flag variable indicating whether to update the image
+                        update_icon: bool = Form(False),  # flag variable indicating whether to update the image
                         current_user: dict = Depends(auth.get_current_user)):
     """
     Update a course with the given course_id.
@@ -221,25 +225,25 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
 
     new_icon_path, new_syllabus_path, new_study_plan_path = None, None, None
     if update_icon and icon_file is None:
-        FileFactory()(path=course["icon_url"]).delete() # delete old image
+        FileFactory()(path=course["icon_url"]).delete()  # delete old image
     elif update_icon and icon_file:
         if not validate_file_extension(icon_file.filename, ["png", "jpg", "jpeg"]):
             raise HTTPException(status_code=400, detail="Invalid image format. Please upload a PNG, JPG, or JPEG file.")
-        FileFactory()(path=course["icon_url"]).delete() # delete old image
+        FileFactory()(path=course["icon_url"]).delete()  # delete old image
 
         new_icon_path = get_course_icon_path(course_id)
         new_icon_file = FileFactory()(file=icon_file)
         new_icon_file.save(new_icon_path, size=(256, 256))
 
     if update_syllabus and syllabus_file is None:
-        FileFactory()(path=course["syllabus_url"]).delete() # delete old syllabus
-        FileFactory()(path=course["study_plan_url"]).delete() # delete old study plan
+        FileFactory()(path=course["syllabus_url"]).delete()  # delete old syllabus
+        FileFactory()(path=course["study_plan_url"]).delete()  # delete old study plan
     elif update_syllabus and syllabus_file:
         if not validate_file_extension(syllabus_file.filename, ["pdf", "docx"]):
             raise HTTPException(status_code=400, detail="Invalid syllabus format. Please upload a PDF or a DOCX file.")
-        FileFactory()(path=course["syllabus_url"]).delete() # delete old syllabus
-        FileFactory()(path=course["study_plan_url"]).delete() # delete old study plan
-        
+        FileFactory()(path=course["syllabus_url"]).delete()  # delete old syllabus
+        FileFactory()(path=course["study_plan_url"]).delete()  # delete old study plan
+
         new_syllabus_path = get_course_syllabus_path(course_id)
         syllabus_file = FileFactory()(syllabus_file)
         syllabus_file.save(new_syllabus_path)
@@ -249,11 +253,13 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
 
     try:
         course = CourseDB.update(course_id=course_id, course_name=course_name, course_code=course_code,
-                                 course_description=("" if course_description is None and update_description else course_description),
+                                 course_description=(
+                                     "" if course_description is None and update_description else course_description),
                                  icon_url=("" if icon_file is None and update_icon else new_icon_path),
                                  syllabus_url=("" if syllabus_file is None and update_syllabus else new_syllabus_path),
-                                 study_plan_url=("" if syllabus_file is None and update_syllabus else new_study_plan_path)
-                                )
+                                 study_plan_url=(
+                                     "" if syllabus_file is None and update_syllabus else new_study_plan_path)
+                                 )
         return course
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

@@ -34,12 +34,6 @@ export default function Navbar() {
       link: "menu",
       component: renderMenu,
     },
-    {
-      id: 3,
-      name: "logout",
-      link: "logout",
-      component: renderLogout,
-    },
   ];
 
   function handleMenuClick(menu: any) {
