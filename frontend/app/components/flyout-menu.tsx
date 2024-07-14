@@ -5,7 +5,7 @@ import { FaCog, FaUser } from "react-icons/fa";
 export default function FlyoutMenu({ isOpen }: { isOpen: boolean }) {
   if (!isOpen) return null;
   const router = useRouter();
-  
+
   const handleLogout = () => {
     Cookies.remove("authToken");
     router.push("login");

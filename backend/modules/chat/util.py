@@ -5,6 +5,7 @@ import os
 from PIL import Image
 
 from tools import generate_hash, splitext
+from middleware import FILES_DIR
 
 def slide_generator(path: str):
     """Generator to yield slides one by one.
@@ -50,7 +51,7 @@ def slide_generator(path: str):
     doc.close()
 
 
-def get_chat_filenames(user_id: int, course_id: int, chat_id: int):
+def generate_chat_fnames(user_id: int, course_id: int, chat_id: int):
     fname_prefix = f"user_{user_id}_course_{course_id}_chat_{chat_id}"
     fname = generate_hash(fname_prefix)
 
@@ -61,5 +62,10 @@ def get_chat_filenames(user_id: int, course_id: int, chat_id: int):
 def get_generator_path(slides_path: str):
     return splitext(slides_path)[0] + "_generator.txt"
 
+
 def get_chat_metadata_path(history_path: str):
     return splitext(history_path)[0] + "_metadata.json"
+ 
+
+def get_chat_folder_name(chat_id: int):
+    return os.path.join(FILES_DIR, f"chat_{chat_id}") # construct the storage directory

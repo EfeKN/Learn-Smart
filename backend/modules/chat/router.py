@@ -3,14 +3,14 @@ import google.generativeai as genai
 import shutil, os
 import json, jsonpickle
 
-from controllers.filemanager import GFile
-from controllers import authentication as auth
+from middleware.filemanager import FileFactory
+from middleware import authentication as auth
 from modules.user.model import User
 from database.dbmanager import ChatDB, CourseDB
 from tools import generate_hash, splitext
 from modules.chat.util import *
 from modules.chat import CHATS_DIR
-from controllers import FILES_DIR
+from middleware import FILES_DIR
 
 # System instruction for the LLM
 # To be put in .env file
@@ -65,6 +65,7 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
         HTTPException: If the file extension is invalid.
 
     """
+    
     course = CourseDB.fetch(course_id=course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found.")
@@ -72,7 +73,7 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
         raise HTTPException(status_code=403, detail="Forbidden.")
     
     chat = ChatDB.create(course_id=course_id, title=title, slides_mode=bool(slides))
-    history_fname, _ = get_chat_filenames(current_user["user_id"], course_id, chat["chat_id"])
+    history_fname, _ = generate_chat_fnames(current_user["user_id"], course_id, chat["chat_id"])
     history_url = os.path.join(CHATS_DIR, history_fname) # chat history file path
 
     slides_furl, slides_fname = None, None # initialize the slides name and URL
@@ -81,14 +82,14 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
         name, extension = splitext(slides_fname) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
         if extension not in ["pptx", "pdf"]:
             ChatDB.delete(chat["chat_id"])
-            raise HTTPException(status_code=400, detail="Invalid file extension.")
+            raise HTTPException(status_code=400, detail=f"Invalid file extension: {extension}")
         
-        storage_dir = os.path.join(FILES_DIR, f"chat_{chat['chat_id']}") # construct the storage directory
+        storage_dir = get_chat_folder_name(chat["chat_id"]) # construct the storage directory
         os.makedirs(storage_dir, exist_ok=True) # create a directory to store the chat's files
         slides_furl = os.path.join(storage_dir, f"{generate_hash(name, strategy="uuid")}.{extension}") # construct the file path
         
         try:
-            file = GFile(file=slides)
+            file = FileFactory()(file=slides)
             file.save(slides_furl) # save the file in file system
             generator = slide_generator(slides_furl) # create a generator object to yield slides one by one
             dumped_generator = jsonpickle.encode(generator) # dump the generator object into a string
@@ -99,20 +100,21 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
 
         # Rollback changes
         except ValueError as e: # If the file extension is invalid (file manager can't handle it)
-            ChatDB.delete(chat["chat_id"])
+            ChatDB.delete(chat_id=chat["chat_id"])
             raise HTTPException(status_code=400, detail=str(e))
         except Exception as e: # Unsupported platform in slide_generator call
-            ChatDB.delete(chat["chat_id"])
+            ChatDB.delete(chat_id=chat["chat_id"])
             shutil.rmtree(storage_dir) # "rm -rf chat_<chat_id>", remove the directory and its contents
             raise HTTPException(status_code=500, detail=str(e))
 
+    print("History URL:", history_url)
     ChatDB.update(chat["chat_id"], history_url=history_url, slides_fname=slides_fname,
                   slides_furl=slides_furl) # Update the chat in the database
     
-    return {"chat_id": chat["chat_id"], "message": "Chat created successfully."}
+    return {"chat": chat, "message": "Chat created successfully."}
 
 
-@router.get("/chat/{chat_id}")
+@router.get("/{chat_id}")
 async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
     """
     Retrieve a chat by its ID and return the chat details along with its history.
@@ -135,7 +137,7 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
     
-    hist_fname, metadata_fname = get_chat_filenames(current_user["user_id"], 
+    hist_fname, metadata_fname = generate_chat_fnames(current_user["user_id"], 
                                                   course["course_id"], chat["chat_id"])
 
     file_path = os.path.join(CHATS_DIR, hist_fname) # chat history file path
@@ -171,7 +173,7 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
     return chat
 
 
-@router.get("/chat/{chat_id}/next_slide")
+@router.get("/{chat_id}/next_slide")
 def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_user)):
     """
     Get the next slide content for a given chat.
@@ -274,7 +276,7 @@ async def send_message(chat_id: int, text: str, file: UploadFile = File(None),
         name, extension = splitext(filename) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
 
         try:
-            file = GFile(file=file)
+            file = FileFactory()(file=file)
             
             hashed_fname = f"{generate_hash(name, strategy="timestamp")}.{extension}" # e.g. <hashed_name>_<actual_name>.pdf
             os.makedirs(f"{FILES_DIR}/chat_{chat_id}", exist_ok=True) # create a directory for the chat's files

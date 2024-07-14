@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from modules.user.router import router as users_router
 from modules.course.router import router as course_router
 from modules.chat.router import router as chat_router
-from controllers.router import router as files_router
+from middleware.router import router as files_router
 from tools import create_tables, setup
 
 from logger import logger

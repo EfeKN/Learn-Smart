@@ -59,26 +59,23 @@ export default function CreateAccountPage() {
       return;
     }
 
-    try {
-      const response = await backendAPI.post(
-        "/users/create",
-        parameterDictionary,
-        {
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
+    await backendAPI
+      .post("/users/create", parameterDictionary, {
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      })
+      .then((response) => {
+        if (response.status === 200) {
+          alert("Account created successfully");
+          router.push("/login");
         }
-      );
-
-      if (response.status === 200) {
-        alert("Account created successfully");
-        router.push("/login");
-      }
-    } catch (error) {
-      console.error("Create account error:", error);
-      alert("Account creation failed");
-    }
+      })
+      .catch((error) => {
+        console.error("Create account error:", error);
+        alert("Account creation failed");
+      });
   };
 
   return (

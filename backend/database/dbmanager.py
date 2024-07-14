@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from sqlalchemy import and_
 
 from database.connection import db_connection
-from controllers import authentication as auth
+from middleware import authentication as auth
 
 from modules.user.model import User
 from modules.chat.model import Chat
@@ -306,6 +306,7 @@ class ChatDB(DatabaseInterface):
             if title:
                 chat.title = title                
             if history_url:
+                print("Updating history URL to:", history_url)
                 chat.history_url = history_url
             if slides_fname:
                 chat.slides_fname = slides_fname
@@ -318,24 +319,47 @@ class ChatDB(DatabaseInterface):
             return chat.to_dict()
 
     @staticmethod
-    def delete(chat_id: int):
+    def delete(**kwargs):
         """
-        Deletes a chat from the database based on the provided chat_id.
+        Deletes a chat from the database.
 
         Args:
-            chat_id (int): The ID of the chat to be deleted.
+        - **kwargs: Additional keyword arguments for specifying query parameters.
+            - chat_id (int): The ID of the chat to be deleted.
+            - course_id (int): The ID of the course associated with the chat to be deleted.
+            - all (bool): Flag indicating whether to delete all matching chats or just the first one. Default is False.
 
-        Raises:
-            ValueError: If the chat with the provided chat_id is not found in the database.
         """
-        with db_connection as db:
-            chat = db.query(Chat).filter(Chat.chat_id == chat_id).first()
-            if chat:
-                db.delete(chat)
-                db.commit()
-            else:
-                raise ValueError(f"Chat with ID {chat_id} not found")
+        chat_id = kwargs.get("chat_id", None)
+        course_id = kwargs.get("course_id", None)
+        all = kwargs.get("all", False)
 
+        if not any([chat_id, course_id]):
+            raise ValueError("No query parameters provided")
+        
+        # Create a list of filters based on the provided query parameters
+        filters = []
+        if chat_id:
+            filters.append(Chat.chat_id == chat_id)
+        if course_id:
+            filters.append(Chat.course_id == course_id)
+        
+        with db_connection as db:
+            query = db.query(Chat).filter(and_(*filters))
+            result = query.all() if all else [query.first()]
+            print(query)
+            print(query.all())
+            print(result)
+            if not result:
+                return []
+            
+            ret = []
+            for chat in result:
+                ret.append(chat.to_dict())
+                db.delete(chat)
+            db.commit()
+
+        return ret
 
 class CourseDB(DatabaseInterface):
     """
@@ -343,7 +367,7 @@ class CourseDB(DatabaseInterface):
     """
 
     @staticmethod
-    def create(name: str, title: str, description: str, user_id: int):
+    def create(name: str, code: str, description: str, user_id: int):
         """
         Create a new course in the database.
 
@@ -358,11 +382,11 @@ class CourseDB(DatabaseInterface):
         Raises:
             ValueError: If a course with the provided name already exists for the user.
         """
-        course = CourseDB.fetch(course_title=title, user_id=user_id)
+        course = CourseDB.fetch(course_code=code, user_id=user_id)
         if course:
-            raise ValueError(f"Course {title} with provided name already exists for user {user_id}")
+            raise ValueError(f"Course {code} already exists for user {user_id}")
 
-        course = Course(course_name=name, course_title=title,
+        course = Course(course_name=name, course_code=code,
                         description=description, user_id=user_id) # create a new course object
         
         # save the user object in the database
@@ -381,7 +405,7 @@ class CourseDB(DatabaseInterface):
         Args:
             course_id (int): The ID of the course.
             course_name (str): The name of the course.
-            course_title (str): The title of the course.
+            course_code (str): The title of the course.
             user_id (int): The ID of the user.
             all (bool, optional): If True, fetches all matching courses. If False (default), fetches only the first matching course.
 
@@ -394,10 +418,10 @@ class CourseDB(DatabaseInterface):
         course_id = kwargs.get("course_id", None)
         course_name = kwargs.get("course_name", None)
         user_id = kwargs.get("user_id", None)
-        course_title = kwargs.get("course_title", None)
+        course_code = kwargs.get("course_code", None)
         all = kwargs.get("all", False)
 
-        if not any([course_id, course_name, user_id, course_title]): # check if any query parameters are provided
+        if not any([course_id, course_name, user_id, course_code]): # check if any query parameters are provided
             raise ValueError("No query parameters provided")
         
         # Create a list of filters based on the provided query parameters
@@ -408,8 +432,8 @@ class CourseDB(DatabaseInterface):
             filters.append(Course.course_name == course_name)
         if user_id:
             filters.append(Course.user_id == user_id)
-        if course_title:
-            filters.append(Course.course_title == course_title)
+        if course_code:
+            filters.append(Course.course_code == course_code)
 
         with db_connection as db:
             query = db.query(Course).filter(and_(*filters)) # apply filters to the query
@@ -421,18 +445,51 @@ class CourseDB(DatabaseInterface):
             return result.to_dict() if result else None # return a single course dict or None
 
     @staticmethod
-    def update(obj):
+    def update(course_id: int, **kwargs):
         """
-        Updates a course in the database.
+        Update the course details in the database.
 
         Args:
-        - obj: The course object to be updated.
+            course_id (int): The ID of the course to update.
+            **kwargs: Keyword arguments for the fields to update. Possible keyword arguments include:
+                - course_name (str): The new name for the course.
+                - course_code (str): The new code for the course.
+                - description (str): The new description for the course.
+                - syllabus_url (str): The new syllabus URL for the course.
+                - img_url (str): The new image URL for the course.
 
         Returns:
-        - dict: A dictionary representation of the updated course object.
+            dict: A dictionary representing the updated course details.
 
+        Raises:
+            ValueError: If the course with the specified ID is not found in the database.
         """
-        pass
+        course_name: str = kwargs.get("course_name", None)
+        course_code: str = kwargs.get("course_code", None)
+        description: str = kwargs.get("description", None)
+        syllabus_url: str = kwargs.get("syllabus_url", None)
+        img_url: str = kwargs.get("img_url", None)
+
+        with db_connection as db:
+            course = db.query(Course).filter(Course.course_id == course_id).first()
+            if not course:
+                raise ValueError(f"Course with ID {course_id} not found")
+
+            if course_name:
+                course.course_name = course_name
+            if course_code:
+                course.course_code = course_code
+            if description is not None: # might be empty string
+                course.description = description
+            if syllabus_url:
+                course.syllabus_url = syllabus_url
+            if img_url:
+                course.img_url = img_url
+
+            db.commit()
+            db.refresh(course)
+
+            return course.to_dict()
 
     @staticmethod
     def delete(**kwargs):
@@ -441,6 +498,45 @@ class CourseDB(DatabaseInterface):
 
         Args:
         - **kwargs: Additional keyword arguments for specifying query parameters.
-
+            - course_id (int): The ID of the course to be deleted.
+            - course_name (str): The name of the course to be deleted.
+            - user_id (int): The ID of the user who owns the course to be deleted.
+            - course_code (str): The title of the course to be deleted.
+            - all (bool): Flag indicating whether to delete all matching courses or just the first one. Default is False.
+        
+        Returns:
+        - list: A list of dictionaries representing the deleted courses.
         """
-        pass
+        course_id = kwargs.get("course_id", None)
+        course_name = kwargs.get("course_name", None)
+        user_id = kwargs.get("user_id", None)
+        course_code = kwargs.get("course_code", None)
+        all = kwargs.get("all", False)
+
+        if not any([course_id, course_name, user_id, course_code]): # check if any query parameters are provided
+            raise ValueError("No query parameters provided")
+        
+        # Create a list of filters based on the provided query parameters
+        filters = []
+        if course_id:
+            filters.append(Course.course_id == course_id)
+        if course_name:
+            filters.append(Course.course_name == course_name)
+        if user_id:
+            filters.append(Course.user_id == user_id)
+        if course_code:
+            filters.append(Course.course_code == course_code)
+        
+        with db_connection as db:
+            query = db.query(Course).filter(and_(*filters))
+            result = query.all() if all else [query.first()]
+            if not result:
+                return []
+            
+            ret = []
+            for course in result:
+                ret.append(course.to_dict())
+                db.delete(course)
+            db.commit()
+        
+        return ret

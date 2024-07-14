@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import "@/app/style/course-homepage.css";
 import Navbar from "@/app/components/navbar";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   FaBook,
   FaCalendarAlt,
@@ -63,7 +63,7 @@ const CourseHomepage = ({ params }: { params: { id: string } }) => {
   }
 
   return (
-    <main className="bg-gray-100 min-h-screen text-black">
+    <main className="bg-transparent min-h-screen text-black">
         <Navbar />
         <div className="relative overflow-hidden">
           <div className="max-w-8xl mx-auto py-12 px-6 text-black">
