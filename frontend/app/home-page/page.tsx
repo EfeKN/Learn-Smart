@@ -3,14 +3,13 @@
 import Navbar from "@/app/components/navbar";
 import CoursePreview from "@/app/course/course-preview";
 import Cookies from "js-cookie";
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 
 export default function HomePage() {
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string>("");
 
   useEffect(() => {
-    const storedToken = Cookies.get("authToken");
-    setToken(storedToken);
+    setToken(Cookies.get("authToken") || "");
   }, []);
 
   return (

@@ -367,13 +367,14 @@ class CourseDB(DatabaseInterface):
     """
 
     @staticmethod
-    def create(name: str, code: str, description: str, user_id: int):
+    def create(course_name: str, course_code: str, course_description: str, user_id: int):
         """
         Create a new course in the database.
 
         Args:
-            name (str): The name of the course.
-            description (str): The description of the course.
+            course_name (str): The name of the course.
+            course_code (str): The code of the course.
+            course_description (str): The description of the course.
             user_id (int): The ID of the user who owns the course.
 
         Returns:
@@ -382,12 +383,12 @@ class CourseDB(DatabaseInterface):
         Raises:
             ValueError: If a course with the provided name already exists for the user.
         """
-        course = CourseDB.fetch(course_code=code, user_id=user_id)
+        course = CourseDB.fetch(course_code=course_code, user_id=user_id)
         if course:
-            raise ValueError(f"Course {code} already exists for user {user_id}")
+            raise ValueError(f"Course {course_code} already exists for user {user_id}")
 
-        course = Course(course_name=name, course_code=code,
-                        description=description, user_id=user_id) # create a new course object
+        course = Course(course_name=course_name, course_code=course_code,
+                        course_description=course_description, user_id=user_id) # create a new course object
         
         # save the user object in the database
         with db_connection as db:
@@ -454,9 +455,9 @@ class CourseDB(DatabaseInterface):
             **kwargs: Keyword arguments for the fields to update. Possible keyword arguments include:
                 - course_name (str): The new name for the course.
                 - course_code (str): The new code for the course.
-                - description (str): The new description for the course.
+                - course_description (str): The new course_description for the course.
                 - syllabus_url (str): The new syllabus URL for the course.
-                - img_url (str): The new image URL for the course.
+                - icon_url (str): The new image URL for the course.
 
         Returns:
             dict: A dictionary representing the updated course details.
@@ -466,9 +467,9 @@ class CourseDB(DatabaseInterface):
         """
         course_name: str = kwargs.get("course_name", None)
         course_code: str = kwargs.get("course_code", None)
-        description: str = kwargs.get("description", None)
+        course_description: str = kwargs.get("course_description", None)
         syllabus_url: str = kwargs.get("syllabus_url", None)
-        img_url: str = kwargs.get("img_url", None)
+        icon_url: str = kwargs.get("icon_url", None)
 
         with db_connection as db:
             course = db.query(Course).filter(Course.course_id == course_id).first()
@@ -479,12 +480,12 @@ class CourseDB(DatabaseInterface):
                 course.course_name = course_name
             if course_code:
                 course.course_code = course_code
-            if description is not None: # might be empty string
-                course.description = description
+            if course_description is not None: # might be empty string
+                course.course_description = course_description
             if syllabus_url:
                 course.syllabus_url = syllabus_url
-            if img_url:
-                course.img_url = img_url
+            if icon_url:
+                course.icon_url = icon_url
 
             db.commit()
             db.refresh(course)

@@ -3,45 +3,44 @@ import FormData from "form-data";
 import Cookies from "js-cookie";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
+import { CreateCourseModalParameters } from "../types";
 
-interface ModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-}
-
-export default function CreateCourseModal(modalProps: ModalProps) {
+export default function CreateCourseModal(
+  modalProps: CreateCourseModalParameters
+) {
   if (!modalProps.isOpen) {
     return null;
   }
 
-  const [courseName, setCourseName] = useState("");
+  const [course_name, setCourseName] = useState("");
   const [courseCode, setCourseCode] = useState("");
-  const [description, setDescription] = useState("");
+  const [course_description, setDescription] = useState("");
   const [formError, setFormError] = useState("");
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string>("");
   const params = useParams<{ id: string }>();
   const id = params.id;
 
   useEffect(() => {
-    setToken(Cookies.get("authToken") || null);
+    setToken(Cookies.get("authToken") || "");
   }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     // Validate if all fields are filled
-    if (!courseName || !courseCode || !description) {
+    if (!course_name || !courseCode || !course_description) {
       setFormError("Please fill out all fields.");
       return;
     }
 
+    // Create form data to send to backend
+
     const form = new FormData();
 
-    form.append("course_name", courseName);
+    form.append("course_name", course_name);
     form.append("course_code", courseCode);
-    form.append("description", description);
-    form.append("img_url", null);
+    form.append("course_description", course_description);
+    form.append("icon_url", null);
     form.append("syllabus_url", null);
 
     await backendAPI
@@ -53,7 +52,7 @@ export default function CreateCourseModal(modalProps: ModalProps) {
         },
       })
       .then((response) => {
-        console.log(response.data);
+        console.log("Course created successfully:", response.data);
       })
       .catch((error) => {
         console.error("Error fetching chats data:", error);
@@ -67,7 +66,7 @@ export default function CreateCourseModal(modalProps: ModalProps) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-15 backdrop-blur">
       <div className="relative w-full max-w-lg p-4 mx-auto bg-white rounded-lg shadow-xl">
         <div className="flex justify-between items-center pb-3 border-b dark:border-gray-600">
-          <h2 className="text-xl font-semibold">{modalProps.title}</h2>
+          <h2 className="text-xl font-semibold">{modalProps.modalTitle}</h2>
           <button
             onClick={modalProps.onClose}
             className="text-gray-500 hover:text-gray-700"
@@ -93,16 +92,16 @@ export default function CreateCourseModal(modalProps: ModalProps) {
         <form onSubmit={handleSubmit}>
           <div className="p-4">
             <label
-              htmlFor="courseName"
+              htmlFor="course_name"
               className="block mb-2 font-medium text-gray-700"
             >
               Course Name:
             </label>
             <input
               type="text"
-              id="courseName"
-              name="courseName"
-              value={courseName}
+              id="course_name"
+              name="course_name"
+              value={course_name}
               onChange={(e) => setCourseName(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
               placeholder="Enter course name..."
@@ -125,18 +124,18 @@ export default function CreateCourseModal(modalProps: ModalProps) {
             />
 
             <label
-              htmlFor="description"
+              htmlFor="course_description"
               className="block mt-4 mb-2 font-medium text-gray-700"
             >
               Description:
             </label>
             <textarea
-              id="description"
-              name="description"
-              value={description}
+              id="course_description"
+              name="course_description"
+              value={course_description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-              placeholder="Enter description..."
+              placeholder="Enter course_description..."
             ></textarea>
 
             {/* TODO syllabus and image */}

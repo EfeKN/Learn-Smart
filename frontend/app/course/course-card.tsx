@@ -1,18 +1,9 @@
-import React, { useState } from 'react';
+import "@/app/style/course-card.css";
+import type { CourseCardParameters } from "@/app/types";
 import { useRouter } from "next/navigation";
-import '@/app/style/course-card.css';
+import { useEffect, useState } from "react";
 
-type CourseCardProps = {
-  course: {
-    course_id: string;
-    course_name: string;
-    description: string;
-    course_title: string;
-    icon: string;
-  };
-};
-
-const CourseCard = ({ course }: CourseCardProps) => {
+export default function CourseCard(parameters: CourseCardParameters) {
   const [hovered, setHovered] = useState(false);
   const router = useRouter();
 
@@ -25,8 +16,13 @@ const CourseCard = ({ course }: CourseCardProps) => {
   };
 
   const handleClick = () => {
-    router.push(`/course/${course.course_id}`);
+    router.push(`/course/${parameters.course.course_id}`);
   };
+
+  // TODO remove below
+  useEffect(() => {
+    console.log(parameters.course);
+  }, [parameters]);
 
   return (
     <main>
@@ -35,22 +31,25 @@ const CourseCard = ({ course }: CourseCardProps) => {
         onMouseEnter={handleHover}
         onMouseLeave={handleLeave}
         onClick={handleClick}
+        type="button"
       >
         <div className="bg-white rounded-lg p-2">
-          <img src={course.icon} alt={course.course_name} className="h-16 w-16" />
+          <img
+            src={parameters.course.course_icon}
+            alt={parameters.course.course_name}
+            className="h-16 w-16"
+          />
         </div>
-        <div className="mt-2 text-white font-semibold">{course.course_name}</div>
-        <div className={`overlay-content ${hovered ? 'active' : ''}`}>
-          <div className="overlay-text">
-            {course.course_name}
-          </div>
+        <div className="mt-2 text-white font-semibold">
+          {parameters.course.course_name}
+        </div>
+        <div className={`overlay-content ${hovered ? "active" : ""}`}>
+          <div className="overlay-text">{parameters.course.course_name}</div>
         </div>
       </button>
       <div className="mt-2 text-black text-center font-semibold">
-        {course.course_name}
+        {parameters.course.course_name}
       </div>
     </main>
   );
-};
-
-export default CourseCard;
+}

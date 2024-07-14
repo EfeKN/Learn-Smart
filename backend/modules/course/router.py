@@ -65,7 +65,7 @@ async def get_chats(course_id: int, current_user: dict = Depends(auth.get_curren
 
 @router.post("/create")
 async def create_course(course_name: str = Form(...), course_code: str = Form(...),
-                        description: Optional[str] = Form(None), 
+                        course_description: Optional[str] = Form(None), 
                         syllabus_file: UploadFile = File(None),
                         img_file: UploadFile = File(None),
                         current_user: dict = Depends(auth.get_current_user)):
@@ -88,19 +88,19 @@ async def create_course(course_name: str = Form(...), course_code: str = Form(..
     """
 
     # pydantic input validation
-    _ = CourseCreationRequest(course_name=course_name, course_code=course_code, description=description)
+    _ = CourseCreationRequest(course_name=course_name, course_code=course_code, course_description=course_description)
     try:
         img_ext = splitext(img_file.filename)[1]
         if img_ext not in ["png", "jpg", "jpeg"]:
             raise ValueError("Invalid image format. Please upload a PNG, JPG, or JPEG file.")
-        course = CourseDB.create(name=course_name, description=description, 
+        course = CourseDB.create(name=course_name, course_description=course_description, 
                                 code=course_code, user_id=current_user["user_id"])
         img_file = FileFactory()(img_file)
         course_img_path = get_course_img_path(course["course_id"])
         img_file.save(course_img_path, size=(256, 256))
 
-        CourseDB.update(course_id=course["course_id"], img_url=course_img_path)
-        course["img_url"] = course_img_path # update response with the image URL
+        CourseDB.update(course_id=course["course_id"], icon_url=course_img_path)
+        course["icon_url"] = course_img_path # update response with the image URL
         return course
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -129,8 +129,8 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
 
     syllabus_url = course["syllabus_url"]
     if syllabus_url and os.path.exists(syllabus_url): os.remove(syllabus_url)
-    img_url = course["img_url"]
-    if img_url and os.path.exists(img_url): os.remove(img_url)
+    icon_url = course["icon_url"]
+    if icon_url and os.path.exists(icon_url): os.remove(icon_url)
     
     chats = ChatDB.delete(course_id=course_id, all=True) # delete all chats associated with the course
     CourseDB.delete(course_id=course_id) # delete the course
@@ -153,9 +153,9 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
 @router.put("/{course_id}")
 async def update_course(course_id: int, course_name: Optional[str] = Form(None),
                         course_code: Optional[str] = Form(None),
-                        description: Optional[str] = Form(None),
+                        course_description: Optional[str] = Form(None),
                         update_description: bool = Form(False), # flag variable indicating whether to update the 
-                                                                # description (necessary because description is
+                                                                # course_description (necessary because course_description is
                                                                 # optional and might be None)
                         syllabus_file: UploadFile = File(None),
                         img_file: UploadFile = File(None),
@@ -167,7 +167,7 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
     - course_id (int): The ID of the course to update.
     - course_name (Optional[str]): The updated name of the course (default: None).
     - course_code (Optional[str]): The updated code of the course (default: None).
-    - description (Optional[str]): The updated description of the course (default: None).
+    - course_description (Optional[str]): The updated course_description of the course (default: None).
     - syllabus_file (UploadFile): The updated syllabus file (default: None).
     - img_file (UploadFile): The updated image file (default: None).
     - current_user (dict): The current user's information.
@@ -185,7 +185,7 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
     """
 
     # pydantic input validation
-    _ = CourseUpdateRequest(course_name=course_name, course_code=course_code, description=description)
+    _ = CourseUpdateRequest(course_name=course_name, course_code=course_code, course_description=course_description)
 
     course = CourseDB.fetch(course_id=course_id)
     if not course:
@@ -195,7 +195,7 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
 
     try:
         course = CourseDB.update(course_id=course_id, course_name=course_name, 
-                                 description=("" if description is None and update_description else description),
+                                 course_description=("" if course_description is None and update_description else course_description),
                                  course_code=course_code)
         return course
     except ValueError as e:

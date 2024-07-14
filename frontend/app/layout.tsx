@@ -10,12 +10,12 @@ export const metadata: Metadata = {
     "Learn Smart is a platform aimed at helping students learn more effectively.",
 };
 
-interface RootLayoutProps {
-  children: React.ReactNode;
-}
-
 // Define RootLayout component
-export default function RootLayout({ children }: RootLayoutProps) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body className={inter.className}>

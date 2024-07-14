@@ -1,28 +1,20 @@
-import React, { useEffect, useState } from "react";
-import "@/app/style/course-preview.css";
-import CourseCard from "./course-card";
-import CreateCourseModal from "@/app/course/create-course-modal";
 import CourseHomepage from "@/app/course/[id]/page";
-import Cookies from "js-cookie";
+import CreateCourseModal from "@/app/course/create-course-modal";
+import "@/app/style/course-preview.css";
 import backendAPI from "@/environment/backend_api";
-
-type CourseType = {
-  course_id: string;
-  course_name: string;
-  description: string;
-  course_title: string;
-  icon: string;
-};
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
+import { Course } from "../types";
+import CourseCard from "./course-card";
 
 export default function CoursePreview() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-  const [courses, setCourses] = useState<CourseType[]>([]);
+  const [selectedCourseId, setSelectedCourseId] = useState<string>("");
+  const [token, setToken] = useState<string>("");
+  const [courses, setCourses] = useState<Course[]>([]);
 
   useEffect(() => {
-    const storedToken = Cookies.get("authToken");
-    setToken(storedToken);
+    setToken(Cookies.get("authToken") || "");
   }, []);
 
   useEffect(() => {
@@ -39,32 +31,34 @@ export default function CoursePreview() {
           Authorization: `Bearer ${token}`,
         },
       });
+
       setCourses(response.data["courses"]);
     } catch (error) {
       console.error("Error fetching course data:", error);
     }
   };
 
-  const handleSelectCourse = (course: CourseType) => {
+  const handleSelectCourse = (course: Course) => {
     setSelectedCourseId(course.course_id);
   };
 
   return (
     <div>
       {selectedCourseId ? (
-        <CourseHomepage />
+        <CourseHomepage id={selectedCourseId} />
       ) : (
         <div className="flex space-x-4">
           {courses.map((course) => (
             <CourseCard
               key={course.course_id}
               course={course}
-              onSelect={handleSelectCourse} // Set selected course on click
+              onSelect={handleSelectCourse}
             />
           ))}
           <button
             onClick={() => setIsModalOpen(true)}
             className="course-card flex items-center justify-center w-48 h-32 bg-gray-200 shadow-lg text-gray-500 text-lg"
+            type="button"
           >
             + Add Course
           </button>
@@ -72,13 +66,17 @@ export default function CoursePreview() {
             <CreateCourseModal
               isOpen={isModalOpen}
               onClose={() => setIsModalOpen(false)}
-              title="Add New Site"
+              modalTitle="Add New Site"
             />
           </div>
         </div>
       )}
       {selectedCourseId && (
-        <button onClick={() => setSelectedCourseId(null)} className="toggle-button">
+        <button
+          onClick={() => setSelectedCourseId("")}
+          className="toggle-button"
+          type="button"
+        >
           Back to Course List
         </button>
       )}
