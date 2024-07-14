@@ -468,6 +468,7 @@ class CourseDB(DatabaseInterface):
         course_code: str = kwargs.get("course_code", None)
         description: str = kwargs.get("description", None)
         syllabus_url: str = kwargs.get("syllabus_url", None)
+        study_plan_url: str = kwargs.get("study_plan_url", None)
         img_url: str = kwargs.get("img_url", None)
 
         with db_connection as db:
@@ -481,10 +482,12 @@ class CourseDB(DatabaseInterface):
                 course.course_code = course_code
             if description is not None: # might be empty string
                 course.description = description
-            if syllabus_url:
+            if syllabus_url is not None: # might be empty string
                 course.syllabus_url = syllabus_url
-            if img_url:
+            if img_url is not None: # might be empty string
                 course.img_url = img_url
+            if study_plan_url is not None:
+                course.study_plan_url = study_plan_url
 
             db.commit()
             db.refresh(course)

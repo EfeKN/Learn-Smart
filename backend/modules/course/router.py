@@ -1,5 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, File, UploadFile
+import google.generativeai as genai
 import os, shutil
 
 from middleware import authentication as auth
@@ -8,6 +9,7 @@ from database.dbmanager import CourseDB, ChatDB
 from modules.course.schemas import CourseCreationRequest, CourseUpdateRequest
 from modules.chat.util import *
 from modules.course.util import *
+from . import WEEKLY_STUDY_PLAN_PROMPT
 
 router = APIRouter(prefix="/course", tags=["Course"])
 
@@ -89,20 +91,50 @@ async def create_course(course_name: str = Form(...), course_code: str = Form(..
 
     # pydantic input validation
     _ = CourseCreationRequest(course_name=course_name, course_code=course_code, description=description)
+    img_ext = (splitext(img_file.filename)[1] if img_file else None)
+    syllabus_ext = (splitext(syllabus_file.filename)[1] if syllabus_file else None)
+    
+    course_img_path, syllabus_path, study_plan_path = None, None, None
     try:
-        img_ext = splitext(img_file.filename)[1]
-        if img_ext not in ["png", "jpg", "jpeg"]:
+        if img_ext and img_ext not in ["png", "jpg", "jpeg"]:
             raise ValueError("Invalid image format. Please upload a PNG, JPG, or JPEG file.")
+        if syllabus_ext and syllabus_ext not in ["pdf", "docx"]:
+            raise ValueError("Invalid syllabus format. Please upload a PDF or a DOCX file.")
+        
         course = CourseDB.create(name=course_name, description=description, 
                                 code=course_code, user_id=current_user["user_id"])
-        img_file = FileFactory()(img_file)
-        course_img_path = get_course_img_path(course["course_id"])
-        img_file.save(course_img_path, size=(256, 256))
+        if img_file:
+            img_file = FileFactory()(img_file)
+            course_img_path = get_course_img_path(course["course_id"])
+            img_file.save(course_img_path, size=(256, 256))
+            course["img_url"] = course_img_path # update response dict. with the image URL
 
-        CourseDB.update(course_id=course["course_id"], img_url=course_img_path)
-        course["img_url"] = course_img_path # update response with the image URL
+        if syllabus_file:
+            syllabus_file = FileFactory()(syllabus_file)
+            syllabus_path = get_course_syllabus_path(course["course_id"])
+            syllabus_file.save(syllabus_path)
+            course["syllabus_url"] = syllabus_path # update response dict. with the syllabus URL
+
+            # send the syllabus to LLM for weekly study plan generation
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            
+            response = model.generate_content([WEEKLY_STUDY_PLAN_PROMPT, syllabus_file.content()]).text
+            study_plan_path = get_study_plan_path(course["course_id"])
+
+            with open(study_plan_path, 'w') as file:
+                file.write(response)
+            course["study_plan_url"] = study_plan_path # update response dict. with the study plan URL
+
+        CourseDB.update(course_id=course["course_id"], img_url=course_img_path, syllabus_url=syllabus_path,
+                        study_plan_url=study_plan_path)
         return course
     except ValueError as e:
+        # Rollback changes
+        if course_img_path: FileFactory()(path=course_img_path).delete()
+        if syllabus_path: FileFactory()(path=syllabus_path).delete()
+        if study_plan_path: FileFactory()(path=study_plan_path).delete()
+        
+        CourseDB.delete(course_id=course["course_id"])
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.delete("/{course_id}")
@@ -128,9 +160,11 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
         raise HTTPException(status_code=403, detail="Forbidden.")
 
     syllabus_url = course["syllabus_url"]
-    if syllabus_url and os.path.exists(syllabus_url): os.remove(syllabus_url)
+    if syllabus_url: FileFactory()(path=syllabus_url).delete()
     img_url = course["img_url"]
-    if img_url and os.path.exists(img_url): os.remove(img_url)
+    if img_url: FileFactory()(path=img_url).delete()
+    study_plan_url = course["study_plan_url"]
+    if study_plan_url: FileFactory()(path=study_plan_url).delete()
     
     chats = ChatDB.delete(course_id=course_id, all=True) # delete all chats associated with the course
     CourseDB.delete(course_id=course_id) # delete the course
@@ -138,7 +172,7 @@ async def delete_course(course_id: int, current_user: dict = Depends(auth.get_cu
         history_url, slides_furl = chat["history_url"], chat["slides_furl"]
         metadata_url = get_chat_metadata_path(history_url) if history_url else None
         generator_url = get_generator_path(slides_furl) if slides_furl else None
-        items_folder = get_chat_folder_name(chat["chat_id"])
+        items_folder = get_chat_folder_path(chat["chat_id"])
 
         if os.path.exists(history_url): os.remove(history_url)
         if items_folder and os.path.exists(items_folder): shutil.rmtree(items_folder)
@@ -158,7 +192,9 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
                                                                 # description (necessary because description is
                                                                 # optional and might be None)
                         syllabus_file: UploadFile = File(None),
+                        update_syllabus: bool = Form(False), # flag variable indicating whether to update the syllabus
                         img_file: UploadFile = File(None),
+                        update_img: bool = Form(False), # flag variable indicating whether to update the image
                         current_user: dict = Depends(auth.get_current_user)):
     """
     Update a course with the given course_id.
@@ -193,10 +229,47 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
 
+    new_img_path, new_syllabus_path, new_study_plan_path = None, None, None
+    if update_img and img_file is None:
+        FileFactory()(path=course["img_url"]).delete() # delete old image
+    elif update_img and img_file:
+        img_ext = splitext(img_file.filename)[1]
+        if img_ext not in ["png", "jpg", "jpeg"]:
+            raise HTTPException(status_code=400, detail="Invalid image format. Please upload a PNG, JPG, or JPEG file.")
+        FileFactory()(path=course["img_url"]).delete() # delete old image
+
+        new_img_path = get_course_img_path(course_id)
+        new_img_file = FileFactory()(img_file)
+        new_img_file.save(new_img_path, size=(256, 256))
+
+    if update_syllabus and syllabus_file is None:
+        FileFactory()(path=course["syllabus_url"]).delete() # delete old syllabus
+    elif update_syllabus and syllabus_file:
+        syllabus_ext = splitext(syllabus_file.filename)[1]
+        if syllabus_ext not in ["pdf", "docx"]:
+            raise HTTPException(status_code=400, detail="Invalid syllabus format. Please upload a PDF or a DOCX file.")
+        FileFactory()(path=course["syllabus_url"]).delete() # delete old syllabus
+        FileFactory()(path=course["study_plan_url"]).delete() # delete old study plan
+
+        new_syllabus_path = get_course_syllabus_path(course_id)
+        new_study_plan_path = get_study_plan_path(course_id)
+
+        syllabus_file = FileFactory()(syllabus_file)
+        syllabus_file.save(new_syllabus_path)
+
+        # send the new syllabus to LLM for weekly study plan generation
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content([WEEKLY_STUDY_PLAN_PROMPT, syllabus_file.content()]).text
+        with open(new_study_plan_path, 'w') as file:
+            file.write(response)
+
     try:
-        course = CourseDB.update(course_id=course_id, course_name=course_name, 
+        course = CourseDB.update(course_id=course_id, course_name=course_name, course_code=course_code,
                                  description=("" if description is None and update_description else description),
-                                 course_code=course_code)
+                                 img_url=("" if img_file is None and update_img else new_img_path),
+                                 syllabus_url=("" if syllabus_file is None and update_syllabus else new_syllabus_path),
+                                 study_plan_url=("" if syllabus_file is None and update_syllabus else new_study_plan_path)
+                                )
         return course
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))

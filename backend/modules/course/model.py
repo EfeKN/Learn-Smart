@@ -17,6 +17,7 @@ class Course(Base):
     course_code = Column(String(16), unique=True) # e.g. CS 342
     description = Column(String(1024), nullable=True)
     syllabus_url = Column(String(255), nullable=True)
+    study_plan_url = Column(String(255), nullable=True)
     img_url = Column(String(255), nullable=True) # nullable for now (generate an image for the course in the future)
     user_id = Column(Integer, ForeignKey('users.user_id'))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -37,5 +38,6 @@ class Course(Base):
             "course_code": self.course_code,
             "user_id": self.user_id,
             "syllabus_url": self.syllabus_url,
+            "study_plan_url": self.study_plan_url,
             "img_url": self.img_url
         }
