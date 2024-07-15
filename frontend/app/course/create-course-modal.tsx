@@ -99,8 +99,8 @@ export default function CreateCourseModal(
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center">
-      <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg w-1/2">
-        <h2 className="text-2xl mb-4">Create Course</h2>
+      <div className="bg-white text-black p-6 rounded-lg shadow-lg w-1/2">
+        <h2 className="font-bold mb-4 text-3xl">Create Course</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1" htmlFor="courseName">Course Name</label>
@@ -109,7 +109,7 @@ export default function CreateCourseModal(
               type="text"
               value={courseName}
               onChange={(e) => setCourseName(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-700 text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
               required
             />
           </div>
@@ -120,7 +120,7 @@ export default function CreateCourseModal(
               type="text"
               value={courseCode}
               onChange={(e) => setCourseCode(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-700 text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
               required
             />
           </div>
@@ -130,31 +130,31 @@ export default function CreateCourseModal(
               id="description"
               value={courseDescription}
               onChange={(e) => setCourseDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-700 rounded-lg bg-gray-700 text-white"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
             />
           </div>
           <div className="flex space-x-4 mb-4 items-start">
             <div className="flex flex-col items-center justify-center w-1/2">
-              <label htmlFor="syllabus" className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+              <label htmlFor="syllabus" className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   {syllabus ? (
                     <>
                       {syllabus.name.endsWith('.pdf') && <FaFilePdf className="w-16 h-16 mb-4" />}
                       {syllabus.name.endsWith('.docx') && <TbFileTypeDocx className="w-16 h-16 mb-4" />}
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{syllabus.name}</p>
+                      <p className="text-sm text-gray-500">{syllabus.name}</p>
                     </>
                   ) : (
                     <>
-                      <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                      <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                       </svg>
-                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">PDF or DOCX</p>
+                      <p className="mb-2 text-sm text-gray-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                      <p className="text-xs text-gray-500">PDF or DOCX</p>
                     </>
                   )}
                 </div>
-                <input 
-                  id="syllabus" 
+                <input
+                  id="syllabus"
                   type="file"
                   accept=".pdf,.docx"
                   onChange={(e) => handleFileChange(e, setSyllabus, setSyllabusError, "document")}
@@ -164,25 +164,25 @@ export default function CreateCourseModal(
               <p className="text-sm text-gray-400 mt-2 text-center">You can upload your course syllabus to get personalized weekly study plan.</p>
             </div>
             <div className="flex flex-col items-center justify-center w-1/2">
-              <label htmlFor="image" className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600">
+              <label htmlFor="image" className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   {icon ? (
                     <>
                       {<FaRegImages className="w-16 h-16 mb-4" />}
-                      <p className="text-sm text-gray-500 dark:text-gray-400">{icon.name}</p>
+                      <p className="text-sm text-gray-500">{icon.name}</p>
                     </>
                   ) : (
                     <>
-                      <svg className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                      <svg className="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                         <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
                       </svg>
-                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">JPG, JPEG or PNG</p>
+                      <p className="mb-2 text-sm text-gray-500"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                      <p className="text-xs text-gray-500">JPG, JPEG or PNG</p>
                     </>
                   )}
                 </div>
-                <input 
-                  id="image" 
+                <input
+                  id="image"
                   type="file"
                   accept=".jpg,.jpeg,.png"
                   onChange={(e) => handleFileChange(e, setIcon, setIconError, "image")}
@@ -191,16 +191,23 @@ export default function CreateCourseModal(
               {iconError && <p className="text-sm text-red-500 mt-2 text-center">{iconError}</p>}
               <p className="text-sm text-gray-400 mt-2 text-center">You can upload an image for your course.</p>
             </div>
-          </div> 
+          </div>
           <div className="flex justify-end">
             <button
               type="button"
               onClick={handleCancel}
-              className="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg mr-2"
+              className="bg-black hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg mr-2"
             >
               Cancel
             </button>
-            <LoadingButton handleClick={handleSubmit} type="submit" text="Create" loadingText="Creating course..." />
+            <LoadingButton
+              handleClick={handleSubmit}
+              type="submit"
+              text="Create"
+              loadingText="Creating course..."
+              disabled={!courseName || !courseCode}
+              className="bg-black hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg"
+            />
           </div>
         </form>
       </div>

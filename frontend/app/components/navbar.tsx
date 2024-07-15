@@ -7,6 +7,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { HiMiniBell } from "react-icons/hi2";
 import FlyoutMenu from "../components/flyout-menu";
 import Notifications from "../components/notifications";
+import backendAPI from "@/environment/backend_api";
 
 interface NavbarElement {
   id: number;
@@ -33,7 +34,7 @@ export default function Navbar() {
       name: "menu",
       link: "menu",
       component: renderMenu,
-    },
+    }
   ];
 
   function handleMenuClick(menu: any) {
@@ -53,10 +54,6 @@ export default function Navbar() {
     }
   }
 
-  function handleLogout() {
-    Cookies.remove("authToken");
-    router.push("/login");
-  }
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -118,21 +115,9 @@ export default function Navbar() {
     );
   }
 
-  function renderLogout(): JSX.Element {
-    return (
-      <button
-        type="button"
-        onClick={handleLogout}
-        className="text-lm font-medium text-black"
-      >
-        Logout
-      </button>
-    );
-  }
-
   return (
     <div
-      className="flex justify-between items-center w-full h-20 px-4 text-black bg-white nav"
+      className="flex justify-between items-center w-full h-16 px-4 text-black bg-white nav"
       ref={navRef}
     >
       <div>
