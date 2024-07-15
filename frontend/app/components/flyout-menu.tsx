@@ -2,6 +2,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { FaCog, FaUser } from "react-icons/fa";
 import { FlyoutMenuParameters } from "../types";
+import backendAPI from "@/environment/backend_api";
 
 export default function FlyoutMenu({ isOpen }: FlyoutMenuParameters) {
   if (!isOpen) return null;
@@ -9,7 +10,7 @@ export default function FlyoutMenu({ isOpen }: FlyoutMenuParameters) {
 
   const handleLogout = () => {
     Cookies.remove("authToken");
-    router.push("login");
+    router.replace("/login");
   };
 
   const navigateToProfile = () => {
