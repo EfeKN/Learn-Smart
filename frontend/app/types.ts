@@ -28,8 +28,10 @@ export interface ForgotPasswordModalParameters {
 }
 
 export interface CreateChatModalParameters {
+  authToken: string;
   isOpen: boolean;
   closeModal: () => void;
+  onChatCreated: (chat: Chat) => void;
 }
 
 export interface FlyoutMenuParameters {

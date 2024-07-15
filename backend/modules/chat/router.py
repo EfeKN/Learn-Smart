@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, File
 import google.generativeai as genai
 import shutil, os
 import json, jsonpickle
@@ -73,7 +73,7 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
         raise HTTPException(status_code=403, detail="Forbidden.")
     
     chat = ChatDB.create(course_id=course_id, title=title, slides_mode=bool(slides))
-    history_fname, _ = generate_chat_fnames(current_user["user_id"], course_id, chat["chat_id"])
+    history_fname, _ = get_chat_filenames(current_user["user_id"], course_id, chat["chat_id"])
     history_url = os.path.join(CHATS_DIR, history_fname) # chat history file path
 
     slides_furl, slides_fname = None, None # initialize the slides name and URL
@@ -111,6 +111,8 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
     ChatDB.update(chat["chat_id"], history_url=history_url, slides_fname=slides_fname,
                   slides_furl=slides_furl) # Update the chat in the database
     
+    chat["slides_furl"] = slides_furl
+    chat["slides_fname"] = slides_fname
     return {"chat": chat, "message": "Chat created successfully."}
 
 
@@ -137,14 +139,16 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
     
-    hist_fname, metadata_fname = generate_chat_fnames(current_user["user_id"], 
+    hist_fname, metadata_fname = get_chat_filenames(current_user["user_id"], 
                                                   course["course_id"], chat["chat_id"])
 
     file_path = os.path.join(CHATS_DIR, hist_fname) # chat history file path
     metadata_path = os.path.join(CHATS_DIR, metadata_fname) # chat metadata file path
 
-    with open(metadata_path, "r") as file:
-        metadata = {item['id']: item for item in json.load(file)}
+    metadata = {} # initialize metadata to an empty dictionary
+    if os.path.exists(metadata_path):
+        with open(metadata_path, "r") as file:
+            metadata = {item['id']: item for item in json.load(file)}
 
     chat_content = None # set chat_content to None if no chat history yet
     if os.path.exists(file_path):
@@ -169,6 +173,7 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
             if not messages or chat_dict["id"] != messages[-1]["id"]: # to remove duplicates, if any
                 messages.append(chat_dict)
     
+    chat["course_name"] = course["course_name"] # Add the course name to response
     chat["history"] = messages # Add the chat history to response
     return chat
 
@@ -250,7 +255,7 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
     
 
 @router.post("/{chat_id}/send_message")
-async def send_message(chat_id: int, text: str, file: UploadFile = File(None),
+async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = File(None),
                        current_user: dict = Depends(auth.get_current_user)):
     """
     Send a message in a chat and generate a response.
@@ -328,4 +333,4 @@ async def send_message(chat_id: int, text: str, file: UploadFile = File(None),
     with open(history_url, "w") as file: # Save the updated chat history to the chat file
         file.write(history)
 
-    return response.to_dict()
+    return {"message": response.text, "role": "model"}

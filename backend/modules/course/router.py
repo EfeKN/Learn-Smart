@@ -40,7 +40,7 @@ async def get_course(course_id: int, current_user: dict = Depends(auth.get_curre
     return course
 
 
-@router.get("/chats/{course_id}")
+@router.get("/{course_id}/chats")
 async def get_chats(course_id: int, current_user: dict = Depends(auth.get_current_user)):
     """
     Get all chats for a course.
@@ -64,8 +64,8 @@ async def get_chats(course_id: int, current_user: dict = Depends(auth.get_curren
         raise HTTPException(status_code=403, detail="Forbidden.")
 
     chats = ChatDB.fetch(course_id=course_id, all=True)
-    return {"chats": [{"chat_id": chat["chat_id"],
-                       "title": chat["title"]} for chat in chats]}  # return chat titles along with chat IDs
+    return [{"chat_id": chat["chat_id"],
+                       "title": chat["title"]} for chat in chats]  # return chat titles along with chat IDs
 
 
 @router.post("/create")

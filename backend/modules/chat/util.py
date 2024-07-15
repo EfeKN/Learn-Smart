@@ -51,7 +51,7 @@ def slide_generator(path: str):
     doc.close()
 
 
-def generate_chat_fnames(user_id: int, course_id: int, chat_id: int):
+def get_chat_filenames(user_id: int, course_id: int, chat_id: int):
     fname_prefix = f"user_{user_id}_course_{course_id}_chat_{chat_id}"
     fname = generate_hash(fname_prefix)
 
