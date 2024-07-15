@@ -8,8 +8,6 @@
 
 ## [Software Application Domain Chart](https://app.diagrams.net/#G1dG1N9txHlM9Nq-ffLHRjDzezJM5rkmxY#%7B%22pageId%22%3A%22b5b7bab2-c9e2-2cf4-8b2a-24fd1a2a6d21%22%7D)
 
-## [Roadmap](https://docs.google.com/document/d/1RZOr8Z2wiJ9KE8IRMvFYCXnN--1jCvMNxdqoBKGoteU/edit?usp=sharing)
-
 ## Build
 
 Use node 20.15.0
