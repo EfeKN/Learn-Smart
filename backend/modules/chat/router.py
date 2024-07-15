@@ -287,7 +287,7 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
             os.makedirs(f"{FILES_DIR}/chat_{chat_id}", exist_ok=True) # create a directory for the chat's files
             path = os.path.join(FILES_DIR, f"chat_{chat_id}", hashed_fname) # construct the file path
 
-            # file.save(path) # save the file in file system
+            file.save(path) # save the file in file system
             file_content = file.content() # get the file from the file system
 
             # TODO: assuming the file is an image for now

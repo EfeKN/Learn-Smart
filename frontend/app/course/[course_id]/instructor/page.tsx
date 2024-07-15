@@ -172,6 +172,9 @@ export default function InstructorPage() {
       .finally(() => {
         setIsLoading(false);
       });
+      if (selectedChat) {
+        fetchChatMessages(selectedChat.chat_id);
+      }
   };
 
   const handleChatSelection = (chat: { chat_id: string; title: string }) => {

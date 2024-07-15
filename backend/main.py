@@ -14,7 +14,7 @@ from logger import logger
 
 app = FastAPI()  # create the FastAPI app
 
-create_tables(drop=False)  # re/create the database tables
+create_tables(drop=True)  # re/create the database tables
 setup()  # setup the environment
 
 # Add CORS middleware to allow cross-origin requests
