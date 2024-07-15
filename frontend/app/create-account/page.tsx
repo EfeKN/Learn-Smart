@@ -6,6 +6,8 @@ import { useState } from "react";
 import { FaRegEnvelope, FaRegUser } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
 import { RiShieldUserLine } from "react-icons/ri";
+import { Bounce, ToastContainer, Zoom, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"
 
 export default function CreateAccountPage() {
   const [name, setName] = useState<string>("");
@@ -28,17 +30,17 @@ export default function CreateAccountPage() {
 
     // Check if all fields are filled
     if (!name || !nickname || !email || !password || !confirmPassword) {
-      alert("Please fill out all fields");
+      toast.error("Please fill out all fields");
       return;
     }
 
     if (!validateEmail(email)) {
-      alert("Invalid email address");
+      toast.error("Invalid email address");
       return;
     }
 
     if (!validatePassword(password, confirmPassword)) {
-      alert("Two passwords are not the same");
+      toast.error("Two passwords are not the same");
       return;
     }
 
@@ -60,18 +62,31 @@ export default function CreateAccountPage() {
       )
       .then((response) => {
         if (response.status === 200) {
-          alert("Account created successfully");
+          toast.error("Account created successfully");
           router.push("/login");
         }
       })
       .catch((error) => {
         console.error("Create account error:", error);
-        alert("Account creation failed");
+        toast.error("Account creation failed");
       });
   };
 
   return (
     <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center bg-gray-100 min-h-screen">
+      <ToastContainer
+        position="top-center"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        theme="light"
+        // Can adjust the toast here https://fkhadra.github.io/react-toastify/introduction/
+      />
       <div className="bg-white text-black rounded-2xl shadow-2xl flex w-2/3 max-w-4xl">
         <div className="w-3/5 p-5">
           <div className="text-left font-bold mb-3">

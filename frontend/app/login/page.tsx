@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>(Cookies.get("emailCookie") || "");
@@ -58,7 +60,7 @@ export default function LoginPage() {
       )
       .then((response) => {
         if (response.status === 200) {
-          alert("Login successful");
+          toast.success("Login successful");
 
           const data = response.data;
 
@@ -77,7 +79,7 @@ export default function LoginPage() {
       })
       .catch((error) => {
         console.error("Login error:", error);
-        alert("Login failed");
+        toast.error("Login failed");
       });
   };
 
@@ -87,6 +89,19 @@ export default function LoginPage() {
 
   return (
     <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center bg-gray-100 min-h-screen">
+      <ToastContainer
+        position="top-center"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        theme="light"
+        // Can adjust the toast here https://fkhadra.github.io/react-toastify/introduction/
+      />
       {showForgotPasswordModal && (
         <ForgotPasswordModal closeModal={closeModal} />
       )}
