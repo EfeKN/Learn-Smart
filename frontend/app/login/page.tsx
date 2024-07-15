@@ -89,8 +89,18 @@ export default function LoginPage() {
 
   return (
     <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center bg-gray-100 min-h-screen">
-      <ToastContainer 
+      <ToastContainer
+        position="top-center"
         autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        theme="light"
+        // Can adjust the toast here https://fkhadra.github.io/react-toastify/introduction/
       />
       {showForgotPasswordModal && (
         <ForgotPasswordModal closeModal={closeModal} />

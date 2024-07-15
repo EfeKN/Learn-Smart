@@ -6,7 +6,7 @@ import { useState } from "react";
 import { FaRegEnvelope, FaRegUser } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
 import { RiShieldUserLine } from "react-icons/ri";
-import { ToastContainer, toast } from "react-toastify";
+import { Bounce, ToastContainer, Zoom, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"
 
 export default function CreateAccountPage() {
@@ -74,8 +74,18 @@ export default function CreateAccountPage() {
 
   return (
     <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center bg-gray-100 min-h-screen">
-      <ToastContainer 
+      <ToastContainer
+        position="top-center"
         autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        theme="light"
+        // Can adjust the toast here https://fkhadra.github.io/react-toastify/introduction/
       />
       <div className="bg-white text-black rounded-2xl shadow-2xl flex w-2/3 max-w-4xl">
         <div className="w-3/5 p-5">
