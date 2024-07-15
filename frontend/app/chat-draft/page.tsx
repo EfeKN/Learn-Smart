@@ -11,7 +11,11 @@ interface ChatMessage {
   }
   
   const initialChatLog: ChatMessage[] = [
-    { type: 'ai', message: "Hi there! How can I help you today?" }
+    { type: 'ai', message: "Lorem" },
+    { type: 'user', message: "Ipsum" },
+    { type: 'ai', message: "Dolor" },
+    { type: 'user', message: "Sit" },
+    { type: 'ai', message: "Amet" }
   ]; // Initial dummy message
 
 export default function PageHandler() {
@@ -46,16 +50,29 @@ export default function PageHandler() {
                     </h1>
                 </div>
             </div>
-            <div className="p-10">
-                <h1 className="text-2xl font-semibold">Chat Screen</h1>
+            <div className="p-10 flex-1">
+                <h1 className="text-2xl font-semibold mb-4">Chat Screen</h1>
+                <div className="space-y-4 mb-4">
                 {
                     chatLog.map((message, index) => (
-                        <div key="index">{message.message}</div>
+                    <div
+                        key={index}
+                        className={`chat-message max-w-xs px-4 py-2 rounded-lg ${message.type === 'user' ? 'ml-auto bg-blue-500 text-white' : 'mr-auto bg-gray-300 text-black'}`}
+                    >
+                        {message.message}
+                    </div>
                     ))
                 }
-                <form onSubmit={handleSubmit}>
-                    <input type="text" placeholder="Type your message" value={inputValue} onChange={(e) => setInputValue(e.target.value)}/>
-                    <button type="submit">Send</button>
+                </div>
+                <form onSubmit={handleSubmit} className="flex items-center">
+                <input
+                    type="text"
+                    placeholder="Type your message"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    className="flex-1 p-2 border border-gray-300 rounded-lg mr-2"
+                />
+                <button type="submit" className="px-4 py-2 bg-green-500 text-white rounded-lg">Send</button>
                 </form>
             </div>
         </div>
