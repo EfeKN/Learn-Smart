@@ -100,7 +100,7 @@ export default function CreateCourseModal(
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center">
       <div className="bg-white text-black p-6 rounded-lg shadow-lg w-1/2">
-        <h2 className="text-2xl mb-4">Create Course</h2>
+        <h2 className="font-bold mb-4 text-3xl">Create Course</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1" htmlFor="courseName">Course Name</label>
