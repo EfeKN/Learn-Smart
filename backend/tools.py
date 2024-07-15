@@ -3,6 +3,7 @@ import time
 import uuid
 import os
 import dotenv
+import shutil
 
 from logger import logger
 from database.connection import db_connection
@@ -23,21 +24,27 @@ def generate_hash(filename, strategy="sha256"):
         raise ValueError("Invalid strategy provided. Please use 'sha256' or 'uuid'.")
 
 
-# Invoke the db_connection to create tables
-def create_tables(drop: bool = False):
-    if drop:
+# re/create DB tables, chat histories, and files directories
+def init(restart: bool = False):
+    if restart:
         logger.info("Dropping tables...")
         db_connection.drop_tables()
+
+        logger.info("Deleting chat histories and files...")
+        if os.path.exists(CHATS_DIR):
+            shutil.rmtree(CHATS_DIR)
+
+        if os.path.exists(FILES_DIR):
+            shutil.rmtree(FILES_DIR)
+
     db_connection.create_tables()
 
-
-def setup():
     if not os.path.exists(CHATS_DIR):
         os.makedirs(CHATS_DIR)
 
     if not os.path.exists(FILES_DIR):
         os.makedirs(FILES_DIR)
-
+    
 
 # Split filename and extension
 def splitext(filename: str):

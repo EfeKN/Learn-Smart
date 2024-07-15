@@ -8,14 +8,13 @@ from modules.user.router import router as users_router
 from modules.course.router import router as course_router
 from modules.chat.router import router as chat_router
 from middleware.router import router as files_router
-from tools import create_tables, setup
+from tools import init
 
 from logger import logger
 
 app = FastAPI()  # create the FastAPI app
 
-create_tables(drop=True)  # re/create the database tables
-setup()  # setup the environment
+init(restart=False)  # re/create the database tables and directories
 
 # Add CORS middleware to allow cross-origin requests
 app.add_middleware(

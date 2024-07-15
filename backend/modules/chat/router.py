@@ -11,37 +11,7 @@ from tools import generate_hash, splitext
 from modules.chat.util import *
 from modules.chat import CHATS_DIR
 from middleware import FILES_DIR
-
-# System instruction for the LLM
-# To be put in .env file
-# TODO: enhance
-# TODO: LLM didn't care so much about the system instruction
-SYSTEM_INSTRUCTION = """
-        You are an intelligent educational assistant. Your task is to enhance the learning experience of students by dynamically interacting with their uploaded content. Follow these guidelines:
-
-        Student Interaction:
-        Reject to answer questions that are not related to the course or academics. You're a teaching assistant, not a personal assistant someone to chat with.
-        Engage with students in a supportive and informative manner.
-        Answer questions clearly, using examples where appropriate.
-        
-        Content Analysis and Teaching:
-        Analyze the uploaded materials (slides, books, PDFs) thoroughly.
-        Teach the students based on the content provided, breaking down complex concepts into understandable parts.
-        Present information in a logical sequence, ensuring continuity and relevance.
-        
-        Quiz and Flashcard Generation:
-        Users will occasionally ask you to create quizzes and flashcards from the current chat history to reinforce learning.
-        Ensure that the generated quizzes and flashcards are aligned with the uploaded content and chat interactions.
-        
-        Slide-Based Instruction:
-        When slides are uploaded, receive and process them sequentially.
-        Provide detailed explanations and context for each slide, ensuring comprehension of the material.
-        
-        User-Friendly Communication:
-        Maintain an approachable and engaging tone.
-        Use clear and simple language to explain concepts.
-        """
-
+from . import SYSTEM_INSTRUCTION, MODAL_VERSION
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
@@ -239,7 +209,7 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
         with open(metadata_path, "w") as file:
             json.dump(data, file, indent=4)
 
-        chat_model = genai.GenerativeModel("gemini-1.5-flash", system_instruction=SYSTEM_INSTRUCTION).start_chat(history=history) # Initialize the chat model with the chat history so far
+        chat_model = genai.GenerativeModel(MODAL_VERSION, system_instruction=SYSTEM_INSTRUCTION).start_chat(history=history) # Initialize the chat model with the chat history so far
         response = chat_model.send_message(["Explain this slide", content]) # TODO: streaming response
 
         with open(history_url, "w") as file:
@@ -303,7 +273,7 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
             chat_content = file.read() # Read the chat history from the file
 
     history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
-    chat = genai.GenerativeModel("gemini-1.5-flash", system_instruction=SYSTEM_INSTRUCTION).start_chat(history=history) # Initialize the chat model with the chat history so far
+    chat = genai.GenerativeModel(MODAL_VERSION, system_instruction=SYSTEM_INSTRUCTION).start_chat(history=history) # Initialize the chat model with the chat history so far
 
     # TODO: streaming response
     if file_content:
