@@ -31,7 +31,7 @@ export default function CourseCard(parameters: CourseCardParameters) {
             onClick={handleClick}
             type="button"
         >
-            <div className="image-container bg-white rounded-lg p-2">
+            <div className="image-container bg-transparent">
                  {parameters.course.icon_url ? (
                     <img
                       src={image}

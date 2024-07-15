@@ -17,8 +17,8 @@ export default function Notifications({ isOpen }: NotificationsParameters) {
         isOpen ? "opacity-100 z-20" : "opacity-0"
       }`}
     >
-      <div className="absolute right-0 mt-2 w-screen max-w-md">
-        <div className="bg-gray-50 px-4 py-4 sm:px-6 sm:py-6 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 border-b border-black">
+      <div className="absolute right-0 mt-6 w-screen max-w-md">
+        <div className="bg-gray-50 px-4 mt-0.5 py-4 sm:px-6 sm:py-6 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 border-b border-black">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-medium text-gray-900">Notifications</h2>
             <button
