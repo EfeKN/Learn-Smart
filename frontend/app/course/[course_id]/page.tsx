@@ -49,9 +49,9 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
     <main className="bg-transparent min-h-screen text-black">
       <Navbar />
       <div className="relative overflow-hidden">
-        <div className="max-w-8xl mx-auto py-12 px-6 text-black">
+        <div className="max-w-8xl mx-auto py-6 px-6 text-black">
           <div className="text-left mb-12">
-            <h1 className="text-5xl font-bold text-left">
+            <h1 className="text-4xl font-bold text-left">
               <span className="font-light">Welcome to your </span>
               <span className="font-normal text-gray-800">
                 {course.course_name}

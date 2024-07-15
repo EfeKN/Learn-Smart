@@ -14,7 +14,7 @@ export default function Notifications({ isOpen }: NotificationsParameters) {
   return (
     <div
       className={`relative transition-opacity duration-300 ${
-        isOpen ? "opacity-100" : "opacity-0"
+        isOpen ? "opacity-100 z-20" : "opacity-0"
       }`}
     >
       <div className="absolute right-0 mt-2 w-screen max-w-md">
