@@ -100,7 +100,6 @@ export default function LoginPage() {
         draggable={false}
         pauseOnHover={false}
         theme="light"
-        // Can adjust the toast here https://fkhadra.github.io/react-toastify/introduction/
       />
       {showForgotPasswordModal && (
         <ForgotPasswordModal closeModal={closeModal} />

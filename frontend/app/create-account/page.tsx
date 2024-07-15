@@ -62,7 +62,7 @@ export default function CreateAccountPage() {
       )
       .then((response) => {
         if (response.status === 200) {
-          toast.error("Account created successfully");
+          toast.success("Account created successfully");
           router.push("/login");
         }
       })
@@ -85,7 +85,6 @@ export default function CreateAccountPage() {
         draggable={false}
         pauseOnHover={false}
         theme="light"
-        // Can adjust the toast here https://fkhadra.github.io/react-toastify/introduction/
       />
       <div className="bg-white text-black rounded-2xl shadow-2xl flex w-2/3 max-w-4xl">
         <div className="w-3/5 p-5">
