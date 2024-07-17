@@ -12,9 +12,12 @@ from tools import init
 
 from logger import logger
 
-app = FastAPI()  # create the FastAPI app
+# create the FastAPI app
+app = FastAPI()  
 
-init(restart=False)  # re/create the database tables and directories
+# re/create the database tables and directories
+# Debug mode will log additional information 
+init(restart=False, debug_mode=False) 
 
 # Add CORS middleware to allow cross-origin requests
 app.add_middleware(

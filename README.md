@@ -32,6 +32,7 @@ Use python 3.12.4
     * `DATABASE_URL=` (your MySQL DB URI, example: `mysql://\<username>:\<password>@localhost/<database_name>`)
     * `FILES_DIR="./files"`
     * `CHATS_DIR="./chat_histories"`
+    * `LOGS_DIR = "./logs"`
     * `SECRET_KEY=bc8338b8fdbdde68a9f3b555b8994563e0ad1c47863f56f7b300ff96c54cd822`
     * `ALGORITHM=HS256`
     * `ACCESS_TOKEN_EXPIRE_MINUTES = 30000`

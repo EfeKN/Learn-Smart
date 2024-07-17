@@ -5,7 +5,7 @@ import os
 import dotenv
 import shutil
 
-from logger import logger
+from logger import logger, set_debug_mode
 from database.connection import db_connection
 
 dotenv.load_dotenv()
@@ -25,18 +25,24 @@ def generate_hash(filename, strategy="sha256"):
 
 
 # re/create DB tables, chat histories, and files directories
-def init(restart: bool = False):
+def init(restart: bool = False, debug_mode: bool = False):
     if restart:
-        logger.info("Dropping tables...")
+        logger.info("DEBUG:Dropping tables...")
         db_connection.drop_tables()
 
-        logger.info("Deleting chat histories and files...")
+        logger.info("DEBUG:Deleting chat histories and files...")
         if os.path.exists(CHATS_DIR):
             shutil.rmtree(CHATS_DIR)
 
         if os.path.exists(FILES_DIR):
             shutil.rmtree(FILES_DIR)
-
+            
+    
+    # Set the debug mode of the logger, if provided it reinitializes the logger with the new debug mode
+    set_debug_mode(debug_mode)
+        
+    logger.info("Creating tables...")
+    
     db_connection.create_tables()
 
     if not os.path.exists(CHATS_DIR):
