@@ -1,16 +1,27 @@
-import React from 'react'
-import Markdown from 'react-markdown'
-import backendAPI from "@/environment/backend_api";
-import Cookies from "js-cookie";
-import { useEffect, useState } from "react";
-// import myMarkDownFile from 'raw-loader!./help.md';
+import React, { useEffect, useState } from 'react';
+import Markdown from 'react-markdown';
 
-const markdown = '# Hi, *Pluto*!'
-
-export default function App() {
-    return (
-        <div className="bg-transparent">
-            <Markdown>{markdown}</Markdown>
-        </div>
-    );
+interface MarkdownFromUrlProps {
+  url: string;
 }
+
+const MarkdownFromUrl: React.FC<MarkdownFromUrlProps> = ({ url }) => {
+  const [markdown, setMarkdown] = useState('');
+
+  useEffect(() => {
+    fetch(url)
+      .then((response) => response.text())
+      .then((data) => {
+        console.log(url);
+        //console.log(data);
+        setMarkdown(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching Markdown data:", error);
+      });
+  }, [url]);
+
+  return <Markdown>{markdown}</Markdown>;
+};
+
+export default MarkdownFromUrl;
