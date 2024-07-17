@@ -98,6 +98,13 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
                     >
                       Chat
                     </a>
+                  ) : i % 5 === 3 ? (
+                    <a
+                      className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
+                      href={`${pathname}/weekly-study-plan`}
+                    >
+                      Weekly Study Plan
+                    </a>
                   ) : (
                     <Link
                       className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
@@ -106,8 +113,6 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
                           ? "flashcards"
                           : i % 5 === 1
                           ? "quizzes"
-                          : i % 5 === 3
-                          ? "weekly-study-plan"
                           : i % 5 === 4
                           ? "upload-update-syllabus"
                           : "#"
@@ -117,8 +122,6 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
                         ? "Flashcards"
                         : i % 5 === 1
                         ? "Quizzes"
-                        : i % 5 === 3
-                        ? "Weekly Study Plan"
                         : i % 5 === 4
                         ? "Upload/Update Syllabus"
                         : ""}
