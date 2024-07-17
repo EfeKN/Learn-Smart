@@ -1,27 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import Markdown from 'react-markdown';
 
-interface MarkdownFromUrlProps {
-  url: string;
+interface MarkdownContentProps {
+  content: string;
 }
 
-const MarkdownFromUrl: React.FC<MarkdownFromUrlProps> = ({ url }) => {
-  const [markdown, setMarkdown] = useState('');
-
-  useEffect(() => {
-    fetch(url)
-      .then((response) => response.text())
-      .then((data) => {
-        console.log(url);
-        //console.log(data);
-        setMarkdown(data);
-      })
-      .catch((error) => {
-        console.error("Error fetching Markdown data:", error);
-      });
-  }, [url]);
-
-  return <Markdown>{markdown}</Markdown>;
+const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
+  return <Markdown>{content}</Markdown>;
 };
 
-export default MarkdownFromUrl;
+export default MarkdownContent;
+
+// Example usage: <MarkdownContent content="# Hello, Markdown!" />
