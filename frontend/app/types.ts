@@ -6,13 +6,20 @@ export interface LoadingButtonParameters {
   type: "button" | "submit" | "reset";
   text: string;
   loadingText: string;
-  handleClick: (e?: React.FormEvent<HTMLFormElement>) => Promise<void>;
+  disabled: boolean;
+  className: string;
+  handleClick: (
+    event:
+      | React.FormEvent<HTMLFormElement>
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => Promise<void>;
 }
 
 export interface CreateCourseModalParameters {
   isOpen: boolean;
-  onClose: () => void;
+
   modalTitle: string;
+  onClose: () => void;
   onCourseCreation: () => void;
 }
 
@@ -46,9 +53,9 @@ export interface FolderListParameters {
 
 export interface FolderParameters {
   folder: FolderType;
+  isOpen: boolean;
   onDrop: (item: FolderType, folder: FolderType) => void;
   toggleFolder: (folderName: string) => void;
-  isOpen: boolean;
 }
 
 export interface FolderType {

@@ -1,27 +1,19 @@
-import React from 'react';
+import React from "react";
+import { LoadingButtonParameters } from "../types";
 
-interface LoadingButtonProps {
-  handleClick: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
-  type: 'button' | 'submit' | 'reset';
-  text: string;
-  loadingText: string;
-  disabled: boolean;
-  className?: string;
-}
-
-const LoadingButton: React.FC<LoadingButtonProps> = ({
+export default function LoadingButton({
   handleClick,
   type,
   text,
   loadingText,
   disabled,
-  className = ''
-}) => {
+  className = "",
+}: LoadingButtonParameters) {
   const [loading, setLoading] = React.useState(false);
 
-  const onClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const onClick = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     setLoading(true);
-    handleClick(e);
+    handleClick(event);
     setLoading(false);
   };
 
@@ -30,11 +22,11 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
       onClick={onClick}
       type={type}
       disabled={disabled || loading}
-      className={`${className} ${disabled ? 'cursor-not-allowed opacity-50' : ''}`}
+      className={`${className} ${
+        disabled ? "cursor-not-allowed opacity-50" : ""
+      }`}
     >
       {loading ? loadingText : text}
     </button>
   );
-};
-
-export default LoadingButton;
+}
