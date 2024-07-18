@@ -72,74 +72,73 @@ export default function InstructorPage() {
 
 
   const fetchChats = async () => {
-    try {
-      const response = await backendAPI.get(`/course/${course_id}/chats`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+    backendAPI.get(`/course/${course_id}/chats`, {
+      headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(response => {
+        setChats(response.data);
+      })
+      .catch(error => {
+        console.error("Error fetching chats:", error);
       });
-      setChats(response.data);
-    } catch (error) {
-      console.error("Error fetching chats:", error);
-    }
   };
 
-  const fetchCourse = async () => {
-    try {
-      const response = await backendAPI.get(`/course/${course_id}`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+  const fetchCourse = () => {
+    backendAPI.get(`/course/${course_id}`, {
+      headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(response => {
+        setCourse(response.data);
+      })
+      .catch(error => {
+        console.error("Error fetching course:", error);
       });
-      setCourse(response.data);
-    } catch (error) {
-      console.error("Error fetching course:", error);
-    }
   };
 
-  const fetchChatMessages = async (chat_id: string) => {
-    try {
-      const response = await backendAPI.get(`/chat/${chat_id}`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+  const fetchChatMessages = (chat_id: string) => {
+    backendAPI.get(`/chat/${chat_id}`, {
+      headers: {
+      Accept: "application/json",
+      Authorization: `Bearer ${token}`,
+      },
+    })
+      .then(response => {
+        setMessages(response.data.history);
+        setLastMessageID(response.data.history[response.data.history.length - 1].id);
+      })
+      .catch(error => {
+        console.error("Error fetching chat messages:", error);
       });
-      setMessages(response.data.history);
-      setLastMessageID(response.data.history[response.data.history.length - 1].id);
-    } catch (error) {
-      console.error("Error fetching chat messages:", error);
-    }
   };
 
   const fetchNewSlide = async (chat_id: string) => {
-    try {
-      const response = await backendAPI.get(`/chat/${chat_id}/next_slide`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const newMessages = response.data.candidates.map((candidate, index) => ({
-        message: candidate.content.parts[0].text,
-        role: candidate.content.role,
-        id: lastMessageID + index + 1
-      }));
-
-      setMessages(prevMessages => [...prevMessages, ...newMessages]);
-      setLastMessageID(lastMessageID + newMessages.length);
+    backendAPI.get(`/chat/${chat_id}/next_slide`, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(response => {
+      const newMessage = {message: response.data.text, role: "model", id: lastMessageID + 1};
+  
+      setMessages(prevMessages => [...prevMessages, newMessage]);
+      setLastMessageID(lastMessageID + 1);
       if (selectedChat) {
         fetchChatMessages(selectedChat.chat_id);
       }
-    } catch (error) {
+    })
+    .catch(error => {
       console.error("Error fetching chat messages:", error);
-    }
+    });
   };
 
-  const handleSendMessage = async () => {
+  const handleSendMessage = () => {
     if (!input.trim()) return;
 
     const formData = new FormData();
@@ -151,7 +150,7 @@ export default function InstructorPage() {
     setFile(null);
 
     setIsLoading(true);
-    await backendAPI.post(`/chat/${selectedChat?.chat_id}/send_message`, formData, {
+    backendAPI.post(`/chat/${selectedChat?.chat_id}/send_message`, formData, {
       headers: {
         Accept: "application/json",
         Authorization: `Bearer ${token}`,

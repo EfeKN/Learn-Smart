@@ -218,7 +218,7 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
         with open(dumped_generator_path, "w") as file:
             file.write(jsonpickle.encode(generator)) # dump back the generator object to a string
 
-        return response.to_dict() # return the response in dictionary format
+        return {"response": response.text, "media_url": content_url} # return the response in dictionary format
     
     except StopIteration:
         raise HTTPException(status_code=404, detail="No more slides to show.")
