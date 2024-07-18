@@ -72,14 +72,14 @@ export interface Course {
 }
 
 export interface Message {
-  id: number;
+  id: string;
   content: string;
   sender: string;
 }
 
 export interface Chat {
-  id: number;
-  title: string;
+  chat_id: string;
+  chat_title: string;
 }
 
 export interface User {

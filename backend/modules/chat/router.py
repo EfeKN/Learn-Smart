@@ -16,14 +16,14 @@ from . import SYSTEM_INSTRUCTION, MODAL_VERSION
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
 @router.post("/create")
-async def create_chat(course_id: int, title: str, slides: UploadFile = File(None),
+async def create_chat(course_id: int, chat_title: str, slides: UploadFile = File(None),
                       current_user: dict = Depends(auth.get_current_user)):
     """
     Create a new chat for a course.
 
     Args:
         course_id (int): The ID of the course.
-        title (str): The title of the chat.
+        chat_title (str): The title of the chat.
         slides (UploadFile, optional): The slides file for the chat. Defaults to None.
         current_user (dict, optional): The current user. Defaults to Depends(auth.get_current_user).
 
@@ -42,7 +42,7 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
     
-    chat = ChatDB.create(course_id=course_id, title=title, slides_mode=bool(slides))
+    chat = ChatDB.create(course_id=course_id, chat_title=chat_title, slides_mode=bool(slides))
     history_fname, _ = get_chat_filenames(current_user["user_id"], course_id, chat["chat_id"])
     history_url = os.path.join(CHATS_DIR, history_fname) # chat history file path
 

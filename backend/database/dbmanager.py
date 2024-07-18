@@ -205,14 +205,14 @@ class ChatDB(DatabaseInterface):
     """
 
     @staticmethod
-    def create(course_id: int, title: str, history_url: str = None, slides_mode: bool = False, 
+    def create(course_id: int, chat_title: str, history_url: str = None, slides_mode: bool = False, 
                slides_fname: str = None, slides_furl: str = None):
         """
         Create a new chat object and save it in the database.
 
         Parameters:
         - course_id (int): The ID of the course associated with the chat.
-        - title (str): The title of the chat.
+        - chat_title (str): The title of the chat.
         - history_url (str, optional): The URL of the chat's history.
         - slides_mode (bool, optional): Indicates whether the chat has slides.
         - slides_fname (str, optional): The filename of the chat's slides.
@@ -221,7 +221,7 @@ class ChatDB(DatabaseInterface):
         Returns:
         - dict: A dictionary representation of the created chat object.
         """
-        chat = Chat(course_id=course_id, title=title, history_url=history_url,
+        chat = Chat(course_id=course_id, chat_title=chat_title, history_url=history_url,
                     slides_mode=slides_mode, slides_fname=slides_fname, slides_furl=slides_furl)
         
         # save the chat object in the database
@@ -282,7 +282,7 @@ class ChatDB(DatabaseInterface):
         Args:
             chat_id (int): The ID of the chat to update.
             **kwargs: Keyword arguments for the fields to update. Possible keyword arguments include:
-                - title (str): The new title for the chat.
+                - chat_title (str): The new title for the chat.
                 - history_url (str): The new history URL for the chat.
                 - slides_fname (str): The new slides filename for the chat.
                 - slides_furl (str): The new slides file URL for the chat.
@@ -293,7 +293,7 @@ class ChatDB(DatabaseInterface):
         Raises:
             ValueError: If the chat with the specified ID is not found in the database.
         """
-        title = kwargs.get("title", None)
+        chat_title = kwargs.get("chat_title", None)
         history_url = kwargs.get("history_url", None)
         slides_fname = kwargs.get("slides_fname", None) # get the new slides filename
         slides_furl = kwargs.get("slides_furl", None) # get the new slides file URL
@@ -303,8 +303,8 @@ class ChatDB(DatabaseInterface):
             if not chat:
                 raise ValueError(f"Chat with ID {chat_id} not found")
 
-            if title:
-                chat.title = title                
+            if chat_title:
+                chat.chat_title = chat_title                
             if history_url:
                 print("Updating history URL to:", history_url)
                 chat.history_url = history_url
@@ -406,7 +406,7 @@ class CourseDB(DatabaseInterface):
         Args:
             course_id (int): The ID of the course.
             course_name (str): The name of the course.
-            course_code (str): The title of the course.
+            course_code (str): The code of the course.
             user_id (int): The ID of the user.
             all (bool, optional): If True, fetches all matching courses. If False (default), fetches only the first matching course.
 
@@ -510,7 +510,7 @@ class CourseDB(DatabaseInterface):
             - course_id (int): The ID of the course to be deleted.
             - course_name (str): The name of the course to be deleted.
             - user_id (int): The ID of the user who owns the course to be deleted.
-            - course_code (str): The title of the course to be deleted.
+            - course_code (str): The code of the course to be deleted.
             - all (bool): Flag indicating whether to delete all matching courses or just the first one. Default is False.
         
         Returns:
