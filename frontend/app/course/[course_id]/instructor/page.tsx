@@ -8,7 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import Image from "next/image";
-import logo from "@/assets/chatbot-logo.jpg";
+import logo from "@/assets/chatbot-logo.png";
 import LoadingMessage from "@/app/components/loading-message";
 import CreateChatModal from "@/app/components/modals/create-chat-modal";
 
@@ -17,9 +17,9 @@ export default function InstructorPage() {
   const [token, setToken] = useState("");
   const [course, setCourse] = useState<{ course_name: string } | null>(null);
   const [chats, setChats] = useState<{ chat_id: string; title: string }[]>([]);
-  const [selectedChat, setSelectedChat] = useState<{ chat_id: string; title: string } | null>(null);
+  const [selectedChat, setSelectedChat] = useState<{ chat_id: string; title: string; slides_mode: boolean } | null>(null);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<{ message: string; role: string; id: number }[]>([]);
+  const [messages, setMessages] = useState<{ message: string; role: string; media_url: string | null; id: number }[]>([]);
   const [lastMessageID, setLastMessageID] = useState(0);
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -38,15 +38,15 @@ export default function InstructorPage() {
   useEffect(() => {
     if (token) {
       fetchCourse();
-      fetchChats();
+      fetchAllChats();
     }
   }, [token]);
 
-  useEffect(() => {
+  /* useEffect(() => {
     if (selectedChat) {
       fetchChatMessages(selectedChat.chat_id);
     }
-  }, [selectedChat]);
+  }, [selectedChat]); */
 
   useEffect(() => {
     scrollToBottom();
@@ -70,8 +70,17 @@ export default function InstructorPage() {
     }
   }, []);
 
+  const fetchChat = async (chat_id: string) => {
+    const response = await backendAPI.get(`/chat/${chat_id}`, {
+      headers: {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  }
 
-  const fetchChats = async () => {
+  const fetchAllChats = async () => {
     backendAPI.get(`/course/${course_id}/chats`, {
       headers: {
       Accept: "application/json",
@@ -125,7 +134,8 @@ export default function InstructorPage() {
       },
     })
     .then(response => {
-      const newMessage = {message: response.data.text, role: "model", id: lastMessageID + 1};
+      const newMessage = {message: response.data.text, role: "model",
+        media_url: response.data.media_url, id: lastMessageID + 1};
   
       setMessages(prevMessages => [...prevMessages, newMessage]);
       setLastMessageID(lastMessageID + 1);
@@ -145,7 +155,7 @@ export default function InstructorPage() {
     formData.append("text", input);
     if (file) formData.append("file", file);
 
-    setMessages(messages => [...messages, { message: input, role: "user", id: lastMessageID + 1 }]);
+    setMessages(messages => [...messages, { message: input, role: "user", id: lastMessageID + 1, media_url: file ? URL.createObjectURL(file) : null }]);
     setInput("");
     setFile(null);
 
@@ -161,6 +171,7 @@ export default function InstructorPage() {
         setMessages(messages => [...messages, {
           message: response.data.message,
           role: response.data.role,
+          media_url: response.data.media_url,
           id: lastMessageID + 2
         }]);
         setLastMessageID(lastMessageID + 2);
@@ -176,12 +187,16 @@ export default function InstructorPage() {
       }
   };
 
-  const handleChatSelection = (chat: { chat_id: string; title: string }) => {
-    setSelectedChat(chat);
+  const handleChatSelection = async (chat_id: string) => {
+    if (chat_id !== selectedChat?.chat_id) {
+      const chat = await fetchChat(chat_id);
+      setSelectedChat(chat);
+      fetchChatMessages(chat.chat_id);
+    }
   };
 
-  const handleChatCreated = (newChat) => {
-    setChats([...chats, newChat]);
+  const handleChatCreated = (newChat: { chat_id: string; title: string, slides_mode: boolean }) => {
+    setChats([...chats, {chat_id: newChat.chat_id, title: newChat.title}]);
     setSelectedChat(newChat);
   };
 
@@ -217,7 +232,7 @@ export default function InstructorPage() {
             <li
               key={chat.chat_id}
               className="p-2 cursor-pointer hover:bg-gray-800 rounded"
-              onClick={() => handleChatSelection(chat)}
+              onClick={() => handleChatSelection(chat.chat_id)}
             >
               {chat.title}
             </li>
@@ -238,7 +253,7 @@ export default function InstructorPage() {
       <div className="p-10 flex-grow flex flex-col relative bg-gray-50">
         {selectedChat ? (
           <div className="flex flex-col h-full">
-            <div className="flex justify-between items-center mb-4">
+            {selectedChat.slides_mode && (<div className="flex justify-between items-center mb-4">
               <h1 className="text-2xl font-semibold">{selectedChat.title}</h1>
               <button
                 className="bg-gray-800 p-2 rounded text-white"
@@ -246,7 +261,7 @@ export default function InstructorPage() {
               >
                 Next Slide
               </button>
-            </div>
+            </div>)}
 
             <div ref={chatContainerRef} className="flex-grow mt-5 overflow-y-auto">
               {messages.at(2) && (

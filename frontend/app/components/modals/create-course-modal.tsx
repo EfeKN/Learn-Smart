@@ -2,10 +2,10 @@ import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { FaFilePdf, FaRegImages } from "react-icons/fa6";
 import { TbFileTypeDocx } from "react-icons/tb";
-import { CreateCourseModalParameters } from "../types";
+import { CreateCourseModalParameters } from "@/app/types";
 
 import backendAPI from "@/environment/backend_api";
-import LoadingButton from "../components/loading-button";
+import LoadingButton from "../loading-button";
 
 export default function CreateCourseModal(
   modalProps: CreateCourseModalParameters

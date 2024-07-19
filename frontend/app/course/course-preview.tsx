@@ -1,5 +1,5 @@
 import CourseHomepage from "@/app/course/[course_id]/page";
-import CreateCourseModal from "@/app/course/create-course-modal";
+import CreateCourseModal from "../components/modals/create-course-modal";
 import "@/app/style/course-preview.css";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";

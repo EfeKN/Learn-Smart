@@ -77,10 +77,11 @@ export interface Message {
   sender: string;
 }
 
-export interface Chat {
-  id: number;
+/* export interface Chat {
+  id: string;
   title: string;
-}
+  slides_mode: boolean;
+} */
 
 export interface User {
   [key: string]: string;
@@ -88,4 +89,10 @@ export interface User {
   nickname: string;
   email: string;
   password: string;
+}
+
+interface Chat {
+  chat_id: string;
+  title: string;
+  slides_mode: boolean;
 }
