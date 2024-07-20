@@ -14,7 +14,11 @@ import {
   FaUpload,
   FaUserTie,
 } from "react-icons/fa";
-import { Course, CourseHomepageParameters } from "../../types";
+import {
+  Course,
+  CourseHomepageElement,
+  CourseHomepageParameters,
+} from "../../types";
 
 export default function CourseHomepage(parameters: CourseHomepageParameters) {
   const [course, setCourse] = useState<Course>();
@@ -51,6 +55,78 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
     return <div>Loading...</div>;
   }
 
+  let courseHomepageElements: CourseHomepageElement[] = [
+    {
+      course_homepage_element_name: "Flashcards",
+      course_homepage_element_explanation: "Practice with digital flashcards.",
+      course_hompage_element_router: (
+        <Link
+          className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
+          href="/flashcards"
+        />
+      ),
+      course_hompage_element_component: (
+        <FaBook className="text-3xl text-white" />
+      ),
+    },
+    {
+      course_homepage_element_name: "Quizzes",
+      course_homepage_element_explanation: "Take interactive quizzes.",
+      course_hompage_element_router: (
+        <Link
+          className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
+          href="/quizzes"
+        />
+      ),
+      course_hompage_element_component: (
+        <FaClipboardList className="text-3xl text-white" />
+      ),
+    },
+    {
+      course_homepage_element_name: `Go to ${course.course_name} Instructor`,
+      course_homepage_element_explanation: `Ask ${course.course_name} Instructor through chatbot.`,
+      course_hompage_element_router: (
+        <a
+          title="Go to Instructor"
+          className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
+          href={`${pathname}/instructor`}
+        />
+      ),
+      course_hompage_element_component: (
+        <FaUserTie className="text-3xl text-white" />
+      ),
+    },
+    {
+      course_homepage_element_name: "Weekly study plan",
+      course_homepage_element_explanation:
+        "Plan your study sessions for the week.",
+      course_hompage_element_router: (
+        <a
+          title="Weekly Study Plan"
+          className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
+          href={`${pathname}/weekly-study-plan`}
+        />
+      ),
+      course_hompage_element_component: (
+        <FaCalendarAlt className="text-3xl text-white" />
+      ),
+    },
+    {
+      course_homepage_element_name: "Upload/Update Syllabus",
+      course_homepage_element_explanation:
+        "Upload or update the course syllabus.",
+      course_hompage_element_router: (
+        <Link
+          className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
+          href="/upload-update-syllabus"
+        />
+      ),
+      course_hompage_element_component: (
+        <FaUpload className="text-3xl text-white" />
+      ),
+    },
+  ];
+
   return (
     <main className="bg-transparent min-h-screen text-black">
       <Navbar />
@@ -65,77 +141,35 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
             </h1>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {[...Array(5)].map((_, i) => (
-              <div
-                key={i}
-                className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center"
-              >
-                <div className="bg-black p-3 rounded-full mb-4">
-                  {i % 5 === 0 && <FaBook className="text-3xl text-white" />}
-                  {i % 5 === 1 && (
-                    <FaClipboardList className="text-3xl text-white" />
-                  )}
-                  {i % 5 === 2 && <FaUserTie className="text-3xl text-white" />}
-                  {i % 5 === 3 && (
-                    <FaCalendarAlt className="text-3xl text-white" />
-                  )}
-                  {i % 5 === 4 && <FaUpload className="text-3xl text-white" />}
+            {courseHomepageElements.map(
+              (
+                {
+                  course_homepage_element_name,
+                  course_homepage_element_explanation,
+                  course_hompage_element_router,
+                  course_hompage_element_component,
+                },
+                index
+              ) => (
+                <div
+                  key={index}
+                  className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center"
+                >
+                  <div className="bg-black p-3 rounded-full mb-4">
+                    {course_hompage_element_component}
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-xl font-medium mb-2 text-black">
+                      {course_homepage_element_name}
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-4">
+                      {course_homepage_element_explanation}
+                    </p>
+                    {course_hompage_element_router}
+                  </div>
                 </div>
-                <div className="text-center">
-                  <h3 className="text-xl font-medium mb-2 text-black">
-                    {i % 5 === 0 && "Flashcards"}
-                    {i % 5 === 1 && "Quizzes"}
-                    {i % 5 === 2 && `Go to ${course.course_name} Instructor`}
-                    {i % 5 === 3 && "Weekly study plan"}
-                    {i % 5 === 4 && "Upload/Update Syllabus"}
-                  </h3>
-                  <p className="text-sm text-gray-500 mb-4">
-                    {i % 5 === 0 && "Practice with digital flashcards."}
-                    {i % 5 === 1 && "Take interactive quizzes."}
-                    {i % 5 === 2 &&
-                      `Ask ${course.course_name} Instructor through chatbot.`}
-                    {i % 5 === 3 && "Plan your study sessions for the week."}
-                    {i % 5 === 4 && "Upload or update the course syllabus."}
-                  </p>
-                  {i % 5 === 2 ? (
-                    <a
-                      className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
-                      href={`${pathname}/instructor`}
-                    >
-                      Chat
-                    </a>
-                  ) : i % 5 === 3 ? (
-                    <a
-                      className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
-                      href={`${pathname}/weekly-study-plan`}
-                    >
-                      Weekly Study Plan
-                    </a>
-                  ) : (
-                    <Link
-                      className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
-                      href={`/${
-                        i % 5 === 0
-                          ? "flashcards"
-                          : i % 5 === 1
-                          ? "quizzes"
-                          : i % 5 === 4
-                          ? "upload-update-syllabus"
-                          : "#"
-                      }`}
-                    >
-                      {i % 5 === 0
-                        ? "Flashcards"
-                        : i % 5 === 1
-                        ? "Quizzes"
-                        : i % 5 === 4
-                        ? "Upload/Update Syllabus"
-                        : ""}
-                    </Link>
-                  )}
-                </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </div>
       </div>
