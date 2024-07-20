@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Markdown from 'react-markdown';
 
 interface MarkdownContentProps {

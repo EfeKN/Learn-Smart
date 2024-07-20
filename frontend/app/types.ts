@@ -72,16 +72,11 @@ export interface Course {
 }
 
 export interface Message {
-  id: number;
-  content: string;
-  sender: string;
+  text: string;
+  role: string
+  message_id: number;
+  media_url: any;
 }
-
-/* export interface Chat {
-  id: string;
-  title: string;
-  slides_mode: boolean;
-} */
 
 export interface User {
   [key: string]: string;
@@ -91,8 +86,8 @@ export interface User {
   password: string;
 }
 
-interface Chat {
+export interface Chat {
   chat_id: string;
-  title: string;
+  chat_title: string;
   slides_mode: boolean;
 }

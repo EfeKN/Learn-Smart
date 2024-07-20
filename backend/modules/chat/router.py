@@ -16,14 +16,14 @@ from . import SYSTEM_INSTRUCTION, MODAL_VERSION
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
 @router.post("/create")
-async def create_chat(course_id: int, title: str, slides: UploadFile = File(None),
+async def create_chat(course_id: int, chat_title: str, slides: UploadFile = File(None),
                       current_user: dict = Depends(auth.get_current_user)):
     """
     Create a new chat for a course.
 
     Args:
         course_id (int): The ID of the course.
-        title (str): The title of the chat.
+        chat_title (str): The title of the chat.
         slides (UploadFile, optional): The slides file for the chat. Defaults to None.
         current_user (dict, optional): The current user. Defaults to Depends(auth.get_current_user).
 
@@ -42,7 +42,7 @@ async def create_chat(course_id: int, title: str, slides: UploadFile = File(None
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
     
-    chat = ChatDB.create(course_id=course_id, title=title, slides_mode=bool(slides))
+    chat = ChatDB.create(course_id=course_id, chat_title=chat_title, slides_mode=bool(slides))
     history_fname, _ = get_chat_filenames(current_user["user_id"], course_id, chat["chat_id"])
     history_url = os.path.join(CHATS_DIR, history_fname) # chat history file path
 
@@ -118,7 +118,7 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
     metadata = {} # initialize metadata to an empty dictionary
     if os.path.exists(metadata_path):
         with open(metadata_path, "r") as file:
-            metadata = {item['id']: item for item in json.load(file)}
+            metadata = {item['message_id']: item for item in json.load(file)}
 
     chat_content = None # set chat_content to None if no chat history yet
     if os.path.exists(file_path):
@@ -135,12 +135,12 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
 
         for part in content._pb.parts: # Google's protobuf message parts
             # Create a dictionary with the message, role, and ID of the chat
-            chat_dict = {"message": part.text, "role": content._pb.role, "id": idx}
+            chat_dict = {"text": part.text, "role": content._pb.role, "message_id": idx}
 
             if idx in metadata and 'media_url' in metadata[idx]: # a file is attached to this message
                 chat_dict['media_url'] = metadata[idx]['media_url']
 
-            if not messages or chat_dict["id"] != messages[-1]["id"]: # to remove duplicates, if any
+            if not messages or chat_dict["message_id"] != messages[-1]["message_id"]: # to remove duplicates, if any
                 messages.append(chat_dict)
     
     chat["course_name"] = course["course_name"] # Add the course name to response
@@ -192,8 +192,8 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
 
         history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
 
-        data1 = {"id": len(history), "skip": True} # Skip the "explain this slide" message, we don't want to show it in the chat
-        data2 = {"id": len(history) + 1, "media_url": content_url} # (len+1) for we want to draw it like the slide is uploaded by the LLM
+        data1 = {"message_id": len(history), "skip": True} # Skip the "explain this slide" message, we don't want to show it in the chat
+        data2 = {"message_id": len(history) + 1, "media_url": content_url} # (len+1) for we want to draw it like the slide is uploaded by the LLM
         
         if os.path.exists(metadata_path):
             with open(metadata_path, "r") as file:
@@ -218,7 +218,7 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
         with open(dumped_generator_path, "w") as file:
             file.write(jsonpickle.encode(generator)) # dump back the generator object to a string
 
-        return {"response": response.text, "media_url": content_url} # return the response in dictionary format
+        return {"text": response.text, "media_url": content_url} # return the response in dictionary format
     
     except StopIteration:
         raise HTTPException(status_code=404, detail="No more slides to show.")
@@ -278,7 +278,7 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
     # TODO: streaming response
     if file_content:
         metadata = get_chat_metadata_path(history_url) # chat metadata file path
-        new_data = {"id": len(history), "media_url": path}
+        new_data = {"message_id": len(history), "media_url": path}
     
         if os.path.exists(metadata):
             with open(metadata, "r") as file:
@@ -303,4 +303,4 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
     with open(history_url, "w") as file: # Save the updated chat history to the chat file
         file.write(history)
 
-    return {"message": response.text, "role": "model"}
+    return {"text": response.text, "role": "model"}

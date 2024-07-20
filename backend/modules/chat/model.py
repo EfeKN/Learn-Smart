@@ -12,7 +12,7 @@ class Chat(Base):
 
     __tablename__ = 'chats'
     chat_id = Column(Integer, primary_key=True, index=True)
-    title = Column(String(150), nullable=False)
+    chat_title = Column(String(150), nullable=False)
     course_id = Column(Integer, ForeignKey('courses.course_id'), nullable=False)
     history_url = Column(String(255))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -33,7 +33,7 @@ class Chat(Base):
         """
         return {
             "chat_id": self.chat_id,
-            "title": self.title,
+            "chat_title": self.chat_title,
             "course_id": self.course_id,
             "history_url": self.history_url,
             "slides_mode": self.slides_mode,

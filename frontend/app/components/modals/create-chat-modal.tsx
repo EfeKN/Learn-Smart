@@ -1,19 +1,25 @@
 "use client";
 
+import { GlobalVariables } from "@/app/global-variables";
 import { CreateChatModalParameters } from "@/app/types";
 import backendAPI from "@/environment/backend_api";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import LoadingButton from "../loading-button";
 
-export default function CreateChatModal(modalProps: CreateChatModalParameters) {
-  if (!modalProps.isOpen) return null;
+export default function CreateChatModal(
+  modalParameters: CreateChatModalParameters
+) {
+  if (!modalParameters.isOpen) {
+    return null;
+  }
 
+  const globalVariables = GlobalVariables.getInstance();
   const params = useParams<{ course_id: string }>();
   const course_id = params.course_id;
   const [file, setFile] = useState<File | null>(null);
-  const [isFileSelected, setIsFileSelected] = useState(false);
-  const [title, setTitle] = useState("");
+  const [isFileSelected, setIsFileSelected] = useState<boolean>(false);
+  const [chat_title, setChat_title] = useState<string>("");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -23,54 +29,64 @@ export default function CreateChatModal(modalProps: CreateChatModalParameters) {
   };
 
   const handleUploadSlides = async () => {
-    if (!file || !title.trim()) return;
+    if (!file || !chat_title.trim()) return;
 
     const formData = new FormData();
     formData.append("slides", file);
 
     try {
       const response = await backendAPI.post(
-        `/chat/create?course_id=${course_id}&title=${title}`,
+        `/chat/create?course_id=${course_id}&chat_title=${chat_title}`,
         formData,
         {
           headers: {
             Accept: "application/json",
-            Authorization: `Bearer ${modalProps.authToken}`,
+            Authorization: `Bearer ${modalParameters.authToken}`,
             "Content-Type": "multipart/form-data",
           },
         }
       );
 
+      if (globalVariables.debug_mode) {
+        console.log("chat create response", response);
+      }
+
       const newChat = response.data.chat;
-      modalProps.onChatCreated(newChat);
-      modalProps.closeModal();
+      modalParameters.onChatCreated(newChat);
+      modalParameters.closeModal();
     } catch (error) {
       console.error("Error creating chat:", error);
     }
   };
 
   const handleCreateChat = async () => {
-    if (!title.trim()) return;
+    if (!chat_title.trim()) {
+      return;
+    }
 
     try {
       const response = await backendAPI.post(
         `/chat/create`,
         {
-          title: title,
+          chat_title: chat_title,
           course_id: course_id,
         },
         {
           headers: {
             Accept: "application/json",
-            Authorization: `Bearer ${modalProps.authToken}`,
+            Authorization: `Bearer ${modalParameters.authToken}`,
             "Content-Type": "application/json",
           },
         }
       );
 
+      if (globalVariables.debug_mode) {
+        console.log("chat create response", response);
+      }
+
       const newChat = response.data.chat;
-      modalProps.onChatCreated(newChat);
-      modalProps.closeModal();
+      modalParameters.onChatCreated(newChat);
+      modalParameters.closeModal();
     } catch (error) {
       console.error("Error creating chat:", error);
     }
@@ -85,7 +101,7 @@ export default function CreateChatModal(modalProps: CreateChatModalParameters) {
           </h2>
           <button
             className="text-gray-600 hover:text-gray-800 focus:outline-none"
-            onClick={modalProps.closeModal}
+            onClick={modalParameters.closeModal}
             type="button"
             title="Close Modal"
           >
@@ -118,8 +134,8 @@ export default function CreateChatModal(modalProps: CreateChatModalParameters) {
             id="chatTitle"
             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
             placeholder="Enter chat title"
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
+            value={chat_title}
+            onChange={(event) => setChat_title(event.target.value)}
           />
         </div>
         <div className="flex justify-between">
@@ -143,7 +159,7 @@ export default function CreateChatModal(modalProps: CreateChatModalParameters) {
                 type="submit"
                 text="OK"
                 loadingText="Creating chat..."
-                disabled={!file || !title.trim()} // TODO check this?
+                disabled={!file || !chat_title.trim()} // TODO check this?
                 className=""
               />
             )}
@@ -159,7 +175,7 @@ export default function CreateChatModal(modalProps: CreateChatModalParameters) {
             type="button"
             className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-100 border border-transparent
               rounded-md hover:bg-gray-200"
-            onClick={modalProps.closeModal}
+            onClick={modalParameters.closeModal}
           >
             Cancel
           </button>

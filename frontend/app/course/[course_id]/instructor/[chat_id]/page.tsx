@@ -15,7 +15,7 @@ export default function ChatInterface() {
   const handleSendMessage = () => {
     if (inputValue.trim() !== "") {
       const newMessage: Message = {
-        id: messages.length + 1,
+        id: String(messages.length + 1),
         content: inputValue,
         sender: "user",
       };
