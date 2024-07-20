@@ -1,5 +1,4 @@
 import logo from "@/assets/logo.png";
-import Cookies from "js-cookie";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -7,14 +6,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { HiMiniBell } from "react-icons/hi2";
 import FlyoutMenu from "../components/flyout-menu";
 import Notifications from "../components/notifications";
-import backendAPI from "@/environment/backend_api";
-
-interface NavbarElement {
-  id: number;
-  name: string;
-  link: string;
-  component: () => JSX.Element;
-}
+import { NavbarElement } from "../types";
 
 export default function Navbar() {
   const [nav, setNav] = useState(false);
@@ -24,17 +16,17 @@ export default function Navbar() {
 
   const navbarElements: NavbarElement[] = [
     {
-      id: 1,
-      name: "notifications",
-      link: "notifications",
-      component: renderNotifications,
+      navbar_element_id: 1,
+      navbar_element_name: "notifications",
+      navbar_element_link: "notifications",
+      navbar_element_component: renderNotifications,
     },
     {
-      id: 2,
-      name: "menu",
-      link: "menu",
-      component: renderMenu,
-    }
+      navbar_element_id: 2,
+      navbar_element_name: "menu",
+      navbar_element_link: "menu",
+      navbar_element_component: renderMenu,
+    },
   ];
 
   function handleMenuClick(menu: any) {
@@ -53,7 +45,6 @@ export default function Navbar() {
       setNav(false);
     }
   }
-
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
@@ -74,7 +65,6 @@ export default function Navbar() {
         </button>
         <Notifications
           isOpen={currentMenu === "notifications"}
-          // TODO: Cagri please check these
           onClose={() => setCurrentMenu(null)}
         />
       </div>
@@ -108,7 +98,6 @@ export default function Navbar() {
         </button>
         <FlyoutMenu
           isOpen={currentMenu === "menu"}
-          // TODO: Cagri please check these
           onClose={() => setCurrentMenu(null)}
         />
       </div>
@@ -133,15 +122,21 @@ export default function Navbar() {
       </div>
 
       <ul className="hidden md:flex items-center">
-        {navbarElements.map(({ id, name, link, component }) => (
-          <li
-            key={id}
-            className="nav-navbarElements px-4 cursor-pointer capitalize font-medium text-gray-500 link-underline"
-            onClick={() => handleMenuClick(link)}
-          >
-            {component()}
-          </li>
-        ))}
+        {navbarElements.map(
+          ({
+            navbar_element_id,
+            navbar_element_link,
+            navbar_element_component,
+          }) => (
+            <li
+              key={navbar_element_id}
+              className="nav-navbarElements px-4 cursor-pointer capitalize font-medium text-gray-500 link-underline"
+              onClick={() => handleMenuClick(navbar_element_link)}
+            >
+              {navbar_element_component()}
+            </li>
+          )
+        )}
       </ul>
 
       <div
@@ -153,13 +148,13 @@ export default function Navbar() {
 
       {nav && (
         <ul className="flex flex-col justify-center items-center absolute top-0 left-0 w-full h-screen bg-gradient-to-b from-white to-gray-800 text-gray-500">
-          {navbarElements.map(({ id, name, link }) => (
+          {navbarElements.map(({ navbar_element_id, navbar_element_link }) => (
             <li
-              key={id}
+              key={navbar_element_id}
               className="px-4 cursor-pointer capitalize py-6 text-4xl"
-              onClick={() => handleMenuClick(link)}
+              onClick={() => handleMenuClick(navbar_element_link)}
             >
-              {link === "menu" ? (
+              {navbar_element_link === "menu" ? (
                 <div>
                   <button className="text-4xl" type="button">
                     Menu
@@ -170,7 +165,7 @@ export default function Navbar() {
                     onClose={() => setCurrentMenu(null)}
                   />
                 </div>
-              ) : link === "notifications" ? (
+              ) : navbar_element_link === "notifications" ? (
                 <div>
                   <button className="text-4xl" type="button">
                     Notifications

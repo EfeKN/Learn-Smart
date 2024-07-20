@@ -1,14 +1,8 @@
-import React from 'react';
-import Markdown from 'react-markdown';
+import Markdown from "react-markdown";
+import { MarkdownContentProps } from "../types";
 
-interface MarkdownContentProps {
-  content: string;
+export default function MarkdownContent({
+  markdown_content,
+}: MarkdownContentProps) {
+  return <Markdown>{markdown_content}</Markdown>;
 }
-
-const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
-  return <Markdown>{content}</Markdown>;
-};
-
-export default MarkdownContent;
-
-// Example usage: <MarkdownContent content="# Hello, Markdown!" />

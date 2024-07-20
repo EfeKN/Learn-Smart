@@ -9,7 +9,7 @@ export default function PageHandler() {
   useEffect(() => {
     const timer = setTimeout(() => {
       router.push("/login");
-    }, 1000); // 1 second delay
+    }, 1000);
 
     // Clean up the timer on component unmount
     return () => clearTimeout(timer);

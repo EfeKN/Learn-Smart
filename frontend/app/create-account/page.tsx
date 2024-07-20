@@ -6,8 +6,8 @@ import { useState } from "react";
 import { FaRegEnvelope, FaRegUser } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
 import { RiShieldUserLine } from "react-icons/ri";
-import { Bounce, ToastContainer, Zoom, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function CreateAccountPage() {
   const [name, setName] = useState<string>("");

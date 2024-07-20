@@ -46,6 +46,10 @@ export interface FlyoutMenuParameters {
   onClose: () => void;
 }
 
+export interface MarkdownContentProps {
+  markdown_content: string;
+}
+
 export interface FolderListParameters {
   folders: FolderType[];
   handleDrop: (item: FolderType, targetFolder: FolderType) => void;
@@ -88,4 +92,11 @@ export interface User {
   nickname: string;
   email: string;
   password: string;
+}
+
+export interface NavbarElement {
+  navbar_element_id: number;
+  navbar_element_name: string;
+  navbar_element_link: string;
+  navbar_element_component: () => JSX.Element;
 }
