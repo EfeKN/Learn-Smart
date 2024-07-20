@@ -167,7 +167,7 @@ export default function CreateCourseModal(
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   {syllabus ? (
-                    <>
+                    <div>
                       {syllabus.name.endsWith(".pdf") && (
                         <FaFilePdf className="w-16 h-16 mb-4" />
                       )}
@@ -175,9 +175,9 @@ export default function CreateCourseModal(
                         <TbFileTypeDocx className="w-16 h-16 mb-4" />
                       )}
                       <p className="text-sm text-gray-500">{syllabus.name}</p>
-                    </>
+                    </div>
                   ) : (
-                    <>
+                    <div>
                       <svg
                         className="w-8 h-8 mb-4 text-gray-500"
                         aria-hidden="true"
@@ -198,7 +198,7 @@ export default function CreateCourseModal(
                         or drag and drop
                       </p>
                       <p className="text-xs text-gray-500">PDF or DOCX</p>
-                    </>
+                    </div>
                   )}
                 </div>
                 <input
@@ -233,12 +233,12 @@ export default function CreateCourseModal(
               >
                 <div className="flex flex-col items-center justify-center pt-5 pb-6">
                   {icon ? (
-                    <>
+                    <div>
                       {<FaRegImages className="w-16 h-16 mb-4" />}
                       <p className="text-sm text-gray-500">{icon.name}</p>
-                    </>
+                    </div>
                   ) : (
-                    <>
+                    <div>
                       <svg
                         className="w-8 h-8 mb-4 text-gray-500"
                         aria-hidden="true"
@@ -259,7 +259,7 @@ export default function CreateCourseModal(
                         or drag and drop
                       </p>
                       <p className="text-xs text-gray-500">JPG, JPEG or PNG</p>
-                    </>
+                    </div>
                   )}
                 </div>
                 <input

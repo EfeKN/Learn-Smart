@@ -10,7 +10,6 @@ export const metadata: Metadata = {
     "Learn Smart is a platform aimed at helping students learn more effectively.",
 };
 
-// Define RootLayout component
 export default function RootLayout({
   children,
 }: {
