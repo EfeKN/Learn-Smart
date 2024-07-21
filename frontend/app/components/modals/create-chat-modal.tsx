@@ -1,6 +1,6 @@
 "use client";
 
-import { GlobalVariables } from "@/app/global-variables";
+import { printDebugMessage } from "@/app/debugger";
 import { CreateChatModalParameters } from "@/app/types";
 import backendAPI from "@/environment/backend_api";
 import { useParams } from "next/navigation";
@@ -14,7 +14,6 @@ export default function CreateChatModal(
     return null;
   }
 
-  const globalVariables = GlobalVariables.getInstance();
   const params = useParams<{ course_id: string }>();
   const course_id = params.course_id;
   const [file, setFile] = useState<File | null>(null);
@@ -47,9 +46,7 @@ export default function CreateChatModal(
         }
       );
 
-      if (globalVariables.debug_mode) {
-        console.log("chat create response", response);
-      }
+      printDebugMessage("chat create response" + response);
 
       const newChat = response.data.chat;
       modalParameters.onChatCreated(newChat);
@@ -80,9 +77,7 @@ export default function CreateChatModal(
         }
       );
 
-      if (globalVariables.debug_mode) {
-        console.log("chat create response", response);
-      }
+      printDebugMessage("chat create response" + response);
 
       const newChat = response.data.chat;
       modalParameters.onChatCreated(newChat);

@@ -1,23 +1,27 @@
+import { documentMimeTypes, imageMimeTypes } from "@/app/constants";
+import { printDebugMessage } from "@/app/debugger";
+import GlobalVariables from "@/app/global-variables";
+import { CreateCourseModalParameters } from "@/app/types";
+import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { FaFilePdf, FaRegImages } from "react-icons/fa6";
 import { TbFileTypeDocx } from "react-icons/tb";
-import { CreateCourseModalParameters } from "@/app/types";
-
-import backendAPI from "@/environment/backend_api";
 import LoadingButton from "../loading-button";
 
 export default function CreateCourseModal(
-  modalProps: CreateCourseModalParameters
+  modalParameters: CreateCourseModalParameters
 ) {
-  const [courseName, setCourseName] = useState("");
-  const [courseCode, setCourseCode] = useState("");
-  const [courseDescription, setCourseDescription] = useState("");
+  let globalVariables = GlobalVariables.getInstance();
+
+  const [courseName, setCourseName] = useState<string>("");
+  const [courseCode, setCourseCode] = useState<string>("");
+  const [courseDescription, setCourseDescription] = useState<string>("");
   const [syllabus, setSyllabus] = useState<File | null>(null);
   const [icon, setIcon] = useState<File | null>(null);
-  const [syllabusError, setSyllabusError] = useState("");
-  const [iconError, setIconError] = useState("");
-  const [token, setToken] = useState("");
+  const [syllabusError, setSyllabusError] = useState<string>("");
+  const [iconError, setIconError] = useState<string>("");
+  const [token, setToken] = useState<string>("");
 
   // reset form fields
   const resetFields = () => {
@@ -34,30 +38,42 @@ export default function CreateCourseModal(
     setToken(Cookies.get("authToken") || "");
   }, []);
 
-  const documentMimeTypes = [
-    "application/pdf",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ];
-  const imageMimeTypes = ["image/jpeg", "image/png"];
-
   function handleFileChange(
     event: React.ChangeEvent<HTMLInputElement>,
     setter: React.Dispatch<React.SetStateAction<any>>,
     setError: React.Dispatch<React.SetStateAction<string>>,
-    type: string
+    fileType: string
   ) {
     const file = event.target.files && event.target.files[0];
-    if (file && type === "document" && documentMimeTypes.includes(file.type)) {
+
+    // Check if file is of correct type for document
+    if (
+      file &&
+      fileType === "document" &&
+      documentMimeTypes.includes(file.type)
+    ) {
       setter(file);
       setError("");
-      console.log(`Selected file: ${file.name}`);
-    } else if (file && type === "image" && imageMimeTypes.includes(file.type)) {
+      printDebugMessage(`Selected file: ${file.name}`);
+    }
+
+    // Check if file is of correct type for image
+    else if (
+      file &&
+      fileType === "image" &&
+      imageMimeTypes.includes(file.type)
+    ) {
       setter(file);
       setError("");
-      console.log(`Selected file: ${file.name}`);
-    } else {
+      printDebugMessage(`Selected file: ${file.name}`);
+    }
+
+    // Invalid file type for document
+    else {
       setter(null);
-      if (type === "document") {
+
+      // Set error message based on file type
+      if (fileType === "document") {
         setError("Invalid file type. Allowed types are: PDF, DOCX");
       } else {
         setError("Invalid file type. Allowed types are: JPG, JPEG, PNG");
@@ -65,20 +81,25 @@ export default function CreateCourseModal(
     }
   }
 
+  // Handle form submission to create course
   async function handleSubmit(
     event:
       | React.FormEvent<HTMLFormElement>
       | React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) {
+    // Prevent default form submission
     event.preventDefault();
 
+    // Create the form data object to send to the backend
     const formData = new FormData();
     formData.append("course_name", courseName);
     formData.append("course_code", courseCode);
     formData.append("course_description", courseDescription);
+    // append files to form data if they exist
     if (syllabus) formData.append("syllabus_file", syllabus);
     if (icon) formData.append("icon_file", icon);
 
+    // Send the form data to the backend
     await backendAPI
       .post(`/course/create`, formData, {
         headers: {
@@ -88,25 +109,34 @@ export default function CreateCourseModal(
         },
       })
       .then((response) => {
-        modalProps.onCourseCreation();
-        console.log("Course created successfully:", response.data);
+        // Call the onCourseCreation callback to update the course list
+        modalParameters.onCourseCreation();
+
+        printDebugMessage("Course created successfully: " + response.data);
       })
       .catch((error) => {
         console.error("Error creating course:", error);
         alert("Error creating course.");
+        printDebugMessage("Error creating course: " + error);
       })
       .finally(() => {
-        resetFields();
-        modalProps.onClose();
+        // Reset form fields and close the modal
+        handleCancelClose();
       });
   }
 
-  const handleCancel = () => {
+  // Function to handle cancel button click
+  const handleCancelClose = () => {
+    // Reset form fields and close the modal
     resetFields();
-    modalProps.onClose();
+
+    // Call the onClose callback to close the modal
+    modalParameters.onClose();
   };
 
-  if (!modalProps.isOpen) return null;
+  if (!modalParameters.isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center">
@@ -285,7 +315,7 @@ export default function CreateCourseModal(
           <div className="flex justify-end">
             <button
               type="button"
-              onClick={handleCancel}
+              onClick={handleCancelClose}
               className="bg-black hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg mr-2"
             >
               Cancel

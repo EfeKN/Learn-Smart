@@ -1,5 +1,5 @@
 // Class to store global variables that can be accessed from any component
-export class GlobalVariables {
+export default class GlobalVariables {
   // Singleton instance
   private static instance: GlobalVariables;
 

@@ -17,7 +17,6 @@ export interface LoadingButtonParameters {
 
 export interface CreateCourseModalParameters {
   isOpen: boolean;
-
   modalTitle: string;
   onClose: () => void;
   onCourseCreation: () => void;
@@ -77,7 +76,7 @@ export interface Course {
 
 export interface Message {
   text: string;
-  role: string
+  role: string;
   message_id: number;
   media_url: any;
 }
