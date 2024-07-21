@@ -4,7 +4,8 @@ import google.generativeai as genai
 
 load_dotenv()
 
-CHATS_DIR = os.getenv("CHATS_DIR") # The directory where the chat history files are stored
+# The directory where the chat history files are stored
+CHATS_DIR = os.getenv("CHATS_DIR") 
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 genai.configure(api_key=GOOGLE_API_KEY)
@@ -13,7 +14,7 @@ MODAL_VERSION = "gemini-1.5-flash"
 
 # System instruction for the LLM
 # To be put in .env file
-# TODO: enhance
+# TODO: Enhance
 # TODO: LLM didn't care so much about the system instruction
 SYSTEM_INSTRUCTION = """
         You are an intelligent educational assistant. Your task is to enhance the learning experience of students by dynamically interacting with their uploaded content. Follow these guidelines:

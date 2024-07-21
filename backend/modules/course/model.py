@@ -34,6 +34,7 @@ class Course(Base):
         Returns:
             dict: A dictionary representation of the Course object.
         """
+        
         return {
             "course_id": self.course_id,
             "course_name": self.course_name,

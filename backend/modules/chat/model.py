@@ -31,6 +31,7 @@ class Chat(Base):
         Returns:
             dict: A dictionary representation of the Chat object.
         """
+        
         return {
             "chat_id": self.chat_id,
             "chat_title": self.chat_title,

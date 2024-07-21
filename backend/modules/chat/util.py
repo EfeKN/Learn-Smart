@@ -8,7 +8,8 @@ from tools import generate_hash, splitext
 from middleware import FILES_DIR
 
 def slide_generator(path: str):
-    """Generator to yield slides one by one.
+    """
+    Generator to yield slides one by one.
 
     Args:
         path (str): The path to the presentation file.
@@ -51,12 +52,13 @@ def slide_generator(path: str):
     doc.close()
 
 
-def get_chat_filenames(user_id: int, course_id: int, chat_id: int):
-    fname_prefix = f"user_{user_id}_course_{course_id}_chat_{chat_id}"
-    fname = generate_hash(fname_prefix)
+def prepare_chat_file_names(user_id: int, course_id: int, chat_id: int):
+    # generate unique file name for chat history
+    file_name_prefix = f"user_{user_id}_course_{course_id}_chat_{chat_id}"
+    file_name = generate_hash(file_name_prefix)
 
     # return chat history file name, metadata file name
-    return f"{fname}.txt", f"{fname}_metadata.json"
+    return f"{file_name}.txt", f"{file_name}_metadata.json"
 
 
 def get_generator_path(slides_path: str):

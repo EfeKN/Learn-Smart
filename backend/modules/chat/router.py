@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Form, HTTPException, UploadFile, File
 import google.generativeai as genai
 import shutil, os
 import json, jsonpickle
-
+from logger import logger
 from middleware.filemanager import FileFactory
 from middleware import authentication as auth
 from modules.user.model import User
@@ -43,7 +43,7 @@ async def create_chat(course_id: int, chat_title: str, slides: UploadFile = File
         raise HTTPException(status_code=403, detail="Forbidden.")
     
     chat = ChatDB.create(course_id=course_id, chat_title=chat_title, slides_mode=bool(slides))
-    history_fname, _ = get_chat_filenames(current_user["user_id"], course_id, chat["chat_id"])
+    history_fname, _ = prepare_chat_file_names(current_user["user_id"], course_id, chat["chat_id"])
     history_url = os.path.join(CHATS_DIR, history_fname) # chat history file path
 
     slides_furl, slides_fname = None, None # initialize the slides name and URL
@@ -101,19 +101,35 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
     Raises:
         HTTPException: If the chat is not found or the user is not authorized to access the chat.
     """
+    
+    logger.info(f"Fetching chat with ID: {chat_id}")
+    
+    # Fetch the chat by its ID
     chat = ChatDB.fetch(chat_id=chat_id)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found.")
     
+    logger.info(f"Chat found: {chat}")
+    
+    # Fetch the course associated with the chat and check if the user is authorized to access it
     course = CourseDB.fetch(course_id=chat["course_id"])
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
     
-    hist_fname, metadata_fname = get_chat_filenames(current_user["user_id"], 
+    logger.info(f"Course found: {course}")
+    
+    # Get the chat history file name and metadata file name for the current user, course, and chat
+    hist_file_name, metadata_file_name = prepare_chat_file_names(current_user["user_id"], 
                                                   course["course_id"], chat["chat_id"])
 
-    file_path = os.path.join(CHATS_DIR, hist_fname) # chat history file path
-    metadata_path = os.path.join(CHATS_DIR, metadata_fname) # chat metadata file path
+    # Construct the chat history file path and metadata file path
+    # chat history file path
+    file_path = os.path.join(CHATS_DIR, hist_file_name) 
+    # chat metadata file path
+    metadata_path = os.path.join(CHATS_DIR, metadata_file_name)
+    
+    logger.info(f"Chat history file path: {file_path}")
+    logger.info(f"Chat metadata file path: {metadata_path}")
 
     metadata = {} # initialize metadata to an empty dictionary
     if os.path.exists(metadata_path):
