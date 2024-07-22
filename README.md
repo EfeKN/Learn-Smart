@@ -14,7 +14,7 @@
 
 2. Use python 3.12.4
 
-3. Create a .env file inside the `backend/` folder, then populate it with the following:
+3. Create a .env file inside the root folder, then populate it with the following:
 
     * `GOOGLE_API_KEY=` (provided in Whatsapp)
     * `DATABASE_URL=` (your MySQL DB URI, example: `mysql://\<username>:\<password>@localhost/<database_name>`)
@@ -64,6 +64,18 @@
 6. Create the database `CREATE DATABASE <database_name>;`
 
 7. Grant privileges `GRANT ALL PRIVILEGES ON <database_name>.* TO '<username>'@'localhost';`
+
+## Database Example Setup Linux
+
+1. Install MySQL (example: `sudo apt install mysql-server`)
+
+2. Start MySQL shell with root privileges: `sudo mysql`
+
+3. Create user `CREATE USER '<username>'@'localhost' IDENTIFIED BY '<password>';`
+
+4. Create the database `CREATE DATABASE <database_name>;`
+
+5. Grant privileges `GRANT ALL PRIVILEGES ON <database_name>.* TO '<username>'@'localhost';`
 
 ## Docker Setup
 
