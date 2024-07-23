@@ -19,6 +19,7 @@ import {
   CourseHomepageElement,
   CourseHomepageParameters,
 } from "../../types";
+import { useRouter } from "next/navigation";
 
 export default function CourseHomepage(parameters: CourseHomepageParameters) {
   const [course, setCourse] = useState<Course>();
@@ -26,9 +27,10 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
   const pathname = usePathname();
   const params = useParams<{ course_id: string }>();
   const course_id = params.course_id;
+  const router = useRouter();
 
   useEffect(() => {
-    setToken(Cookies.get("authToken") || "");
+    setToken(Cookies.get("authToken") || null);
   }, []);
 
   useEffect(() => {
@@ -51,48 +53,53 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
       });
   };
 
+  if(token == null) {
+      router.replace('/login');
+  }
+
   if (!course) {
-    return <div>Loading...</div>;
+    return <div className="bg-transparent min-h-screen text-black">Loading...</div>;
   }
 
   let courseHomepageElements: CourseHomepageElement[] = [
     {
       course_homepage_element_name: "Flashcards",
       course_homepage_element_explanation: "Practice with digital flashcards.",
-      course_hompage_element_router: (
+      course_homepage_element_router: (
         <Link
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
           href="/flashcards"
-        />
+        >Flashcards</Link>
       ),
-      course_hompage_element_component: (
+      course_homepage_element_component: (
         <FaBook className="text-3xl text-white" />
       ),
     },
     {
       course_homepage_element_name: "Quizzes",
       course_homepage_element_explanation: "Take interactive quizzes.",
-      course_hompage_element_router: (
+      course_homepage_element_router: (
         <Link
+          title="quizzes"
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
           href="/quizzes"
-        />
+        >Quizzes</Link>
       ),
-      course_hompage_element_component: (
+      course_homepage_element_component: (
         <FaClipboardList className="text-3xl text-white" />
       ),
     },
     {
       course_homepage_element_name: `Go to ${course.course_name} Instructor`,
       course_homepage_element_explanation: `Ask ${course.course_name} Instructor through chatbot.`,
-      course_hompage_element_router: (
+      course_homepage_element_router: (
         <a
           title="Go to Instructor"
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
           href={`${pathname}/instructor`}
-        />
+        >Go to Instructor</a>
       ),
-      course_hompage_element_component: (
+      course_homepage_element_component: (
         <FaUserTie className="text-3xl text-white" />
       ),
     },
@@ -100,14 +107,14 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
       course_homepage_element_name: "Weekly study plan",
       course_homepage_element_explanation:
         "Plan your study sessions for the week.",
-      course_hompage_element_router: (
+      course_homepage_element_router: (
         <a
           title="Weekly Study Plan"
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
           href={`${pathname}/weekly-study-plan`}
-        />
+        >Weekly Study Plan</a>
       ),
-      course_hompage_element_component: (
+      course_homepage_element_component: (
         <FaCalendarAlt className="text-3xl text-white" />
       ),
     },
@@ -115,13 +122,14 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
       course_homepage_element_name: "Upload/Update Syllabus",
       course_homepage_element_explanation:
         "Upload or update the course syllabus.",
-      course_hompage_element_router: (
-        <Link
+      course_homepage_element_router: (
+        <a
+          title="Upload/Update Syllabus"
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
           href="/upload-update-syllabus"
-        />
+        >Upload/Update Syllabus</a>
       ),
-      course_hompage_element_component: (
+      course_homepage_element_component: (
         <FaUpload className="text-3xl text-white" />
       ),
     },
@@ -146,8 +154,8 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
                 {
                   course_homepage_element_name,
                   course_homepage_element_explanation,
-                  course_hompage_element_router,
-                  course_hompage_element_component,
+                  course_homepage_element_router,
+                  course_homepage_element_component,
                 },
                 index
               ) => (
@@ -156,7 +164,7 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
                   className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center justify-center"
                 >
                   <div className="bg-black p-3 rounded-full mb-4">
-                    {course_hompage_element_component}
+                    {course_homepage_element_component}
                   </div>
                   <div className="text-center">
                     <h3 className="text-xl font-medium mb-2 text-black">
@@ -165,7 +173,7 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
                     <p className="text-sm text-gray-500 mb-4">
                       {course_homepage_element_explanation}
                     </p>
-                    {course_hompage_element_router}
+                    {course_homepage_element_router}
                   </div>
                 </div>
               )

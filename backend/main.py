@@ -17,7 +17,7 @@ app = FastAPI()
 
 # re/create the database tables and directories
 # Debug mode will log additional information 
-init(restart=False, debug_mode=True) 
+init(restart=False, debug_mode=True)
 
 # Add CORS middleware to allow cross-origin requests
 app.add_middleware(

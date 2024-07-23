@@ -1,5 +1,3 @@
-import logo from "@/assets/logo.png";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
@@ -7,6 +5,8 @@ import { HiMiniBell } from "react-icons/hi2";
 import FlyoutMenu from "../components/flyout-menu";
 import Notifications from "../components/notifications";
 import { NavbarElement } from "../types";
+import "@/app/style/logo-font.css"
+import Cookies from "js-cookie";
 
 export default function Navbar() {
   const [nav, setNav] = useState(false);
@@ -32,6 +32,10 @@ export default function Navbar() {
   function handleMenuClick(menu: any) {
     setCurrentMenu(currentMenu === menu ? null : menu);
   }
+
+  const handleHomePageClick = () => {
+    router.replace("/home-page");
+  };
 
   // TODO: make this functional or remove
   function handleLinkClick() {
@@ -109,38 +113,40 @@ export default function Navbar() {
       className="flex justify-between items-center w-full h-16 px-4 text-black bg-white nav"
       ref={navRef}
     >
-      <div>
-        <h1 className="text-5xl font-signature ml-2">
-          <Image
-            className="hover:transition ease-in-out delay-150 hover:decoration-solid"
-            src={logo}
-            alt="logo"
-            width={200}
-            height={200}
-          />
-        </h1>
-      </div>
-
+      <button onClick={() => handleHomePageClick()}>
+        <div>
+          <div className="inline-flex gap-0">
+            <h1 className="text-4xl font-bold"
+                style={{fontFamily: 'logo-font, serif', color: "rgb(23,144, 288)", letterSpacing: '0.025em'}}>
+              learn
+            </h1>
+            <h1 className="text-4xl font-bold"
+                style={{fontFamily: 'logo-font, serif', color: "black", letterSpacing: '0.025em'}}>
+              smart
+            </h1>
+          </div>
+        </div>
+      </button>
       <ul className="hidden md:flex items-center">
         {navbarElements.map(
-          ({
-            navbar_element_id,
-            navbar_element_link,
-            navbar_element_component,
-          }) => (
-            <li
-              key={navbar_element_id}
-              className="nav-navbarElements px-4 cursor-pointer capitalize font-medium text-gray-500 link-underline"
-              onClick={() => handleMenuClick(navbar_element_link)}
-            >
-              {navbar_element_component()}
-            </li>
-          )
+            ({
+               navbar_element_id,
+               navbar_element_link,
+               navbar_element_component,
+             }) => (
+                <li
+                    key={navbar_element_id}
+                    className="nav-navbarElements px-4 cursor-pointer capitalize font-medium text-gray-500 link-underline"
+                    onClick={() => handleMenuClick(navbar_element_link)}
+                >
+                  {navbar_element_component()}
+                </li>
+            )
         )}
       </ul>
 
       <div
-        onClick={() => setNav(!nav)}
+          onClick={() => setNav(!nav)}
         className="cursor-pointer pr-4 z-10 text-gray-500 md:hidden"
       >
         {nav ? <FaTimes size={30} /> : <FaBars size={30} />}
@@ -161,7 +167,6 @@ export default function Navbar() {
                   </button>
                   <FlyoutMenu
                     isOpen={currentMenu === "menu"}
-                    // TODO: Cagri please check these
                     onClose={() => setCurrentMenu(null)}
                   />
                 </div>
@@ -172,7 +177,6 @@ export default function Navbar() {
                   </button>
                   <Notifications
                     isOpen={currentMenu === "notifications"}
-                    // TODO: Cagri please check these
                     onClose={() => setCurrentMenu(null)}
                   />
                 </div>

@@ -5,7 +5,7 @@ import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import Markdown from "../../../components/markdown-renderer"
 import axios from "axios";
-import { useParams } from "next/navigation";
+import {useParams, useRouter} from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function StudyPlan() {
@@ -13,9 +13,10 @@ export default function StudyPlan() {
   const [studyPlan, setStudyPlan] = useState<string>("");
   const params = useParams<{ course_id: string }>();
   const course_id = params.course_id;
+  const router = useRouter();
 
   useEffect(() => {
-      setToken(Cookies.get("authToken") || "");
+      setToken(Cookies.get("authToken") || null);
   }, []);
 
   useEffect(() => {
@@ -23,6 +24,10 @@ export default function StudyPlan() {
         fetchStudyPlanData(course_id);
       }
   }, [token, course_id]);
+
+  if(token == null) {
+      router.replace('/login');
+  }
 
   const fetchStudyPlanData = async (course_id: string) => {
     try {

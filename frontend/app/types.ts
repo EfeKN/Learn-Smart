@@ -99,8 +99,8 @@ export interface NavbarElement {
 export interface CourseHomepageElement {
   course_homepage_element_explanation: string;
   course_homepage_element_name: string;
-  course_hompage_element_router: JSX.Element;
-  course_hompage_element_component: JSX.Element;
+  course_homepage_element_router: JSX.Element;
+  course_homepage_element_component: JSX.Element;
 }
 
 export interface Chat {
