@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 export default function StudyPlan() {
   const [token, setToken] = useState<string>("");
   const [studyPlan, setStudyPlan] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
   const params = useParams<{ course_id: string }>();
   const course_id = params.course_id;
   const router = useRouter();
@@ -31,6 +32,7 @@ export default function StudyPlan() {
 
   const fetchStudyPlanData = async (course_id: string) => {
     try {
+      setLoading(true);
       const response = await backendAPI.get(`/course/${course_id}`, {
         headers: {
           "Content-Type": "application/json",
@@ -72,12 +74,33 @@ export default function StudyPlan() {
 
     } catch (error) {
       console.error("Error fetching course data:", error);
-    }
-  };   
+    } finally{
+      setLoading(false);
+    } 
+  };
+  
+  const handleBack = () => {
+    router.back();
+  };
 
   return (
-    <div>
-      <Markdown content={studyPlan} />  
+    <div className="p-4 bg-white shadow-md rounded-lg max-w-3xl mx-auto">
+      <div className="flex items-center mb-4">
+        <div className="flex space-x-4">
+          <button
+            onClick={handleBack}
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 mr-auto"
+          >
+            Back
+          </button>
+        </div>
+        <h1 className="text-2xl font-bold mx-auto">Study Plan</h1>
+      </div>
+      {loading ? (
+        <div className="text-center">Loading...</div>
+      ) : (
+        <Markdown content={studyPlan} />
+      )}
     </div>
   );
 }
