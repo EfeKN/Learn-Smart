@@ -5,7 +5,7 @@ import "@/app/style/course-homepage.css";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import Link from "next/link";
-import { useParams, usePathname } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   FaBook,
@@ -19,7 +19,6 @@ import {
   CourseHomepageElement,
   CourseHomepageParameters,
 } from "../../types";
-import { useRouter } from "next/navigation";
 
 export default function CourseHomepage(parameters: CourseHomepageParameters) {
   const [course, setCourse] = useState<Course>();
@@ -30,7 +29,7 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
   const router = useRouter();
 
   useEffect(() => {
-    setToken(Cookies.get("authToken") || null);
+    setToken(Cookies.get("authToken") || "");
   }, []);
 
   useEffect(() => {
@@ -53,12 +52,14 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
       });
   };
 
-  if(token == null) {
-      router.replace('/login');
+  if (token == null) {
+    router.replace("/login");
   }
 
   if (!course) {
-    return <div className="bg-transparent min-h-screen text-black">Loading...</div>;
+    return (
+      <div className="bg-transparent min-h-screen text-black">Loading...</div>
+    );
   }
 
   let courseHomepageElements: CourseHomepageElement[] = [
@@ -69,7 +70,9 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
         <Link
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
           href="/flashcards"
-        >Flashcards</Link>
+        >
+          Flashcards
+        </Link>
       ),
       course_homepage_element_component: (
         <FaBook className="text-3xl text-white" />
@@ -83,7 +86,9 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
           title="quizzes"
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
           href="/quizzes"
-        >Quizzes</Link>
+        >
+          Quizzes
+        </Link>
       ),
       course_homepage_element_component: (
         <FaClipboardList className="text-3xl text-white" />
@@ -97,7 +102,9 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
           title="Go to Instructor"
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
           href={`${pathname}/instructor`}
-        >Go to Instructor</a>
+        >
+          Go to Instructor
+        </a>
       ),
       course_homepage_element_component: (
         <FaUserTie className="text-3xl text-white" />
@@ -112,7 +119,9 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
           title="Weekly Study Plan"
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
           href={`${pathname}/weekly-study-plan`}
-        >Weekly Study Plan</a>
+        >
+          Weekly Study Plan
+        </a>
       ),
       course_homepage_element_component: (
         <FaCalendarAlt className="text-3xl text-white" />
@@ -127,7 +136,9 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
           title="Upload/Update Syllabus"
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
           href="/upload-update-syllabus"
-        >Upload/Update Syllabus</a>
+        >
+          Upload/Update Syllabus
+        </a>
       ),
       course_homepage_element_component: (
         <FaUpload className="text-3xl text-white" />

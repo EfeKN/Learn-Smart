@@ -38,6 +38,7 @@ class User(Base):
         Returns:
             dict: A dictionary representation of the user object.
         """
+        
         return {
             "user_id": self.user_id,
             "name": self.name,
