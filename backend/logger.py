@@ -2,7 +2,6 @@ import logging
 import os
 
 
-
 class CustomLogger(logging.Logger):
     """
     Custom logger class to override
@@ -82,7 +81,7 @@ def set_debug_mode(debug_mode):
 
 
 # Set the environment variables
-LOGS_DIR = os.getenv("LOGS_DIR", "./logs")
+LOGS_DIR = f".{os.sep}" + os.getenv("LOGS_DIR", "logs")
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
 

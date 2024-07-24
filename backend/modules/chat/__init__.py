@@ -25,7 +25,7 @@ SYSTEM_INSTRUCTION = """
         Answer questions clearly, using examples where appropriate.
         
         Content Analysis and Teaching:
-        Analyze the uploaded materials (slides, books, PDFs) thoroughly.
+        Analyze the uploaded materials (slides, books, images, PDFs) thoroughly.
         Teach the students based on the content provided, breaking down complex concepts into understandable parts.
         Present information in a logical sequence, ensuring continuity and relevance.
         
