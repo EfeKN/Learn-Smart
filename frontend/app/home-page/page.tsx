@@ -2,20 +2,24 @@
 
 import Navbar from "@/app/components/navbar";
 import CoursePreview from "@/app/course/course-preview";
-import {useEffect, useState} from "react";
 import Cookies from "js-cookie";
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { printDebugMessage } from "../debugger";
 
 export default function HomePage() {
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState<string>(
+    Cookies.get("authToken") as string
+  );
   const router = useRouter();
 
   useEffect(() => {
-    setToken(Cookies.get("authToken") || null);
+    setToken(Cookies.get("authToken") || "");
+    printDebugMessage("Token: " + token);
   }, []);
 
-  if(token == null) {
-      router.replace('/login');
+  if (token == null) {
+    router.replace("/login");
   }
 
   return (

@@ -5,14 +5,18 @@ import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
 import { printDebugMessage } from "../debugger";
+import { User } from "../types";
 
 export default function Profile() {
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState<string>(
+    Cookies.get("authToken") as string
+  );
   const [courses, setCourses] = useState([]); // TODO: replace with actual courses
-  const [user, setUser] = useState({}); // TODO: replace with actual user
+  const [user, setUser] = useState<User>(fecthUserData);
 
   useEffect(() => {
-    setToken(Cookies.get("authToken") || "");
+    setToken(Cookies.get("authToken") as string);
+    printDebugMessage("Token: " + token);
   }, []);
 
   async function fecthUserData() {
@@ -28,14 +32,14 @@ export default function Profile() {
         },
       })
       .then((response) => {
-        console.log(response.data);
         setUser(response.data);
-      });
-  }
 
-  useEffect(() => {
-    fecthUserData();
-  }, []);
+        printDebugMessage("User data fetched successfully");
+        printDebugMessage(response);
+      });
+
+    return user;
+  }
 
   return (
     <div>
@@ -53,7 +57,7 @@ export default function Profile() {
         </div>
 
         <div className="flex justify-center flex-col mt-5 mb-3.5">
-          <h1 className="text-center font-bold text-3xl">Name</h1>
+          <h1 className="text-center font-bold text-3xl">{user.nickname}</h1>
           <a href="#" className="text-center text-gray-600 font-semibold">
             What to put here?
           </a>
