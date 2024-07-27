@@ -96,8 +96,12 @@ export default function CreateCourseModal(
     formData.append("course_code", courseCode);
     formData.append("course_description", courseDescription);
     // append files to form data if they exist
-    if (syllabus) formData.append("syllabus_file", syllabus);
-    if (icon) formData.append("icon_file", icon);
+    if (syllabus) {
+      formData.append("course_syllabus_file", syllabus);
+    }
+    if (icon) {
+      formData.append("course_icon_file", icon);
+    }
 
     // Send the form data to the backend
     await backendAPI

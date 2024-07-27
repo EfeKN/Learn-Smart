@@ -142,6 +142,8 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
             chat_content = file.read() # Read the chat history from the file
     
     history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
+    
+    logger.info(f"Chat history: {history}")
 
     # parse the chat history and create a new dictionary with 'message' and 'role' keys
     messages = []
@@ -158,9 +160,14 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
 
             if not messages or chat_dict["message_id"] != messages[-1]["message_id"]: # to remove duplicates, if any
                 messages.append(chat_dict)
+                
+    logger.info(f"Chat history: {messages}")    
     
     chat["course_name"] = course["course_name"] # Add the course name to response
     chat["history"] = messages # Add the chat history to response
+    
+    logger.info(f"Chat history: {chat['history']}")
+    
     return chat
 
 

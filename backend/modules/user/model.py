@@ -27,7 +27,7 @@ class User(Base):
     email = Column(String(100), unique=True, index=True, nullable=False)
     hashed_password = Column(String(100), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    icon_url = Column(String(100), nullable=True)
+    user_icon_url = Column(String(100), nullable=True)
 
     courses = relationship("Course", back_populates="user") # one-to-many relationship with Course
 

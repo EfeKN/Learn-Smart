@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
 import "@/app/style/course-homepage.css";
 import backendAPI from "@/environment/backend_api";
-import Cookies from "js-cookie";
-import Markdown from "../../../components/markdown-renderer"
 import axios from "axios";
-import {useParams, useRouter} from "next/navigation";
+import Cookies from "js-cookie";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Markdown from "../../../components/markdown-renderer";
 
 export default function StudyPlan() {
   const [token, setToken] = useState<string>("");
@@ -17,17 +17,17 @@ export default function StudyPlan() {
   const router = useRouter();
 
   useEffect(() => {
-      setToken(Cookies.get("authToken") || null);
+    setToken(Cookies.get("authToken") || null);
   }, []);
 
   useEffect(() => {
-      if (token) {
-        fetchStudyPlanData(course_id);
-      }
+    if (token) {
+      fetchStudyPlanData(course_id);
+    }
   }, [token, course_id]);
 
-  if(token == null) {
-      router.replace('/login');
+  if (token == null) {
+    router.replace("/login");
   }
 
   const fetchStudyPlanData = async (course_id: string) => {
@@ -39,9 +39,9 @@ export default function StudyPlan() {
           Authorization: `Bearer ${token}`,
         },
       });
-  
-      const studyPlanUrl = response.data.study_plan_url;
-      
+
+      const studyPlanUrl = response.data.course_study_plan_url;
+
       // TODO:
 
       /*
@@ -56,11 +56,11 @@ export default function StudyPlan() {
              // When api is removed from the path, the component works as expected
         
       */
-        
+
       // ========================= TEMPORARY FIX =========================
       const temp_backendAPI = axios.create({
-        baseURL: 'http://localhost:8000/',
-      })
+        baseURL: "http://localhost:8000/",
+      });
       // ========================= TEMPORARY FIX =========================
 
       const studyPlanResponse = await temp_backendAPI.get(`${studyPlanUrl}`, {
@@ -71,14 +71,13 @@ export default function StudyPlan() {
       });
 
       setStudyPlan(studyPlanResponse.data);
-
     } catch (error) {
       console.error("Error fetching course data:", error);
-    } finally{
+    } finally {
       setLoading(false);
-    } 
+    }
   };
-  
+
   const handleBack = () => {
     router.back();
   };

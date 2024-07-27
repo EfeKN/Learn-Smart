@@ -6,7 +6,10 @@ import { NavbarFlyoutMenuParameters } from "../../types";
 export default function NavbarFlyoutMenu({
   isOpen,
 }: NavbarFlyoutMenuParameters) {
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
+
   const router = useRouter();
 
   const handleLogout = () => {

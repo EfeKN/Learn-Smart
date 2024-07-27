@@ -22,15 +22,11 @@ import {
 
 export default function CourseHomepage(parameters: CourseHomepageParameters) {
   const [course, setCourse] = useState<Course>();
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState<string>(Cookies.get("authToken") || "");
   const pathname = usePathname();
   const params = useParams<{ course_id: string }>();
   const course_id = params.course_id;
   const router = useRouter();
-
-  useEffect(() => {
-    setToken(Cookies.get("authToken") || "");
-  }, []);
 
   useEffect(() => {
     if (token) {

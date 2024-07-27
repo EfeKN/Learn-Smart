@@ -8,8 +8,8 @@ import NavbarFlyoutMenu from "./navbar-flyout-menu";
 import Notifications from "./navbar-notifications-flyout-menu";
 
 export default function Navbar() {
-  const [nav, setNav] = useState(false);
-  const [currentMenu, setCurrentMenu] = useState(null);
+  const [nav, setNav] = useState<boolean>(false);
+  const [currentMenu, setCurrentMenu] = useState<string>("");
   const router = useRouter();
   const navRef = useRef<HTMLDivElement>(null);
 
@@ -36,15 +36,9 @@ export default function Navbar() {
     router.replace("/home-page");
   };
 
-  // TODO: make this functional or remove
-  function handleLinkClick() {
-    setCurrentMenu(null);
-    setNav(false);
-  }
-
   function handleClickOutside(event: any) {
     if (navRef.current && !navRef.current.contains(event.target)) {
-      setCurrentMenu(null);
+      setCurrentMenu("");
       setNav(false);
     }
   }
@@ -68,7 +62,7 @@ export default function Navbar() {
         </button>
         <Notifications
           isOpen={currentMenu === "notifications"}
-          onClose={() => setCurrentMenu(null)}
+          onClose={() => setCurrentMenu("")}
         />
       </div>
     );
@@ -101,7 +95,7 @@ export default function Navbar() {
         </button>
         <NavbarFlyoutMenu
           isOpen={currentMenu === "menu"}
-          onClose={() => setCurrentMenu(null)}
+          onClose={() => setCurrentMenu("")}
         />
       </div>
     );
@@ -178,7 +172,7 @@ export default function Navbar() {
                   </button>
                   <NavbarFlyoutMenu
                     isOpen={currentMenu === "menu"}
-                    onClose={() => setCurrentMenu(null)}
+                    onClose={() => setCurrentMenu("")}
                   />
                 </div>
               ) : navbar_element_link === "notifications" ? (
@@ -188,7 +182,7 @@ export default function Navbar() {
                   </button>
                   <Notifications
                     isOpen={currentMenu === "notifications"}
-                    onClose={() => setCurrentMenu(null)}
+                    onClose={() => setCurrentMenu("")}
                   />
                 </div>
               ) : (

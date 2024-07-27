@@ -61,6 +61,19 @@ export interface FolderParameters {
   toggleFolder: (folderName: string) => void;
 }
 
+export interface ConfirmationModalParameters {
+  isOpen: boolean;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export interface CourseCardFlyoutMenuParameters {
+  isOpen: boolean;
+  onClose: () => void;
+  course: Course;
+}
+
 export interface FolderType {
   name: string;
   folders: FolderType[];
@@ -71,7 +84,7 @@ export interface Course {
   course_name: string;
   course_code: string;
   course_description: string;
-  icon_url: string;
+  course_icon_url: string;
 }
 
 export interface Message {
