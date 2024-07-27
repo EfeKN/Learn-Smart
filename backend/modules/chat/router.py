@@ -225,7 +225,7 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
         with open(metadata_path, "w") as file:
             json.dump(data, file, indent=4)
 
-        chat_model = genai.GenerativeModel(MODEL_VERSION, SYSTEM_PROMPT=SYSTEM_PROMPT).start_chat(history=history) # Initialize the chat model with the chat history so far
+        chat_model = genai.GenerativeModel(MODEL_VERSION, system_instruction=SYSTEM_PROMPT).start_chat(history=history) # Initialize the chat model with the chat history so far
         response = chat_model.send_message([EXPLAIN_SLIDE_PROMPT, content]) # TODO: streaming response
 
         with open(history_url, "w") as file:
@@ -289,7 +289,7 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
             chat_content = file.read() # Read the chat history from the file
 
     history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
-    chat = genai.GenerativeModel(MODEL_VERSION, SYSTEM_PROMPT=SYSTEM_PROMPT).start_chat(history=history) # Initialize the chat model with the chat history so far
+    chat = genai.GenerativeModel(MODEL_VERSION, system_instruction=SYSTEM_PROMPT).start_chat(history=history) # Initialize the chat model with the chat history so far
 
     # TODO: streaming response
     if file_content:
