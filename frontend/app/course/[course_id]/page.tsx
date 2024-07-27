@@ -1,6 +1,6 @@
 "use client";
 
-import Navbar from "@/app/components/navbar";
+import Navbar from "@/app/components/navbar/navbar";
 import "@/app/style/course-homepage.css";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";

@@ -3,9 +3,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { HiMiniBell } from "react-icons/hi2";
-import FlyoutMenu from "../components/flyout-menu";
-import Notifications from "../components/notifications";
-import { NavbarElement } from "../types";
+import { NavbarElement } from "../../types";
+import NavbarFlyoutMenu from "./navbar-flyout-menu";
+import Notifications from "./navbar-notifications-flyout-menu";
 
 export default function Navbar() {
   const [nav, setNav] = useState(false);
@@ -99,7 +99,7 @@ export default function Navbar() {
             />
           </svg>
         </button>
-        <FlyoutMenu
+        <NavbarFlyoutMenu
           isOpen={currentMenu === "menu"}
           onClose={() => setCurrentMenu(null)}
         />
@@ -176,7 +176,7 @@ export default function Navbar() {
                   <button className="text-4xl" type="button">
                     Menu
                   </button>
-                  <FlyoutMenu
+                  <NavbarFlyoutMenu
                     isOpen={currentMenu === "menu"}
                     onClose={() => setCurrentMenu(null)}
                   />

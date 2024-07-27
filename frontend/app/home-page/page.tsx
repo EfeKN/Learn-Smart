@@ -1,6 +1,6 @@
 "use client";
 
-import Navbar from "@/app/components/navbar";
+import Navbar from "@/app/components/navbar/navbar";
 import CoursePreview from "@/app/course/course-preview";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
