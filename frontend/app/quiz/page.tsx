@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Quiz from "../components/quiz";
+import "./quiz.css";
 
 const quizData = [
   {
@@ -243,45 +244,47 @@ const QuizMenu: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-gray-100 flex items-center justify-center">
-      <div className="w-3/4 bg-white rounded-lg shadow-lg p-8">
-        <h1 className="text-4xl font-bold text-left text-gray-800 mb-6">
-          QuizApp
-        </h1>
-        <hr className="border-gray-300 mb-8" />
-        {quizEnded ? (
-          <div className="flex flex-col items-center justify-center space-y-4">
-            <p className="text-lg text-center">
-              You scored {correctAnswers} out of {quizData.length}
-              <span className="block text-2xl font-medium">
-                {getEmote(correctAnswers, quizData.length)}
-              </span>
-            </p>
-            <div className="flex space-x-4">
-              <button
-                onClick={restartQuiz}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
-              >
-                Restart Quiz
-              </button>
-              <button
-                onClick={goBack}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition duration-300"
-              >
-                Back
-              </button>
+    <div className="gradient">
+      <div className="w-full h-screen flex items-center justify-center">
+        <div className="w-3/4 bg-white rounded-lg shadow-lg p-8">
+          <h1 className="text-4xl font-bold text-left text-gray-800 mb-6">
+            QuizApp
+          </h1>
+          <hr className="border-gray-300 mb-8" />
+          {quizEnded ? (
+            <div className="flex flex-col items-center justify-center space-y-4">
+              <p className="text-lg text-center">
+                You scored {correctAnswers} out of {quizData.length}
+                <span className="block text-2xl font-medium">
+                  {getEmote(correctAnswers, quizData.length)}
+                </span>
+              </p>
+              <div className="flex space-x-4">
+                <button
+                  onClick={restartQuiz}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition duration-300"
+                >
+                  Restart Quiz
+                </button>
+                <button
+                  onClick={goBack}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600 transition duration-300"
+                >
+                  Back
+                </button>
+              </div>
             </div>
-          </div>
-        ) : (
-          <Quiz
-            question={quizData[currentQuestionIndex].question}
-            options={quizData[currentQuestionIndex].options}
-            answer={quizData[currentQuestionIndex].correctAnswer}
-            currentQuestionIndex={currentQuestionIndex}
-            totalQuestions={quizData.length}
-            onNextQuestion={handleNextQuestion}
-          />
-        )}
+          ) : (
+            <Quiz
+              question={quizData[currentQuestionIndex].question}
+              options={quizData[currentQuestionIndex].options}
+              answer={quizData[currentQuestionIndex].correctAnswer}
+              currentQuestionIndex={currentQuestionIndex}
+              totalQuestions={quizData.length}
+              onNextQuestion={handleNextQuestion}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
