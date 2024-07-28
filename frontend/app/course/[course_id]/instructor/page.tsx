@@ -30,51 +30,51 @@ export default function InstructorPage() {
     const [hasSlideUrl, setHasSlideUrl] = useState(false);
     const router = useRouter();
 
-    const params = useParams<{ course_id: string }>();
-    const course_id = params.course_id;
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-    const chatContainerRef = useRef<HTMLDivElement>(null);
+  const params = useParams<{ course_id: string }>();
+  const course_id = params.course_id;
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        setToken(Cookies.get("authToken") || null);
-    }, []);
+  useEffect(() => {
+    setToken(Cookies.get("authToken") || null);
+  }, []);
 
-    useEffect(() => {
-        if (token) {
-            fetchCourse();
-            fetchAllChats();
-        }
-    }, [token]);
-
-    useEffect(() => {
-        scrollToBottom();
-    }, [messages]);
-
-    useEffect(() => {
-        const handleScroll = () => {
-            if (chatContainerRef.current) {
-                const {scrollTop, clientHeight, scrollHeight} =
-                    chatContainerRef.current;
-                if (scrollTop > 0) {
-                    // User has scrolled upwards
-                    setShowScrollButton(true);
-                } else {
-                    // User is at the top of the chat container
-                    setShowScrollButton(false);
-                }
-            }
-        };
-
-        if (chatContainerRef.current) {
-            chatContainerRef.current.addEventListener("scroll", handleScroll);
-            return () =>
-                chatContainerRef.current?.removeEventListener("scroll", handleScroll);
-        }
-    }, []);
-
-    if (token == null) {
-        router.replace('/login');
+  useEffect(() => {
+    if (token) {
+      fetchCourse();
+      fetchAllChats();
     }
+  }, [token]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (chatContainerRef.current) {
+        const { scrollTop, clientHeight, scrollHeight } =
+          chatContainerRef.current;
+        if (scrollTop > 0) {
+          // User has scrolled upwards
+          setShowScrollButton(true);
+        } else {
+          // User is at the top of the chat container
+          setShowScrollButton(false);
+        }
+      }
+    };
+
+    if (chatContainerRef.current) {
+      chatContainerRef.current.addEventListener("scroll", handleScroll);
+      return () =>
+        chatContainerRef.current?.removeEventListener("scroll", handleScroll);
+    }
+  }, []);
+
+  if (token == null) {
+    router.replace("/login");
+  }
 
     const fetchChat = (chat_id: string) => {
         return backendAPI.get(`/chat/${chat_id}`, {
@@ -94,58 +94,59 @@ export default function InstructorPage() {
         });
     };
 
-    const fetchAllChats = async () => {
-        backendAPI.get(`/course/${course_id}/chats`, {
-            headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${token}`,
-            },
-        })
-            .then(response => {
-                setChats(response.data);
-            })
-            .catch((error) => {
-                console.error("Error fetching chats:", error);
-            });
-    };
+  const fetchAllChats = async () => {
+    backendAPI
+      .get(`/course/${course_id}/chats`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setChats(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching chats:", error);
+      });
+  };
 
-    const fetchCourse = () => {
-        backendAPI
-            .get(`/course/${course_id}`, {
-                headers: {
-                    Accept: "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then((response) => {
-                setCourse(response.data);
-            })
-            .catch((error) => {
-                console.error("Error fetching course:", error);
-            });
-    };
+  const fetchCourse = () => {
+    backendAPI
+      .get(`/course/${course_id}`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setCourse(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching course:", error);
+      });
+  };
 
-    const fetchChatMessages = (chat_id: string) => {
-        fetchChat(chat_id)
-            .then((data) => {
-                const chatMessages = data.history.map((msg: Message) => ({
-                    text: msg.text,
-                    role: msg.role,
-                    media_url: msg.media_url ? `http://localhost:8000/${msg.media_url}` : null,
-                    message_id: msg.message_id,
-                }));
+  const fetchChatMessages = (chat_id: string) => {
+    fetchChat(chat_id)
+      .then((data) => {
+        const chatMessages = data.history.map((msg: Message) => ({
+          text: msg.text,
+          role: msg.role,
+          media_url: msg.media_url
+            ? `http://localhost:8000/${msg.media_url}`
+            : null,
+          message_id: msg.message_id,
+        }));
 
-                setMessages(chatMessages);
-                if (data.history.length > 0) {
-                    setLastMessageID(
-                        data.history[data.history.length - 1].message_id
-                    );
-                }
-            })
-            .catch((error) => {
-                console.error("Error fetching chat messages:", error);
-            });
-    };
+        setMessages(chatMessages);
+        if (data.history.length > 0) {
+          setLastMessageID(data.history[data.history.length - 1].message_id);
+        }
+      })
+      .catch((error) => {
+        console.error("Error fetching chat messages:", error);
+      });
+  };
 
     const fetchNewSlide = async (chat_id: string) => {
         fetchChat(chat_id);

@@ -456,8 +456,8 @@ class CourseDB(DatabaseInterface):
                 - course_name (str): The new name for the course.
                 - course_code (str): The new code for the course.
                 - course_description (str): The new course_description for the course.
-                - syllabus_url (str): The new syllabus URL for the course.
-                - icon_url (str): The new image URL for the course.
+                - course_syllabus_url (str): The new syllabus URL for the course.
+                - course_icon_url (str): The new image URL for the course.
 
         Returns:
             dict: A dictionary representing the updated course details.
@@ -468,9 +468,9 @@ class CourseDB(DatabaseInterface):
         course_name: str = kwargs.get("course_name", None)
         course_code: str = kwargs.get("course_code", None)
         course_description: str = kwargs.get("course_description", None)
-        syllabus_url: str = kwargs.get("syllabus_url", None)
-        icon_url: str = kwargs.get("icon_url", None)
-        study_plan_url: str = kwargs.get("study_plan_url", None)
+        course_syllabus_url: str = kwargs.get("course_syllabus_url", None)
+        course_icon_url: str = kwargs.get("course_icon_url", None)
+        course_study_plan_url: str = kwargs.get("course_study_plan_url", None)
 
         with db_connection as db:
             course: Course = db.query(Course).filter(Course.course_id == course_id).first()
@@ -488,12 +488,12 @@ class CourseDB(DatabaseInterface):
                 course.course_code = course_code
             if course_description is not None:
                 course.course_description = course_description
-            if syllabus_url is not None:
-                course.syllabus_url = syllabus_url
-            if icon_url is not None:
-                course.icon_url = icon_url
-            if study_plan_url is not None:
-                course.study_plan_url = study_plan_url
+            if course_syllabus_url is not None:
+                course.course_syllabus_url = course_syllabus_url
+            if course_icon_url is not None:
+                course.course_icon_url = course_icon_url
+            if course_study_plan_url is not None:
+                course.course_study_plan_url = course_study_plan_url
 
             db.commit()
             db.refresh(course)

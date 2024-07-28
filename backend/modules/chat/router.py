@@ -11,7 +11,7 @@ from tools import generate_hash, splitext
 from modules.chat.util import *
 from modules.chat import CHATS_DIR
 from middleware import FILES_DIR
-from . import SYSTEM_INSTRUCTION, MODAL_VERSION
+from . import SYSTEM_PROMPT, MODEL_VERSION, EXPLAIN_SLIDE_PROMPT
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
@@ -143,6 +143,8 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
     
     history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
 
+    logger.info(f"Chat history: {history}")
+
     # parse the chat history and create a new dictionary with 'message' and 'role' keys
     messages = []
     for idx, content in enumerate(history):
@@ -158,9 +160,14 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
 
             if not messages or chat_dict["message_id"] != messages[-1]["message_id"]: # to remove duplicates, if any
                 messages.append(chat_dict)
-    
+
+    logger.info(f"Chat history: {messages}")
+
     chat["course_name"] = course["course_name"] # Add the course name to response
     chat["history"] = messages # Add the chat history to response
+
+    logger.info(f"Chat history: {chat['history']}")
+
     return chat
 
 
@@ -208,7 +215,7 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
 
         history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
 
-        data1 = {"message_id": len(history), "skip": True} # Skip the "explain this slide" message, we don't want to show it in the chat
+        data1 = {"message_id": len(history), "skip": True} # Skip the EXPLAIN_SLIDE_PROMPT message, we don't want to show it in the chat
         data2 = {"message_id": len(history) + 1, "media_url": content_url} # (len+1) for we want to draw it like the slide is uploaded by the LLM
         
         if os.path.exists(metadata_path):
@@ -225,8 +232,8 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
         with open(metadata_path, "w") as file:
             json.dump(data, file, indent=4)
 
-        chat_model = genai.GenerativeModel(MODAL_VERSION, system_instruction=SYSTEM_INSTRUCTION).start_chat(history=history) # Initialize the chat model with the chat history so far
-        response = chat_model.send_message(["Explain this slide", content]) # TODO: streaming response
+        chat_model = genai.GenerativeModel(MODEL_VERSION, system_instruction=SYSTEM_PROMPT).start_chat(history=history) # Initialize the chat model with the chat history so far
+        response = chat_model.send_message([EXPLAIN_SLIDE_PROMPT, content]) # TODO: streaming response
 
         with open(history_url, "w") as file:
             file.write(jsonpickle.encode(chat_model.history)) # Encode back the updated chat history
@@ -289,7 +296,7 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
             chat_content = file.read() # Read the chat history from the file
 
     history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
-    chat = genai.GenerativeModel(MODAL_VERSION, system_instruction=SYSTEM_INSTRUCTION).start_chat(history=history) # Initialize the chat model with the chat history so far
+    chat = genai.GenerativeModel(MODEL_VERSION, system_instruction=SYSTEM_PROMPT).start_chat(history=history) # Initialize the chat model with the chat history so far
 
     # TODO: streaming response
     if file_content:
@@ -320,6 +327,7 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
         file.write(history)
 
     return {"text": response.text, "role": "model"}
+
 
 
 @router.put("/{chat_id}/update_slides")

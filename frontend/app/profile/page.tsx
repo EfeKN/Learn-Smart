@@ -1,20 +1,63 @@
+"use client";
+
+import backendAPI from "@/environment/backend_api";
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
+import Navbar from "../components/navbar/navbar";
+import { printDebugMessage } from "../debugger";
+import { User } from "../types";
+
 export default function Profile() {
+  const [token, setToken] = useState<string>(
+    Cookies.get("authToken") as string
+  );
+  const [courses, setCourses] = useState([]); // TODO: replace with actual courses
+  const [user, setUser] = useState<User>(fecthUserData);
+
+  useEffect(() => {
+    setToken(Cookies.get("authToken") as string);
+    printDebugMessage("Token: " + token);
+  }, []);
+
+  async function fecthUserData() {
+    printDebugMessage(
+      "Fetching user data from backend for profile page with token: " + token
+    );
+
+    await backendAPI
+      .get("/users/me", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setUser(response.data);
+
+        printDebugMessage("User data fetched successfully");
+        printDebugMessage(response);
+      });
+
+    return user;
+  }
+
   return (
-    <div className="mt-14 shadow bg-white h-screen">
+    <div>
+      <Navbar />
       <div>
         <div
-          className="w-full justify-center flex flex-col md:relative bg-gray-100 md:rounded-bl-lg md:rounded-br-lg
-                        bg-gradient-to-b from-gray-100 via-gray-100 to-gray-400 w-300 h-96"
+          className="w-full h-80 items-center justify-center flex  bg-gray-100 bg-gradient-to-b
+                     from-gray-100 via-gray-100 to-gray-400"
         >
           <img
-            src="./images/profile_photo_cat.jpg"
-            className="rounded-full md:absolute top-48 inset-x-96 border-4 border-white w-42 h-42"
+            src="https://www.w3schools.com/howto/img_avatar.png"
+            className="rounded-full md:absolute border-4 border-white max-w-64 max-h-64"
             title="profile photo"
           />
         </div>
 
         <div className="flex justify-center flex-col mt-5 mb-3.5">
-          <h1 className="text-center font-bold text-3xl">Name</h1>
+          <h1 className="text-center font-bold text-3xl">{user.nickname}</h1>
           <a href="#" className="text-center text-gray-600 font-semibold">
             What to put here?
           </a>
@@ -37,73 +80,69 @@ export default function Profile() {
                 Edit Profile
               </button>
             </li>
-            <li className="px-2 font-semibold">
-              <button
-                className="bg-gray-200 px-3 py-1 rounded-lg text-black font-semibold"
-                type="button"
-              >
-                ...(is this neccecary?)
-              </button>
-            </li>
           </ul>
         </div>
       </div>
 
-      <div className="flex justify-center h-screen mr-12 mt-4 p-4 shadow rounded-lg bg-white w-80">
-        <div className="flex justify-between">
-          <h1 className="font-bold text-xl">Courses</h1>
-          <div className="text-lg text-gray-700 hover:bg-blue-200">
-            See All Courses
-          </div>
-        </div>
-        <div>
-          <p className="text-base text-gray-400">10 courses</p>
-          <div className="grid grid-cols-3 gap-1">
-            <div className="bg-white p-0.5">
-              <img
-                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                title="Friend FullName"
-              />
-              <div className="font-semibold text-sm">Course FullName</div>
-            </div>
-            <div className="bg-white p-0.5">
-              <img
-                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                title="Friend FullName"
-              />
-              <div className="font-semibold text-sm">Course FullName</div>
-            </div>
-            <div className="bg-white p-0.5">
-              <img
-                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                title="Friend FullName"
-              />
-              <div className="font-semibold text-sm">Course FullName</div>
-            </div>
-            <div className="bg-white p-0.5">
-              <img
-                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                title="Friend FullName"
-              />
-              <div className="font-semibold text-sm">Course FullName</div>
-            </div>
-            <div className="bg-white p-0.5">
-              <img
-                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                title="Friend FullName"
-              />
-              <div className="font-semibold text-sm">Course FullName</div>
-            </div>
-            <div className="bg-white p-0.5">
-              <img
-                className="w-24 h-24 rounded-md mt-2 cursor-pointer"
-                title="Friend FullName"
-              />
-              <div className="font-semibold text-sm">Course FullName</div>
+      {false ? (
+        <div className="flex justify-center h-screen mr-12 mt-4 p-4 shadow rounded-lg bg-white w-80">
+          <div className="flex justify-between">
+            <h1 className="font-bold text-xl">Courses</h1>
+            <div className="text-lg text-gray-700 hover:bg-blue-200">
+              See All Courses
             </div>
           </div>
+          <div>
+            <p className="text-base text-gray-400">10 courses</p>
+            <div className="grid grid-cols-3 gap-1">
+              <div className="bg-white p-0.5">
+                <img
+                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                  title="Course"
+                />
+                <div className="font-semibold text-sm">Course FullName</div>
+              </div>
+              <div className="bg-white p-0.5">
+                <img
+                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                  title="Course"
+                />
+                <div className="font-semibold text-sm">Course FullName</div>
+              </div>
+              <div className="bg-white p-0.5">
+                <img
+                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                  title="Course"
+                />
+                <div className="font-semibold text-sm">Course FullName</div>
+              </div>
+              <div className="bg-white p-0.5">
+                <img
+                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                  title="Course"
+                />
+                <div className="font-semibold text-sm">Course FullName</div>
+              </div>
+              <div className="bg-white p-0.5">
+                <img
+                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                  title="Course"
+                />
+                <div className="font-semibold text-sm">Course FullName</div>
+              </div>
+              <div className="bg-white p-0.5">
+                <img
+                  className="w-24 h-24 rounded-md mt-2 cursor-pointer"
+                  title="Course"
+                />
+                <div className="font-semibold text-sm">Course FullName</div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }

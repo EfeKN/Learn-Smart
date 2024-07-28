@@ -2,7 +2,6 @@ import logging
 import os
 
 
-
 class CustomLogger(logging.Logger):
     """
     Custom logger class to override
@@ -26,14 +25,14 @@ class CustomLogger(logging.Logger):
             
             
 
-def setup_logger(name, log_file, level=logging.DEBUG):
+def setup_logger(logger_name, log_file, level=logging.DEBUG):
     """
     Function to setup as many loggers as you want.
     
     Level of logger can be set to DEBUG, INFO, WARNING, ERROR, CRITICAL
     
     Parameters:
-    name: name of the logger
+    logger_name: name of the logger
     log_file: name of the log file
     
     Returns:
@@ -55,7 +54,7 @@ def setup_logger(name, log_file, level=logging.DEBUG):
 
     # Create a logger
     logging.setLoggerClass(CustomLogger)
-    logger = logging.getLogger(name)
+    logger = logging.getLogger(logger_name)
     logger.setLevel(level) 
     logger.addHandler(handler)
     logger.addHandler(stream_handler)
@@ -82,7 +81,7 @@ def set_debug_mode(debug_mode):
 
 
 # Set the environment variables
-LOGS_DIR = os.getenv("LOGS_DIR", "./logs")
+LOGS_DIR = f".{os.sep}" + os.getenv("LOGS_DIR", "logs")
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
 

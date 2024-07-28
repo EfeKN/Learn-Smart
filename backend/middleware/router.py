@@ -1,6 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 import os
 
+from fastapi import APIRouter, Depends, HTTPException, File, UploadFile
 from middleware import authentication as auth
 from middleware.filemanager import FileFactory
 from modules.user.model import User

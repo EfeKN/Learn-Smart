@@ -1,15 +1,21 @@
 import { useRouter } from "next/navigation";
-import { NotificationsParameters } from "../types";
+import { NavbarNotificationsFlyoutMenuParameters } from "../../types";
 
-export default function Notifications({ isOpen }: NotificationsParameters) {
+export default function NavbarNotificationsFlyoutMenu({
+  isOpen,
+}: NavbarNotificationsFlyoutMenuParameters) {
+  const router = useRouter();
+
   const handleSeeMoreClick = () => {
-    const router = useRouter();
-    router.push("/notifications");
+    router.replace("/notifications");
   };
 
+  // TODO: Replace with actual notifications when backend is implemented
   const notifications = [1, 2, 3, 4, 5];
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div
@@ -31,11 +37,10 @@ export default function Notifications({ isOpen }: NotificationsParameters) {
           </div>
           <div className="h-32 overflow-y-auto">
             <ul className="space-y-2 max-h-32">
-              {notifications.map((item, index) => (
+              {notifications.map((notification, index: Number) => (
                 <li
-                  key={item}
+                  key={notification}
                   className="flex items-start cursor-pointer bg-gray-200 p-2 rounded-md"
-                  onClick={() => console.log(`Clicked notification ${item}`)}
                 >
                   <img
                     src="https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3603&q=80"
@@ -50,7 +55,7 @@ export default function Notifications({ isOpen }: NotificationsParameters) {
                       href="#"
                       className="text-base font-medium text-gray-900 hover:text-gray-700"
                     >
-                      Example {item}
+                      Example {notification}
                     </a>
                     <p className="mt-1 text-sm text-gray-500">Lorem Ipsum.</p>
                   </div>

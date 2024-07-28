@@ -1,9 +1,10 @@
+import modules.user.schemas as schemas
+
 from fastapi import Depends, HTTPException, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
-
-import modules.user.schemas as schemas
 from database.dbmanager import UserDB, CourseDB
 from middleware import authentication as auth
+from logger import logger
 
 router = APIRouter(prefix="/users", tags=["User"])
 
@@ -36,6 +37,7 @@ def create_user(user: schemas.UserCreationRequest):
     Raises:
         HTTPException: If there is an error creating the user.
     """
+    
     try:
         user_dict = UserDB.create(**user.model_dump()) # create the user given the user data
     except ValueError as e:
@@ -59,6 +61,7 @@ def get_user(nickname: str = None, id: int = None, current_user: dict = Depends(
     Raises:
         HTTPException: If the user is not found.
     """
+    
     if not nickname and not id:
         raise HTTPException(status_code=400, detail="Nickname or ID must be provided")
     
@@ -81,6 +84,13 @@ def get_current_user(current_user: dict = Depends(auth.get_current_user)):
     Returns:
         User: The current authenticated user.
     """
+    
+    if not current_user:
+        logger.error("User not found")
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    logger.info(f"User {current_user['nickname']} is fetching their own data.")
+    
     courses = CourseDB.fetch(user_id=current_user["user_id"], all=True)
     current_user["courses"] = courses # add the user's courses to response
     current_user.pop("hashed_password") # remove the hashed password from the response

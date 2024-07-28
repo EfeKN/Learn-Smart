@@ -1,21 +1,17 @@
 import CourseHomepage from "@/app/course/[course_id]/page";
-import CreateCourseModal from "../components/modals/create-course-modal";
 import "@/app/style/course-preview.css";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
+import CreateCourseModal from "../components/modals/create-course-modal";
 import { Course } from "../types";
 import CourseCard from "./course-card";
 
 export default function CoursePreview() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedCourseId, setSelectedCourseId] = useState<string>("");
-  const [token, setToken] = useState<string>("");
+  const [token, setToken] = useState<string>(Cookies.get("authToken") || "");
   const [courses, setCourses] = useState<Course[]>([]);
-
-  useEffect(() => {
-    setToken(Cookies.get("authToken") || "");
-  }, []);
 
   useEffect(() => {
     if (token) {

@@ -1,10 +1,15 @@
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { FaCog, FaUser } from "react-icons/fa";
-import { FlyoutMenuParameters } from "../types";
+import { NavbarFlyoutMenuParameters } from "../../types";
 
-export default function FlyoutMenu({ isOpen }: FlyoutMenuParameters) {
-  if (!isOpen) return null;
+export default function NavbarFlyoutMenu({
+  isOpen,
+}: NavbarFlyoutMenuParameters) {
+  if (!isOpen) {
+    return null;
+  }
+
   const router = useRouter();
 
   const handleLogout = () => {
@@ -22,7 +27,10 @@ export default function FlyoutMenu({ isOpen }: FlyoutMenuParameters) {
 
   return (
     <div className="relative z-20">
-      <div className="absolute right-0 max-w-md" style={{marginTop:1.35+"rem"}}>
+      <div
+        className="absolute right-0 max-w-md"
+        style={{ marginTop: 1.35 + "rem" }}
+      >
         <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
           <div className="bg-white px-4 py-2 sm:p-4">
             <div className="flex flex-col gap-2">

@@ -1,15 +1,13 @@
-# Creation Date: 26.06.2024
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-
 from modules.user.router import router as users_router
 from modules.course.router import router as course_router
 from modules.chat.router import router as chat_router
 from middleware.router import router as files_router
 from tools import init
-
 from logger import logger
 
 # create the FastAPI app

@@ -26,7 +26,7 @@ export interface CreateCourseModalParameters {
 
 export interface CourseHomepageParameters {}
 
-export interface NotificationsParameters {
+export interface NavbarNotificationsFlyoutMenuParameters {
   isOpen: boolean;
   onClose: () => void;
 }
@@ -42,7 +42,7 @@ export interface CreateChatModalParameters {
   onChatCreated: (chat: Chat) => void;
 }
 
-export interface FlyoutMenuParameters {
+export interface NavbarFlyoutMenuParameters {
   isOpen: boolean;
   onClose: () => void;
 }
@@ -63,6 +63,19 @@ export interface FolderParameters {
   toggleFolder: (folderName: string) => void;
 }
 
+export interface ConfirmationModalParameters {
+  isOpen: boolean;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+export interface CourseCardFlyoutMenuParameters {
+  isOpen: boolean;
+  onClose: () => void;
+  course: Course;
+}
+
 export interface FolderType {
   name: string;
   folders: FolderType[];
@@ -73,7 +86,7 @@ export interface Course {
   course_name: string;
   course_code: string;
   course_description: string;
-  icon_url: string;
+  course_icon_url: string;
 }
 
 export interface ChatFieldProps {
@@ -129,4 +142,12 @@ export interface Chat {
   chat_id: string;
   chat_title: string;
   slides_mode: boolean;
+}
+
+export interface Notification {
+  notification_id: string;
+  notification_title: string;
+  notification_content: string;
+  notification_date: string;
+  notification_is_new: boolean;
 }

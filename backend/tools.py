@@ -9,8 +9,9 @@ from logger import logger, set_debug_mode
 from database.connection import db_connection
 
 dotenv.load_dotenv()
-CHATS_DIR = os.getenv("CHATS_DIR", "./chat_histories")
-FILES_DIR = os.getenv("FILES_DIR", "./files")
+
+CHATS_DIR = f".{os.sep}" + os.getenv("CHATS_DIR", "chat_histories")
+FILES_DIR = f".{os.sep}" + os.getenv("FILES_DIR", "files")
 
 # Function to generate hash of a given string based on the strategy
 def generate_hash(filename, strategy="sha256"):

@@ -1,160 +1,132 @@
 "use client";
 
 import { useState } from "react";
+import { IoIosNotifications, IoIosNotificationsOutline } from "react-icons/io";
+import { Notification } from "../types";
 
 export default function Notifications() {
-  let [newNotifications, setNewNotifications] = useState([0, 1, 2]);
+  const [notifications, setNotifications] = useState<Notification[]>([
+    {
+      notification_id: "0",
+      notification_title: "Example Title",
+      notification_content: "Example Content",
+      notification_date: "2024-07-06",
+      notification_is_new: false,
+    },
+  ]);
 
   function newNotificationCount() {
-    return newNotifications.length;
+    return notifications.filter(
+      (notification) => notification.notification_is_new
+    ).length;
   }
 
-  function isNew(id: number) {
-    return newNotifications.includes(id);
+  function isNew(notification_id: string) {
+    const index = notifications.findIndex(
+      (notification) => notification.notification_id === notification_id
+    );
+    return notifications[index].notification_is_new;
   }
 
   function markAllAsRead() {
-    setNewNotifications([]);
+    setNotifications(
+      notifications.map((notification) => {
+        return { ...notification, notification_is_new: false };
+      })
+    );
   }
 
-  function addNewNotification(id: number) {
-    setNewNotifications([...newNotifications, id]);
+  function addNewNotification(notification_id: string) {
+    setNotifications(
+      notifications.map((notification) => {
+        if (notification.notification_id === notification_id) {
+          return { ...notification, notification_is_new: true };
+        }
+        return notification;
+      })
+    );
   }
 
-  function toggleNotification(id: number) {
-    if (newNotifications.includes(id)) {
-      removeNewNotification(id);
-    } else {
-      addNewNotification(id);
-    }
+  function toggleNotification(notification_id: string) {
+    setNotifications(
+      notifications.map((notification) => {
+        if (notification.notification_id === notification_id) {
+          return {
+            ...notification,
+            notification_is_new: !notification.notification_is_new,
+          };
+        }
+        return notification;
+      })
+    );
   }
 
-  function removeNewNotification(id: number) {
-    setNewNotifications(
-      newNotifications.filter((notification) => notification !== id)
+  function removeNewNotification(notification_id: string) {
+    setNotifications(
+      notifications.map((notification) => {
+        if (notification.notification_id === notification_id) {
+          return { ...notification, notification_is_new: false };
+        }
+        return notification;
+      })
     );
   }
 
   return (
-    <div className="flex justify-center w-full m-4 bg-white">
-      <div className=" w-full lg:w-[715px] bg-white rounded-lg absolute shadow-sm p-6 justify-center">
-        <div className="flex flex-row gap-x-6 mb-6">
-          <h1 className="text-2xl font-bold">Notifications</h1>
-          <a className="bg-black font-bold text-white rounded-lg px-3 my-auto">
-            {newNotificationCount()}
-          </a>
-          <a
-            onClick={markAllAsRead}
-            className="text-[#868690] m-auto mr-0 cursor-pointer duration-200 hover:text-[#43608c]"
-          >
-            Mark all as read
-          </a>
-        </div>
-
-        <div className="flex flex-col gap-x-3 gap-y-2">
-          <div
-            onClick={() => toggleNotification(0)}
-            className={
-              isNew(0) == true
-                ? "message-container message-container-new"
-                : "message-container"
-            }
-          >
-            <img
-              className="person-icon"
-              src="/images/avatar-mark-webber.webp"
-              alt="user icon"
-            />
-            <div className="ml-4 w-full">
-              <a>
-                <span className="ml-2 mr-1 message-describe">content</span>
-                <span className="person-group-name">content</span>
-                <span className={isNew(0) == true ? "new-message-dot" : ""} />
-              </a>
-              <div className="">
-                <p className="message-duration">1m ago</p>
-              </div>
-            </div>
-          </div>
-
-          <div
-            onClick={() => toggleNotification(1)}
-            className={
-              isNew(1) == true
-                ? "message-container message-container-new"
-                : "message-container"
-            }
-          >
-            <img
-              className="person-icon"
-              src="/images/avatar-angela-gray.webp"
-              alt="user icon"
-            />
-            <div className="ml-4 w-full">
-              <a>
-                <span className="ml-2 message-describe">content</span>
-                <span className={isNew(1) == true ? "new-message-dot" : ""} />
-              </a>
-              <div className="">
-                <p className="message-duration">5m ago</p>
-              </div>
-            </div>
-          </div>
-
-          <div
-            onClick={() => toggleNotification(2)}
-            className={
-              isNew(2) == true
-                ? "message-container message-container-new"
-                : "message-container"
-            }
-          >
-            <img
-              className="person-icon"
-              src="/images/avatar-jacob-thompson.webp"
-              alt="user icon"
-            />
-            <div className="ml-4 w-full">
-              <a className="gap-x-2">
-                <span className="ml-2 mr-1 message-describe">content</span>
-                <span className={isNew(2) == true ? "new-message-dot" : ""} />
-              </a>
-              <div className="">
-                <p className="message-duration">1m ago</p>
-              </div>
-            </div>
-          </div>
-
-          <div
-            onClick={() => toggleNotification(3)}
-            className={
-              isNew(3) == true
-                ? "message-container message-container-new"
-                : "message-container"
-            }
-          >
-            <img
-              className="person-icon mt-0"
-              src="/images/avatar-rizky-hasanuddin.webp"
-              alt="user icon"
-            />
-            <div className="ml-4 w-full">
-              <a>
-                <span className="ml-2">content</span>
-                <span className={isNew(3) == true ? "new-message-dot" : ""} />
-              </a>
-              <div className="">
-                <p className="message-duration">5 days ago</p>
-              </div>
-              <div className="">
-                <p className="text-[#73757f] p-3 mt-3 duration-150 hover:bg-[#e4eff9] hover:border-[#e4eff9] border-[##eff1f3] border-2 rounded-lg">
-                  content
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="flex flex-col justify-center w-full bg-white rounded-lg absolute shadow-sm">
+      <div className="flex flex-row gap-x-6 m-6 justify-center items-center">
+        <h1 className="text-4xl font-bold">Notifications</h1>
+        <a className="text-3xl bg-black font-bold text-white rounded-lg px-3 my-auto">
+          {newNotificationCount()}
+        </a>
+        <a
+          onClick={markAllAsRead}
+          className="text-[#868690] m-auto mr-0 cursor-pointer duration-200 hover:text-[#43608c]"
+        >
+          Mark all as read
+        </a>
       </div>
+
+      <ul className="flex flex-col gap-x-3 gap-y-2 m-8">
+        {notifications.map((notification: Notification) => (
+          <li className="flex items-start cursor-pointer bg-gray-200 p-2 rounded-md">
+            <img
+              src="https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3603&q=80"
+              alt=""
+              className="h-32 w-32 rounded-md object-cover m-4"
+            />
+            <div className="m-4">
+              <p className="text-xl text-gray-500">
+                <time dateTime="2023-03-16">
+                  {notification.notification_date}
+                </time>
+              </p>
+              <a
+                href="#"
+                className="text-2xl font-medium text-gray-900 hover:text-gray-700"
+              >
+                {notification.notification_title}
+              </a>
+              <p className="mt-1 text-xl text-gray-500">
+                {notification.notification_content}
+              </p>
+            </div>
+            {notification.notification_is_new ? (
+              <IoIosNotifications
+                size={30}
+                onClick={() =>
+                  removeNewNotification(notification.notification_id)
+                }
+              />
+            ) : (
+              <IoIosNotificationsOutline
+                size={30}
+                onClick={() => addNewNotification(notification.notification_id)}
+              />
+            )}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
