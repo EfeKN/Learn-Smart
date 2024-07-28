@@ -1,3 +1,5 @@
+import React from "react";
+
 export interface CourseCardParameters {
   course: Course;
 }
@@ -74,6 +76,26 @@ export interface Course {
   icon_url: string;
 }
 
+export interface ChatFieldProps {
+    selectedChat: { chat_id: string } | null;
+    token: string;
+    setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+    setLastMessageID: React.Dispatch<React.SetStateAction<number>>;
+    lastMessageID: number;
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export interface UploadChoiceModalProps {
+    isOpen: boolean;
+    onClose: () => void;
+    selectedChat: {
+        chat_id: string;
+        chat_title: string;
+        course_id: string;
+    };  // Adjust type according to your actual type
+    token: string;
+    onChatUpdated: (chat: any) => void;  // Adjust type according to your actual type
+}
 export interface Message {
   text: string;
   role: string;

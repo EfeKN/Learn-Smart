@@ -320,3 +320,65 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
         file.write(history)
 
     return {"text": response.text, "role": "model"}
+
+
+@router.put("/{chat_id}/update_slides")
+async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
+                             current_user: dict = Depends(auth.get_current_user)):
+    """
+    Update the slides for a chat by its ID.
+
+    Args:
+        chat_id (int): The ID of the chat to update.
+        slides (UploadFile): The new slides file to upload.
+        current_user (dict, optional): The current user's information. Defaults to Depends(auth.get_current_user).
+
+    Returns:
+        dict: A dictionary containing the updated chat details.
+
+    Raises:
+        HTTPException: If the chat is not found or the user is not authorized to update the chat.
+    """
+    # Fetch the chat by its ID
+    chat = ChatDB.fetch(chat_id=chat_id)
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+
+    # Fetch the course associated with the chat and check if the user is authorized to access it
+    course = CourseDB.fetch(course_id=chat["course_id"])
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+
+    # Validate the file extension
+    slides_fname = slides.filename
+    name, extension = splitext(slides_fname)
+    if extension not in ["pptx", "pdf"]:
+        raise HTTPException(status_code=400, detail=f"Invalid file extension: {extension}")
+
+    # Construct the storage directory and slides file URL
+    storage_dir = get_chat_folder_path(chat_id)
+    os.makedirs(storage_dir, exist_ok=True)
+    slides_furl = os.path.join(storage_dir, f"{generate_hash(name, strategy='uuid')}{extension}")
+
+    try:
+        # Save the new slides file to the server
+        with open(slides_furl, "wb") as buffer:
+            shutil.copyfileobj(slides.file, buffer)
+
+        # Update the chat record with the new slides file information
+        chat["slides_fname"] = slides_fname
+        chat["slides_furl"] = slides_furl
+        ChatDB.update(chat_id, slides_fname=slides_fname, slides_furl=slides_furl)
+
+        # Regenerate the slides generator and save it
+        generator = slide_generator(slides_furl)
+        dumped_generator = jsonpickle.encode(generator)
+        dumped_generator_path = get_generator_path(slides_furl)
+        with open(dumped_generator_path, "w") as file:
+            file.write(dumped_generator)
+
+        return {"chat_id": chat_id, "slides_fname": slides_fname, "slides_furl": slides_furl, "message": "Slides updated successfully."}
+
+    except Exception as e:
+        shutil.rmtree(storage_dir)
+        raise HTTPException(status_code=500, detail=f"Internal server error occurred: {str(e)}")

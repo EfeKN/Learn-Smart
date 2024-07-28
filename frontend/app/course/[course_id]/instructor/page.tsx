@@ -3,6 +3,7 @@
 import LoadingMessage from "@/app/components/loading-message";
 import CreateChatModal from "@/app/components/modals/create-chat-modal";
 import {Chat, Course, Message} from "@/app/types";
+import ChatFieldMenu from "@/app/components/chat-field-menu";
 import logo from "@/assets/chatbot-logo.png";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
@@ -10,8 +11,7 @@ import Image from "next/image";
 import {useParams, useRouter} from "next/navigation";
 import {useEffect, useRef, useState} from "react";
 import {
-    FaArrowCircleDown,
-    FaCalendarAlt
+    FaCalendarAlt, FaArrowCircleRight
 } from "react-icons/fa";
 import ReactMarkdown from "react-markdown";
 import {GiBookmarklet, GiSpellBook} from "react-icons/gi";
@@ -23,13 +23,11 @@ export default function InstructorPage() {
     const [course, setCourse] = useState<Course | null>(null);
     const [chats, setChats] = useState<Chat[]>([]);
     const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
-    const [input, setInput] = useState<string>("");
     const [messages, setMessages] = useState<Message[]>([]);
     const [lastMessageID, setLastMessageID] = useState<number>(0);
-    const [file, setFile] = useState<File | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [showScrollButton, setShowScrollButton] = useState<boolean>(false);
+    const [hasSlideUrl, setHasSlideUrl] = useState(false);
     const router = useRouter();
 
     const params = useParams<{ course_id: string }>();
@@ -85,12 +83,16 @@ export default function InstructorPage() {
                 Authorization: `Bearer ${token}`,
             },
         })
-            .then(response => response.data)
-            .catch(error => {
-                console.error(error);
-                throw error;
-            });
-    }
+        .then(response => {
+            const data = response.data;
+            setHasSlideUrl(data.slides_fname.length>0);
+            return data;
+        })
+        .catch(error => {
+            console.error(error);
+            throw error;
+        });
+    };
 
     const fetchAllChats = async () => {
         backendAPI.get(`/course/${course_id}/chats`, {
@@ -146,6 +148,7 @@ export default function InstructorPage() {
     };
 
     const fetchNewSlide = async (chat_id: string) => {
+        fetchChat(chat_id);
         backendAPI.get(`/chat/${chat_id}/next_slide`, {
             headers: {
                 Accept: "application/json",
@@ -159,58 +162,11 @@ export default function InstructorPage() {
                     media_url: `http://127.0.0.1:8000/${response.data.media_url}`,
                     message_id: lastMessageID + 1
                 };
-
                 setMessages(prevMessages => [...prevMessages, modelResponse]);
                 setLastMessageID(lastMessageID + 1);
             })
             .catch(error => {
                 console.error("Error fetching chat messages:", error);
-            });
-    };
-
-    const handleSendMessage = () => {
-        if (!input.trim()) return;
-
-        const formData = new FormData();
-        formData.append("text", input);
-        if (file) formData.append("file", file);
-
-        const newMessage = {
-            text: input,
-            role: "user",
-            message_id: lastMessageID + 1,
-            media_url: file ? URL.createObjectURL(file) : null
-        }
-
-        setMessages(messages => [...messages, newMessage]);
-        setInput("");
-        setFile(null);
-        setIsLoading(true);
-
-        backendAPI
-            .post(`/chat/${selectedChat?.chat_id}/send_message`, formData, {
-                headers: {
-                    Accept: "application/json",
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            })
-            .then((response) => {
-                const modelResponse = {
-                    text: response.data.text,
-                    role: response.data.role,
-                    media_url: response.data.media_url ? `http://127.0.0.1:8000/${response.data.media_url}` : null,
-                    message_id: lastMessageID + 2
-                };
-
-                setMessages(messages => [...messages, modelResponse]);
-                setLastMessageID(lastMessageID + 2);
-            })
-            .catch((error) => {
-                console.error("Error sending message:", error);
-            })
-            .finally(() => {
-                setIsLoading(false);
             });
     };
 
@@ -234,6 +190,8 @@ export default function InstructorPage() {
     };
 
     return (
+        <main>
+            {course ? (
         <div className="flex h-screen">
             <div
                 className={`text-gray-400 h-full p-2 pt-8 ${open ? "w-60 bg-[#181414]" : "w-20 bg-transparent"} duration-300 relative`}
@@ -271,13 +229,17 @@ export default function InstructorPage() {
                         </div>
                         <ul>
                             {chats.map((chat) => (
-                                <li
-                                    key={chat.chat_id}
-                                    className="p-2 cursor-pointer hover:bg-gray-900 rounded"
-                                    onClick={() => handleChatSelection(chat.chat_id)}
-                                >
-                                    {chat.chat_title}
-                                </li>
+                              <li
+                                key={chat.chat_id}
+                                className={`p-2 cursor-pointer rounded mb-2 ${
+                                  selectedChat && selectedChat.chat_id === chat.chat_id
+                                    ? 'bg-gray-700'
+                                    : 'hover:bg-gray-700'
+                                }`}
+                                onClick={() => handleChatSelection(chat.chat_id)}
+                              >
+                                {chat.chat_title}
+                              </li>
                             ))}
                         </ul>
                     </div>
@@ -286,128 +248,86 @@ export default function InstructorPage() {
             <div className="p-10 flex-grow flex flex-col relative bg-transparent">
                 {selectedChat ? (
                     <div className="flex flex-col h-full">
-                        {selectedChat.slides_mode && (
-                            <div className="flex justify-between items-center mb-4">
-                                <h1 className="text-2xl font-semibold">{selectedChat.chat_title}</h1>
+                        <div className="flex justify-between items-center mb-4">
+                            <h1 className="text-2xl font-semibold">{selectedChat.chat_title}</h1>
+                            {hasSlideUrl && (
                                 <button
-                                    className="bg-gray-800 p-2 rounded text-white"
+                                    className="bg-transparent text-4xl p-2 text-black"
                                     onClick={() => fetchNewSlide(selectedChat.chat_id)}
                                     type="button"
                                 >
-                                    Next Slide
+                                    <FaArrowCircleRight />
                                 </button>
-                            </div>
-                        )}
-
-                        <div ref={chatContainerRef} className="flex-grow mt-5 overflow-y-auto">
+                            )}
+                        </div>
+                        <div ref={chatContainerRef} className="flex-grow mt-5 overflow-y-auto overflow-x-auto">
                             {messages.map((message) => (
                                 <div
                                     key={message.message_id}
                                     className={`flex ${message.role === "user" ? "justify-end" : "justify-start"} mb-2`}
                                 >
-                                    <div
-                                        className={`p-3 rounded ${
-                                            message.role === "user" ? "bg-blue-500 text-white" : "bg-gray-200 text-black"
-                                        } max-w-xs`}
-                                    >
-                                        {message.media_url && (
-                                            <div className="mb-2">
-                                                <img src={message.media_url} alt="Uploaded media" className="max-w-xs"/>
-                                            </div>
-                                        )}
-                                        {message.role === "model" ? (
-                                            <ReactMarkdown>{message.text}</ReactMarkdown>
-                                        ) : (
-                                            <div>{message.text}</div>
-                                        )}
-                                    </div>
+                                    {message.text || message.media_url ? (
+                                        <div
+                                            className={`p-4 ${
+                                                message.role === "user" ? "bg-blue-500 text-white" : "bg-gray-300 text-black"
+                                            } max-w-lg rounded-lg`}
+                                        >
+                                            {message.media_url && (
+                                                <div className="mb-2">
+                                                    <img
+                                                        src={message.media_url}
+                                                        alt="Uploaded media"
+                                                        className="max-w-full h-auto rounded-lg"
+                                                    />
+                                                </div>
+                                            )}
+                                            {message.text && (
+                                                <div>
+                                                    {message.role === "model" ? (
+                                                        <ReactMarkdown>{message.text}</ReactMarkdown>
+                                                    ) : (
+                                                        <div>{message.text}</div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : null}
                                 </div>
                             ))}
-
                             <div ref={messagesEndRef}/>
                         </div>
-                        {isLoading && <LoadingMessage/>}
-                        <div
-                            className="flex items-center gap-2 mt-4 px-4 rounded-[26px] bg-gray-200 dark:bg-token-main-surface-secondary w-2/3 mx-auto">
-                            <label className="relative flex items-center cursor-pointer">
-                                <input
-                                    type="file"
-                                    accept=".png,.jpeg,.jpg,.pdf,.docx,.pptx"
-                                    className="hidden"
-                                    title="Upload a file"
-                                    onChange={(event) => {
-                                        const files = event.target.files;
-                                        if (files && files.length > 0) {
-                                            setFile(files[0]);
-                                        }
-                                    }}
-                                />
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                                     viewBox="0 0 24 24">
-                                    <path fill="currentColor" fill-rule="evenodd"
-                                          d="M9 7a5 5 0 0 1 10 0v8a7 7 0 1 1-14 0V9a1 1 0 0 1 2 0v6a5 5 0 0 0 10 0V7a3 3 0 1 0-6 0v8a1 1 0 1 0 2 0V9a1 1 0 1 1 2 0v6a3 3 0 1 1-6 0z"
-                                          clip-rule="evenodd"></path>
-                                </svg>
-                            </label>
-                            <textarea
-                                className="flex-grow border py-1 mt-5 rounded-lg bg-transparent text-token-text-primary placeholder-gray-500
-                      border-none focus-visible:outline-none overflow-y-auto resize-none h-14"
-                                placeholder="Chat with your instructor"
-                                value={input}
-                                onChange={(e) => {
-                                    setInput(e.target.value);
-                                    const textarea = e.target;
-                                    textarea.style.height = 'auto';
-                                    textarea.style.height = `${Math.min(textarea.scrollHeight, 128)}px`;
-                                }}
-                                onKeyPress={(e) => {
-                                    if (e.key === "Enter") {
-                                        handleSendMessage();
-                                    }
-                                }}
-                            />
-                            <button
-                                className={`${!input.trim() ? "bg-gray-800 rounded-full text-white flex items-center " +
-                                    "cursor-not-allowed opacity-50" : "bg-gray-800 rounded-full text-white flex items-center"
-                                }`}
-                                onClick={handleSendMessage}
-                                disabled={!input.trim()} // Disable button if input is empty or just whitespace
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none"
-                                     viewBox="0 0 32 32"
-                                     className="icon-2xl">
-                                    <path fill="currentColor" fillRule="evenodd"
-                                          d="M15.192 8.906a1.143 1.143 0 0 1 1.616 0l5.143 5.143a1.143 1.143 0 0 1-1.616 1.616l-3.192-3.192v9.813a1.143 1.143 0 0 1-2.286 0v-9.813l-3.192 3.192a1.143 1.143 0 1 1-1.616-1.616z"
-                                          clipRule="evenodd"></path>
-                                </svg>
-                            </button>
-                        </div>
 
-                        {showScrollButton && (
-                            <div className="fixed bottom-10 right-10">
-                                <FaArrowCircleDown className="text-3xl text-black cursor-pointer"
-                                                   onClick={scrollToBottom}/>
-                            </div>
-                        )}
+                        {isLoading && <LoadingMessage/>}
+                        <ChatFieldMenu
+                            selectedChat={selectedChat}
+                            token={token}
+                            setMessages={setMessages}
+                            setLastMessageID={setLastMessageID}
+                            lastMessageID={lastMessageID}
+                            setIsLoading={setIsLoading}
+                        />
                     </div>
                 ) : (
                     // TO-DO WRITE LINKS HERE IT WON'T HAVE THE SAME LINKS AS BEFORE WE NEED TO PASS ARGUMENTS
-                    <div className="text-center mt-20">
+                    <div className="text-center mt-40">
                         <div className="inline-flex gap-0">
-                            <h1 className="text-8xl font-bold"
-                                style={{fontFamily: 'logo-font, serif', color: "rgb(23,144, 288)", letterSpacing: '0.025em'}}>
+                            <h1 className="text-6xl font-bold"
+                                style={{
+                                    fontFamily: 'logo-font, serif',
+                                    color: "rgb(23,144, 288)",
+                                    letterSpacing: '0.025em'
+                                }}>
                                 learn
                             </h1>
-                            <h1 className="text-8xl font-bold"
+                            <h1 className="text-6xl font-bold"
                                 style={{fontFamily: 'logo-font, serif', color: "black", letterSpacing: '0.025em'}}>
                                 smart
                             </h1>
                         </div>
-                        <p className="text-xl mt-5">Welcome to {course?.course_name || "the Course"}</p>
                         <div className="mx-3 mt-12 flex flex-col items-center justify-center gap-4">
                             <div className="flex flex-wrap items-center justify-center gap-4">
                                 <button
-                                    className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary disabled:cursor-not-allowed bg-gray-300">
+                                    className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
                                     <GiSpellBook className="text-2xl" style={{color: "rgb(44, 84, 102)"}}/>
                                     <div
                                         className="line-clamp-3 max-w-full text-balance text-gray-600 dark:text-gray-500 break-word">Create
@@ -415,7 +335,7 @@ export default function InstructorPage() {
                                     </div>
                                 </button>
                                 <button
-                                    className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary disabled:cursor-not-allowed bg-gray-300">
+                                    className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
                                     <GiBookmarklet className="text-2xl" style={{color: "rgb(118, 208, 235)"}}/>
                                     <div
                                         className="line-clamp-3 max-w-full text-balance text-gray-600 dark:text-gray-500 break-word">Flashcard
@@ -423,7 +343,7 @@ export default function InstructorPage() {
                                     </div>
                                 </button>
                                 <button
-                                    className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary disabled:cursor-not-allowed bg-gray-300">
+                                    className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
                                     <FaCalendarAlt className="text-2xl" style={{color: "rgb(203, 139, 208)"}}/>
                                     <div
                                         className="line-clamp-3 max-w-full text-balance text-gray-600 dark:text-gray-500 break-word">Weekly
@@ -432,15 +352,31 @@ export default function InstructorPage() {
                                 </button>
                             </div>
                         </div>
+                        <div className="flex flex-wrap items-center bg-transparent mt-40">
+                            <ChatFieldMenu
+                                selectedChat={selectedChat}
+                                token={token}
+                                setMessages={setMessages}
+                                setLastMessageID={setLastMessageID}
+                                lastMessageID={lastMessageID}
+                                setIsLoading={setIsLoading}
+                            />
+                        </div>
                     </div>
+
                 )}
             </div>
+        </div>) : (
+                <div className="bg-transparent min-h-screen text-black">
+                    <p>Loading...</p>
+                </div>
+            )}
             <CreateChatModal
                 isOpen={isModalOpen}
                 closeModal={() => setIsModalOpen(false)}
                 authToken={token}
                 onChatCreated={handleChatCreated}
             />
-        </div>
-    );
+        </main>
+            );
 }
