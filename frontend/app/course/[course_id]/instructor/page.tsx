@@ -27,7 +27,6 @@ export default function InstructorPage() {
     const [lastMessageID, setLastMessageID] = useState<number>(0);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [hasSlideUrl, setHasSlideUrl] = useState(false);
     const router = useRouter();
 
   const params = useParams<{ course_id: string }>();
@@ -84,9 +83,7 @@ export default function InstructorPage() {
             },
         })
         .then(response => {
-            const data = response.data;
-            setHasSlideUrl(data.slides_fname.length>0);
-            return data;
+            return response.data;
         })
         .catch(error => {
             console.error(error);
@@ -251,15 +248,13 @@ export default function InstructorPage() {
                     <div className="flex flex-col h-full">
                         <div className="flex justify-between items-center mb-4">
                             <h1 className="text-2xl font-semibold">{selectedChat.chat_title}</h1>
-                            {hasSlideUrl && (
-                                <button
-                                    className="bg-transparent text-4xl p-2 text-black"
-                                    onClick={() => fetchNewSlide(selectedChat.chat_id)}
-                                    type="button"
-                                >
-                                    <FaArrowCircleRight />
-                                </button>
-                            )}
+                            {selectedChat.slides_mode && (<button
+                                className="bg-transparent text-4xl p-2 text-black"
+                                onClick={() => fetchNewSlide(selectedChat.chat_id)}
+                                type="button"
+                            >
+                                <FaArrowCircleRight/>
+                            </button>)}
                         </div>
                         <div ref={chatContainerRef} className="flex-grow mt-5 overflow-y-auto overflow-x-auto">
                             {messages.map((message) => (
@@ -352,16 +347,6 @@ export default function InstructorPage() {
                                     </div>
                                 </button>
                             </div>
-                        </div>
-                        <div className="flex flex-wrap items-center bg-transparent mt-40">
-                            <ChatFieldMenu
-                                selectedChat={selectedChat}
-                                token={token}
-                                setMessages={setMessages}
-                                setLastMessageID={setLastMessageID}
-                                lastMessageID={lastMessageID}
-                                setIsLoading={setIsLoading}
-                            />
                         </div>
                     </div>
 

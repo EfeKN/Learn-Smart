@@ -143,8 +143,6 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
     
     history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
 
-    logger.info(f"Chat history: {history}")
-
     # parse the chat history and create a new dictionary with 'message' and 'role' keys
     messages = []
     for idx, content in enumerate(history):
@@ -165,9 +163,6 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
 
     chat["course_name"] = course["course_name"] # Add the course name to response
     chat["history"] = messages # Add the chat history to response
-
-    logger.info(f"Chat history: {chat['history']}")
-
     return chat
 
 
@@ -233,7 +228,7 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
             json.dump(data, file, indent=4)
 
         chat_model = genai.GenerativeModel(MODEL_VERSION, system_instruction=SYSTEM_PROMPT).start_chat(history=history) # Initialize the chat model with the chat history so far
-        response = chat_model.send_message([EXPLAIN_SLIDE_PROMPT, content]) # TODO: streaming response
+        response = chat_model.send_message([EXPLAIN_SLIDE_PROMPT, content])
 
         with open(history_url, "w") as file:
             file.write(jsonpickle.encode(chat_model.history)) # Encode back the updated chat history
@@ -374,9 +369,12 @@ async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
             shutil.copyfileobj(slides.file, buffer)
 
         # Update the chat record with the new slides file information
-        chat["slides_fname"] = slides_fname
-        chat["slides_furl"] = slides_furl
-        ChatDB.update(chat_id, slides_fname=slides_fname, slides_furl=slides_furl)
+        chat_update_data = {
+            "slides_fname": slides_fname,
+            "slides_furl": slides_furl,
+            "slides_mode": True
+        }
+        ChatDB.update(chat_id, **chat_update_data)
 
         # Regenerate the slides generator and save it
         generator = slide_generator(slides_furl)
@@ -385,7 +383,7 @@ async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
         with open(dumped_generator_path, "w") as file:
             file.write(dumped_generator)
 
-        return {"chat_id": chat_id, "slides_fname": slides_fname, "slides_furl": slides_furl, "message": "Slides updated successfully."}
+        return {"chat_id": chat_id, "slides_fname": slides_fname, "slides_furl": slides_furl, "slides_mode": chat["slides_mode"], "message": "Slides updated successfully."}
 
     except Exception as e:
         shutil.rmtree(storage_dir)

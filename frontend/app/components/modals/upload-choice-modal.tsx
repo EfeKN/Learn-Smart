@@ -33,7 +33,7 @@ const UploadChoiceModal: React.FC<UploadChoiceModalProps> = ({
 
         try {
             const response = await backendAPI.put(
-                `/chat/${selectedChat.chat_id}/update_${fileType}`,
+                `/chat/${selectedChat.chat_id}/update_slides`,
                 formData,
                 {
                     headers: {

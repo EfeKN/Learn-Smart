@@ -29,7 +29,7 @@
 /backend/chat_histories
 /backend/files
 __pycache__
-backend/.env
+.env
 
 .idea/
 /backend/bin
