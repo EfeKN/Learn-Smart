@@ -77,7 +77,6 @@ async def create_chat(course_id: int, chat_title: str, slides: UploadFile = File
             shutil.rmtree(storage_dir) # "rm -rf chat_<chat_id>", remove the directory and its contents
             raise HTTPException(status_code=500, detail=str(e))
 
-    print("History URL:", history_url)
     ChatDB.update(chat["chat_id"], history_url=history_url, slides_fname=slides_fname,
                   slides_furl=slides_furl) # Update the chat in the database
     

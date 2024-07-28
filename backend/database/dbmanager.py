@@ -306,7 +306,6 @@ class ChatDB(DatabaseInterface):
             if chat_title:
                 chat.chat_title = chat_title                
             if history_url:
-                print("Updating history URL to:", history_url)
                 chat.history_url = history_url
             if slides_fname:
                 chat.slides_fname = slides_fname
@@ -347,9 +346,7 @@ class ChatDB(DatabaseInterface):
         with db_connection as db:
             query = db.query(Chat).filter(and_(*filters))
             result = query.all() if all else [query.first()]
-            print(query)
-            print(query.all())
-            print(result)
+
             if not result:
                 return []
             

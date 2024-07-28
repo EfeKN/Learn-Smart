@@ -10,7 +10,6 @@ from modules.course.schemas import CourseCreationRequest, CourseUpdateRequest
 from modules.chat.util import *
 from modules.course.util import *
 from tools import validate_file_extension
-from . import WEEKLY_STUDY_PLAN_PROMPT
 
 router = APIRouter(prefix="/course", tags=["Course"])
 
@@ -114,7 +113,7 @@ async def create_course(course_name: str = Form(...), course_code: str = Form(..
             course["course_syllabus_url"] = syllabus_path  # update response dict. with the syllabus URL
 
             # send the syllabus to LLM for weekly study plan generation
-            study_plan_path = create_study_plan(course_syllabus_file.content(), course["course_id"])
+            success, study_plan_path = create_study_plan(course_syllabus_file.content(), course["course_id"])
             course["course_study_plan_url"] = study_plan_path  # update response dict. with the study plan URL
 
         CourseDB.update(course_id=course["course_id"], course_icon_url=course_icon_path, course_syllabus_url=syllabus_path,
@@ -260,7 +259,7 @@ async def update_course(course_id: int, course_name: Optional[str] = Form(None),
         course_syllabus_file.save(new_syllabus_path)
 
         # send the new syllabus to LLM for weekly study plan generation
-        new_study_plan_path = create_study_plan(course_syllabus_file.content(), course_id)
+        success, new_study_plan_path = create_study_plan(course_syllabus_file.content(), course_id)
 
     try:
         course = CourseDB.update(course_id=course_id, course_name=course_name, course_code=course_code,
