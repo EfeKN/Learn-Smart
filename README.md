@@ -1,5 +1,7 @@
 # Learn Smart
 
+## [Features & Research](https://docs.google.com/document/d/1n-9d7_FFlAlxyvOE3r7Jz7EtxRcYxnx6OD2oDc-vsy4/edit)
+
 ## [Design Document](https://docs.google.com/document/d/1yBGZlqTAZuNbOirmpqzgfHXvrq4RJoF7VfEGX3V5clY/edit#heading=h.yr1n1w74g294)
 
 ## [High Level Architecture](https://app.diagrams.net/#G1Xt1IQutJySTuM8h47ZfxEwFGxCOxfnQR#%7B%22pageId%22%3A%22WgwmZhFJbQ_Y9UpnWUmw%22%7D)
