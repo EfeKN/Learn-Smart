@@ -25,13 +25,13 @@ export default function Folder({
 
   return (
     <div
-      ref={drag}
+      // ref={drag}
       className={`bg-gray-700 p-4 rounded-lg text-center ${
         isDragging ? "opacity-50" : ""
       }`}
     >
       <div
-        ref={drop}
+        // ref={drop}
         className={`folder-drop-area ${isOver ? "bg-gray-600" : ""}`}
       >
         <button

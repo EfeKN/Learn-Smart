@@ -1,16 +1,16 @@
-import React, { useState } from "react";
-import backendAPI from "@/environment/backend_api";
-import { ChatFieldProps } from "@/app/types";
 import UploadChoiceModal from "@/app/components/modals/upload-choice-modal";
+import backendAPI from "@/environment/backend_api";
+import { useState } from "react";
+import { ChatFieldProps, Message } from "../types";
 
-const ChatFieldMenu: React.FC<ChatFieldProps> = ({
+export default function ChatFieldMenu({
   selectedChat,
   token,
   setMessages,
   setLastMessageID,
   lastMessageID,
   setIsLoading,
-}) => {
+}: ChatFieldProps) {
   const [input, setInput] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -29,7 +29,7 @@ const ChatFieldMenu: React.FC<ChatFieldProps> = ({
       media_url: file ? URL.createObjectURL(file) : null,
     };
 
-    setMessages((messages) => [...messages, newMessage]);
+    setMessages((messages: Message[]) => [...messages, newMessage]);
     setInput("");
     setFile(null);
     setIsLoading(true);
@@ -77,8 +77,17 @@ const ChatFieldMenu: React.FC<ChatFieldProps> = ({
 
   return (
     <div className="flex items-center gap-2 mt-4 px-4 rounded-full bg-gray-200 dark:bg-token-main-surface-secondary w-2/3 mx-auto">
-      <label className="relative flex items-center cursor-pointer" onClick={handleOpenModal}>
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+      <label
+        className="relative flex items-center cursor-pointer"
+        onClick={handleOpenModal}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
           <path
             fill="currentColor"
             fillRule="evenodd"
@@ -113,7 +122,14 @@ const ChatFieldMenu: React.FC<ChatFieldProps> = ({
         onClick={handleSendMessage}
         disabled={!input.trim() && !file}
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 32 32" className="icon-2xl">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="32"
+          height="32"
+          fill="none"
+          viewBox="0 0 32 32"
+          className="icon-2xl"
+        >
           <path
             fill="currentColor"
             fillRule="evenodd"
@@ -134,6 +150,4 @@ const ChatFieldMenu: React.FC<ChatFieldProps> = ({
       />
     </div>
   );
-};
-
-export default ChatFieldMenu;
+}

@@ -1,19 +1,19 @@
 "use client";
 
+import ChatFieldMenu from "@/app/components/chat-field-menu";
 import LoadingMessage from "@/app/components/loading-message";
 import CreateChatModal from "@/app/components/modals/create-chat-modal";
+import "@/app/style/logo-font.css";
 import { Chat, Course, Message } from "@/app/types";
-import ChatFieldMenu from "@/app/components/chat-field-menu";
 import logo from "@/assets/chatbot-logo.png";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { FaCalendarAlt, FaArrowCircleRight } from "react-icons/fa";
-import ReactMarkdown from "react-markdown";
+import { FaArrowCircleRight, FaCalendarAlt } from "react-icons/fa";
 import { GiBookmarklet, GiSpellBook } from "react-icons/gi";
-import "@/app/style/logo-font.css";
+import ReactMarkdown from "react-markdown";
 
 export default function InstructorPage() {
   const [open, setOpen] = useState<boolean>(true);
@@ -25,6 +25,7 @@ export default function InstructorPage() {
   const [lastMessageID, setLastMessageID] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [showScrollButton, setShowScrollButton] = useState<boolean>(false);
   const router = useRouter();
 
   const params = useParams<{ course_id: string }>();
@@ -33,7 +34,7 @@ export default function InstructorPage() {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setToken(Cookies.get("authToken") || null);
+    setToken(Cookies.get("authToken") || "");
   }, []);
 
   useEffect(() => {
@@ -160,7 +161,10 @@ export default function InstructorPage() {
           media_url: `http://127.0.0.1:8000/${response.data.media_url}`,
           message_id: lastMessageID + 1,
         };
-        setMessages((prevMessages) => [...prevMessages, modelResponse]);
+        setMessages((prevMessages: Message[]) => [
+          ...prevMessages,
+          modelResponse,
+        ]);
         setLastMessageID(lastMessageID + 1);
       })
       .catch((error) => {

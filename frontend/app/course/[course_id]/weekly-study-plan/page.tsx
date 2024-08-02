@@ -17,7 +17,7 @@ export default function StudyPlan() {
   const router = useRouter();
 
   useEffect(() => {
-    setToken(Cookies.get("authToken") || null);
+    setToken(Cookies.get("authToken") || "");
   }, []);
 
   useEffect(() => {

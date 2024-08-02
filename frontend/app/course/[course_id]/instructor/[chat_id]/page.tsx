@@ -1,10 +1,9 @@
-import { useParams } from "next/navigation";
+"use client";
+
 import React, { useState } from "react";
 import { Message } from "../../../../types";
 
 export default function ChatInterface() {
-  const params = useParams<{ chat_id: string }>();
-  const chat_id = params.chat_id;
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
 
@@ -15,9 +14,10 @@ export default function ChatInterface() {
   const handleSendMessage = () => {
     if (inputValue.trim() !== "") {
       const newMessage: Message = {
-        id: String(messages.length + 1),
-        content: inputValue,
-        sender: "user",
+        message_id: messages.length + 1,
+        text: inputValue,
+        role: "user",
+        media_url: null,
       };
 
       setMessages([...messages, newMessage]);
@@ -29,9 +29,9 @@ export default function ChatInterface() {
     <div>
       <div>
         {messages.map((message) => (
-          <div key={message.id}>
-            <strong>{message.sender}: </strong>
-            {message.content}
+          <div key={message.message_id}>
+            <strong>{message.role}: </strong>
+            {message.text}
           </div>
         ))}
       </div>
