@@ -49,7 +49,7 @@
 2. * `backend\Scripts\activate` for Windows
    * `source backend/bin/activate` for Mac
 
-3. `cd backend && mkdir upload_files chats`. This is where the file uploads are stored (for now).
+3. `cd backend && mkdir files chat_histories`. This is where the file uploads are stored (for now).
 
 4. `pip install -r requirements.txt`
 

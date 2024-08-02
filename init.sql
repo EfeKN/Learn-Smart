@@ -1,5 +1,5 @@
-CREATE USER 'learnsmartadmin'@'%' IDENTIFIED BY 'tAtUK1uaCrlw88R';
+CREATE USER 'username'@'%' IDENTIFIED BY 'password';
 
-CREATE DATABASE learnsmartdb;
+CREATE DATABASE database_name;
 
-GRANT ALL PRIVILEGES ON learnsmartdb.* TO 'learnsmartadmin'@'%';
+GRANT ALL PRIVILEGES ON database_name.* TO 'username'@'%';

@@ -1,8 +1,8 @@
 FROM node:20.15.0
 
-WORKDIR /app
+WORKDIR /frontend
 
-COPY package.json package-lock.json ./
+COPY . .
 
 RUN npm install
 

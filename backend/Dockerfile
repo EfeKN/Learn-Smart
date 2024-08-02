@@ -1,10 +1,10 @@
-FROM python:latest
+FROM python:3.12.4
 
-WORKDIR /app
+WORKDIR /backend
 
 COPY . .
 
-RUN mkdir -p ./upload_files ./chats
+RUN mkdir -p ./files ./chat_histories
 
 RUN pip install --no-cache-dir -r requirements.txt
 
