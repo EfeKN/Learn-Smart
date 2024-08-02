@@ -89,10 +89,10 @@
 
 1. Create a .env file as described above but change DATABASE_URL= (your MySQL DB URI, example: `mysql://\<username>:\<password>@database/<database_name>`) instead of using @localhost use @database. Credentials provided in `init.sql`.
 
-2. Add the following string to the .env file: `ROOT_PASSWORD=<your_password>` you can change the password as you wish
+2. Add the following string to the .env file: `MYSQL_ROOT_PASSWORD=<your_password>` you can change the password as you wish
 
-3. Make sure docker is running and run the following command lines: `docker compose build` then `docker compose up`.
+3. Make sure docker is running and run the following command line: `docker compose up`.
 
-4. If you make changes to the database do: `docker compose rm` and `docker volume rm learn-smart_my-db` then do `docker compose build` then `docker compose up`. You may need to stop before removing.
+4. If you make changes to the database do: `docker compose rm` and `docker volume rm learn-smart_db` then do `docker compose build` then `docker compose up`. You may need to stop before removing.
 
 5. If you get an error indicating that port 3306 is being used, stop mysql in your machine or change the port in the docker-compose.yml as `3307:3306`.
