@@ -53,6 +53,8 @@ export default function InstructorPage() {
       if (chatContainerRef.current) {
         const { scrollTop, clientHeight, scrollHeight } =
           chatContainerRef.current;
+
+        // TODO: THIS DO NOT WORK
         if (scrollTop > 0) {
           // User has scrolled upwards
           setShowScrollButton(true);

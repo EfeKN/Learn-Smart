@@ -8,6 +8,7 @@ import { MdLockOutline } from "react-icons/md";
 import { RiShieldUserLine } from "react-icons/ri";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { printDebugMessage } from "../debugger";
 
 export default function CreateAccountPage() {
   const [name, setName] = useState<string>("");
@@ -19,14 +20,20 @@ export default function CreateAccountPage() {
   const router = useRouter();
 
   const handleCreateAccount = async () => {
+    printDebugMessage("Creating account with the following details:");
+
     const validateEmail = (inputText: string) => {
       const regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
       return regex.test(inputText);
     };
 
+    printDebugMessage(`Name: ${name}`);
+
     const validatePassword = (pass: string, passConfirm: string) => {
       return pass === passConfirm;
     };
+
+    printDebugMessage(`Nickname: ${nickname}`);
 
     // Check if all fields are filled
     if (!name || !nickname || !email || !password || !confirmPassword) {
@@ -34,15 +41,23 @@ export default function CreateAccountPage() {
       return;
     }
 
+    printDebugMessage(`Email: ${email}`);
+
     if (!validateEmail(email)) {
       toast.error("Invalid email address");
       return;
     }
 
+    printDebugMessage(`Password: ${password}`);
+
     if (!validatePassword(password, confirmPassword)) {
       toast.error("Two passwords are not the same");
       return;
     }
+
+    printDebugMessage(`Confirm Password: ${confirmPassword}`);
+
+    printDebugMessage("Sending request to create account", backendAPI);
 
     await backendAPI
       .post(
