@@ -1,7 +1,7 @@
 import axios from "axios";
 // Create a new axios instance with a custom config for the backend
 const backendAPI = axios.create({
-  baseURL: process.env.BACKEND_API_URL,
+  baseURL: "http://localhost:8000/api",
 });
 
 export default backendAPI;

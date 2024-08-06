@@ -185,6 +185,7 @@ export default function InstructorPage() {
   const handleChatCreated = (newChat: Chat) => {
     setChats([...chats, newChat]);
     setSelectedChat(newChat);
+    fetchChatMessages(newChat.chat_id);
   };
 
   const scrollToBottom = () => {
