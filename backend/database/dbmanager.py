@@ -295,6 +295,7 @@ class ChatDB(DatabaseInterface):
         """
         chat_title = kwargs.get("chat_title", None)
         history_url = kwargs.get("history_url", None)
+        slides_mode = kwargs.get("slides_mode", None)
         slides_fname = kwargs.get("slides_fname", None) # get the new slides filename
         slides_furl = kwargs.get("slides_furl", None) # get the new slides file URL
 
@@ -311,6 +312,8 @@ class ChatDB(DatabaseInterface):
                 chat.slides_fname = slides_fname
             if slides_furl:
                 chat.slides_furl = slides_furl
+            if slides_mode:
+                chat.slides_mode = slides_mode
 
             db.commit()
             db.refresh(chat)

@@ -183,20 +183,20 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
     chat = ChatDB.fetch(chat_id=chat_id)
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found.")
-        
+
     course = CourseDB.fetch(course_id=chat["course_id"])
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
-    
+
     slides_furl = chat["slides_furl"] # get the slides file URL
     if not slides_furl:
         raise HTTPException(status_code=404, detail="This chat has no slides uploaded.")
-    
+
     dumped_generator_path = get_generator_path(slides_furl) # path of the jsonpickle dumped generator object
 
     with open(dumped_generator_path, "r") as file:
         generator = jsonpickle.decode(file.read()) # read the dumped generator object from the file
-    
+
     try:
         content_url, content = next(generator) # get the next slide content
         history_url = chat["history_url"] # Get the chat history file path
@@ -211,7 +211,7 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
 
         data1 = {"message_id": len(history), "skip": True} # Skip the EXPLAIN_SLIDE_PROMPT message, we don't want to show it in the chat
         data2 = {"message_id": len(history) + 1, "media_url": content_url} # (len+1) for we want to draw it like the slide is uploaded by the LLM
-        
+
         if os.path.exists(metadata_path):
             with open(metadata_path, "r") as file:
                 try:
@@ -231,12 +231,12 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
 
         with open(history_url, "w") as file:
             file.write(jsonpickle.encode(chat_model.history)) # Encode back the updated chat history
-        
+
         with open(dumped_generator_path, "w") as file:
             file.write(jsonpickle.encode(generator)) # dump back the generator object to a string
 
         return {"text": response.text, "media_url": content_url} # return the response in dictionary format
-    
+
     except StopIteration:
         raise HTTPException(status_code=404, detail="No more slides to show.")
     
@@ -331,6 +331,7 @@ async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
     Update the slides for a chat by its ID.
 
     Args:
+        slides_mode:
         chat_id (int): The ID of the chat to update.
         slides (UploadFile): The new slides file to upload.
         current_user (dict, optional): The current user's information. Defaults to Depends(auth.get_current_user).
@@ -371,7 +372,7 @@ async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
         chat_update_data = {
             "slides_fname": slides_fname,
             "slides_furl": slides_furl,
-            "slides_mode": True
+            "slides_mode": True,
         }
         ChatDB.update(chat_id, **chat_update_data)
 
@@ -382,7 +383,7 @@ async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
         with open(dumped_generator_path, "w") as file:
             file.write(dumped_generator)
 
-        return {"chat_id": chat_id, "slides_fname": slides_fname, "slides_furl": slides_furl, "slides_mode": chat["slides_mode"], "message": "Slides updated successfully."}
+        return {"chat_id": chat_id, "slides_fname": slides_fname, "slides_furl": slides_furl, "slides_mode": True, "message": "Slides updated successfully."}
 
     except Exception as e:
         shutil.rmtree(storage_dir)

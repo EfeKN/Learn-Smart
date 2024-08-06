@@ -26,6 +26,7 @@ export default function InstructorPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [showScrollButton, setShowScrollButton] = useState<boolean>(false);
+  const [changeOccured, setChangeOccured] = useState<boolean>(false);
   const router = useRouter();
 
   const params = useParams<{ course_id: string }>();
@@ -47,6 +48,7 @@ export default function InstructorPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
 
   useEffect(() => {
     const handleScroll = () => {
