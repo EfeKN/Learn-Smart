@@ -9,6 +9,7 @@ import { FaRegEnvelope } from "react-icons/fa";
 import { MdLockOutline } from "react-icons/md";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import {seconds} from "date-arithmetic";
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>(Cookies.get("emailCookie") || "");
@@ -73,8 +74,9 @@ export default function LoginPage() {
           } else {
             Cookies.remove("emailCookie");
           }
-
-          router.push("/home-page");
+          setTimeout(() => {
+            router.push("/home-page");
+          }, 2000);
         }
       })
       .catch((error) => {
