@@ -29,32 +29,33 @@ export default function FlashCard({
   return (
     <div className="flex justify-center items-center min-h-screen">
       <ReactCardFlip isFlipped={isFlipped} flipDirection="horizontal">
+        {/* Adjust flipDirection later. Horizontal seems good for now but vertical is also a good choice*/}
         <div
-          className={`w-64 min-h-96 overflow-auto bg-white shadow-md rounded-lg flex flex-col justify-center items-center p-4 transition-opacity duration-300 ${
+          className={`overflow-auto bg-white shadow-md rounded-lg flex flex-col justify-start items-center p-6 transition-opacity duration-300 cursor-pointer hover:shadow-2xl ${
             isTransitioning ? "opacity-0" : "opacity-100"
           }`}
+          style={{ width: "400px", height: "600px" }}
+          onClick={handleCardFlip}
         >
-          <p className="text-center mb-4 whitespace-normal">{question}</p>
-          <button
-            onClick={handleCardFlip}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-          >
-            Click to flip
-          </button>
+          <h2 className="text-center mb-4 text-2xl font-bold">Question</h2>
+          <hr className="w-full border-t-2 border-gray-300 mb-4" />
+          <div className="flex-grow flex flex-col justify-center items-center">
+            <p className="text-center mb-4 whitespace-normal">{question}</p>
+          </div>
         </div>
 
         <div
-          className={`w-64 min-h-96 overflow-auto bg-white shadow-md rounded-lg flex flex-col justify-center items-center p-4 transition-opacity duration-300 ${
+          className={`overflow-auto bg-white shadow-md rounded-lg flex flex-col justify-start items-center p-6 transition-opacity duration-300 cursor-pointer hover:shadow-2xl ${
             isTransitioning ? "opacity-0" : "opacity-100"
           }`}
+          style={{ width: "400px", height: "600px" }}
+          onClick={handleCardFlip}
         >
-          <p className="text-center mb-4 whitespace-normal">{answer}</p>
-          <button
-            onClick={handleCardFlip}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-          >
-            Click to flip
-          </button>
+          <h2 className="text-center mb-4 text-2xl font-bold">Answer</h2>
+          <hr className="w-full border-t-2 border-gray-300 mb-4" />
+          <div className="flex-grow flex flex-col justify-center items-center">
+            <p className="text-center mb-4 whitespace-normal">{answer}</p>
+          </div>
         </div>
       </ReactCardFlip>
     </div>
