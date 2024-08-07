@@ -80,7 +80,7 @@ export default function CreateAccountPage() {
           toast.success("Account created successfully");
           setTimeout(() => {
             router.push("/login");
-          }, 2000);
+          }, 1500);
         }
       })
       .catch((error) => {

@@ -76,7 +76,7 @@ export default function LoginPage() {
           }
           setTimeout(() => {
             router.push("/home-page");
-          }, 2000);
+          }, 1500);
         }
       })
       .catch((error) => {
