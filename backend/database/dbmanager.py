@@ -240,6 +240,7 @@ class ChatDB(DatabaseInterface):
         Args:
             chat_id (int): The ID of the chat.
             course_id (int): The ID of the course.
+            created_at (datetime, optional): The date and time the chat
             all (bool, optional): If True, fetches all matching chat records. If False (default), fetches only the first matching record.
 
         Returns:
@@ -253,9 +254,10 @@ class ChatDB(DatabaseInterface):
         """
         chat_id = kwargs.get("chat_id", None)
         course_id = kwargs.get("course_id", None)
+        created_at = kwargs.get("created_at", None)
         all = kwargs.get("all", False)
 
-        if not any([chat_id, course_id]): # check if any query parameters are provided
+        if not any([chat_id, course_id, created_at]): # check if any query parameters are provided
             raise ValueError("No query parameters provided")
         
         # Create a list of filters based on the provided query parameters
@@ -264,6 +266,8 @@ class ChatDB(DatabaseInterface):
             filters.append(Chat.chat_id == chat_id)
         if course_id:
             filters.append(Chat.course_id == course_id)
+        if created_at:
+            filters.append(Chat.created_at == created_at)
 
         with db_connection as db:
             query = db.query(Chat).filter(and_(*filters)) # apply filters to the query

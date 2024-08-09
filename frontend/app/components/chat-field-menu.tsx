@@ -51,7 +51,6 @@ export default function ChatFieldMenu({
             : null,
           message_id: lastMessageID + 2,
         };
-
         setMessages((messages) => [...messages, modelResponse]);
         setLastMessageID(lastMessageID + 2);
       })

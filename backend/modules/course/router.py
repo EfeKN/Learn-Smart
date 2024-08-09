@@ -64,7 +64,8 @@ async def get_chats(course_id: int, current_user: dict = Depends(auth.get_curren
 
     chats = ChatDB.fetch(course_id=course_id, all=True)
     return [{"chat_id": chat["chat_id"],
-                       "chat_title": chat["chat_title"]} for chat in chats]  # return chat titles along with chat IDs
+                       "chat_title": chat["chat_title"],
+                       "created_at": chat["created_at"]} for chat in chats]  # return chat titles along with chat IDs
 
 
 @router.post("/create")
