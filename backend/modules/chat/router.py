@@ -460,14 +460,10 @@ async def create_flashcards(chat_id: int, current_user: dict = Depends(auth.get_
     with open(history_url, "r") as file:
         history = jsonpickle.decode(file.read()) # Read the chat history from the file
 
-    print(history)
-
     chat_model = genai.GenerativeModel(
         MODEL_VERSION, system_instruction=SYSTEM_PROMPT, 
         generation_config={"response_mime_type": "application/json"}
     ).start_chat(history=history)
-
-    print(FLASHCARD_PROMPT)
 
     response = chat_model.send_message(FLASHCARD_PROMPT)
     response_dict = json.loads(response.text)
@@ -476,24 +472,21 @@ async def create_flashcards(chat_id: int, current_user: dict = Depends(auth.get_
     
     data = response_dict["data"]
 
-    print("################dat################)")
-    print(data)
-
-    flashcards = data["flashcards"]
-    answers = data["answers"]
+    flashcards = [item["topic"] for item in data]
+    explanations = [item["explanation"] for item in data]
 
     flashcards_base_path = get_flashcards_folder_part(chat_id)
     os.makedirs(flashcards_base_path, exist_ok=True)
-    flashcards_file_name = f"{generate_hash('flashcards', strategy='timestamp')}.md"
-    answers_file_name = f"{generate_hash('flashcards', strategy='timestamp')}_answers.json"
+    flashcards_file_name = f"{generate_hash('flashcards', strategy='timestamp')}.json"
 
     flashcards_file_path = os.path.join(flashcards_base_path, flashcards_file_name)
-    answers_file_path = os.path.join(flashcards_base_path, answers_file_name)
+
+    combined_data = {
+        "flashcards": flashcards,
+        "explanations": explanations
+    }
 
     with open(flashcards_file_path, "w") as file:
-        file.write(flashcards)
+        json.dump(combined_data, file, indent=4)
 
-    with open(answers_file_path, "w") as file:
-        file.write(answers)
-    
-    return {"flashcards": flashcards, "answers": answers}
+    return {"flashcards_file": flashcards_file_path}
