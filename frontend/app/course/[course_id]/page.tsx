@@ -65,7 +65,7 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
       course_homepage_element_router: (
         <Link
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
-          href="/flashcards"
+          href={`${pathname}/flashcards`}
         >
           Flashcards
         </Link>
