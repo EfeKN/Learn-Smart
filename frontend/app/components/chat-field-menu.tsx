@@ -146,6 +146,7 @@ export default function ChatFieldMenu({
         onUploadFile={(file) => {
           setFile(file);
         }}
+        setFile={setFile}
       />
     </div>
   );

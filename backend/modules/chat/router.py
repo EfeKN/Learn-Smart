@@ -264,6 +264,7 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
 
     file_content, prompt = None, text
     if file: # if file is uploaded to be sent to the LLM
+        print("file uploaded: ", file.filename)
         filename = file.filename
         name, extension = splitext(filename) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
 
@@ -323,7 +324,6 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
     return {"text": response.text, "role": "model"}
 
 
-
 @router.put("/{chat_id}/update_slides")
 async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
                              current_user: dict = Depends(auth.get_current_user)):
@@ -361,7 +361,7 @@ async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
     # Construct the storage directory and slides file URL
     storage_dir = get_chat_folder_path(chat_id)
     os.makedirs(storage_dir, exist_ok=True)
-    slides_furl = os.path.join(storage_dir, f"{generate_hash(name, strategy='uuid')}{extension}")
+    slides_furl = os.path.join(storage_dir, f"{generate_hash(name, strategy='uuid')}.{extension}")
 
     try:
         # Save the new slides file to the server
@@ -383,8 +383,30 @@ async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
         with open(dumped_generator_path, "w") as file:
             file.write(dumped_generator)
 
-        return {"chat_id": chat_id, "slides_fname": slides_fname, "slides_furl": slides_furl, "slides_mode": True, "message": "Slides updated successfully."}
+        return {"chat_id": chat_id, "slides_fname": slides_fname, "slides_furl": slides_furl,
+                "slides_mode": True, "message": "Slides updated successfully."}
 
     except Exception as e:
         shutil.rmtree(storage_dir)
         raise HTTPException(status_code=500, detail=f"Internal server error occurred: {str(e)}")
+
+
+@router.post("/{chat_id}/create_quiz")
+async def create_quiz(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
+    chat = ChatDB.fetch(chat_id=chat_id)
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+
+    course = CourseDB.fetch(course_id=chat["course_id"])
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+
+    history_url = chat["history_url"] # Get the chat history file path
+    metadata_path = get_chat_metadata_path(history_url) # chat metadata file path
+
+    chat_content = None # If the file doesn't exist (i.e. it's the very first message), set chat_content to None
+    if os.path.exists(history_url):
+        with open(history_url, "r") as file:
+            chat_content = file.read() # Read the chat history from the file
+    
+    history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
