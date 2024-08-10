@@ -11,7 +11,7 @@ from tools import generate_hash, splitext
 from modules.chat.util import *
 from modules.chat import CHATS_DIR
 from middleware import FILES_DIR
-from . import SYSTEM_PROMPT, MODEL_VERSION, EXPLAIN_SLIDE_PROMPT
+from . import SYSTEM_PROMPT, MODEL_VERSION, EXPLAIN_SLIDE_PROMPT, FLASHCARD_PROMPT, QUIZZES_PROMPT
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
@@ -123,11 +123,11 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
 
     # Construct the chat history file path and metadata file path
     # chat history file path
-    file_path = os.path.join(CHATS_DIR, hist_file_name) 
+    chat_history_path = os.path.join(CHATS_DIR, hist_file_name) 
     # chat metadata file path
     metadata_path = os.path.join(CHATS_DIR, metadata_file_name)
     
-    logger.info(f"Chat history file path: {file_path}")
+    logger.info(f"Chat history file path: {chat_history_path}")
     logger.info(f"Chat metadata file path: {metadata_path}")
 
     metadata = {} # initialize metadata to an empty dictionary
@@ -136,8 +136,8 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
             metadata = {item['message_id']: item for item in json.load(file)}
 
     chat_content = None # set chat_content to None if no chat history yet
-    if os.path.exists(file_path):
-        with open(file_path, "r") as file:
+    if os.path.exists(chat_history_path):
+        with open(chat_history_path, "r") as file:
             chat_content = file.read() # Read the chat history from the file
     
     history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
@@ -402,11 +402,44 @@ async def create_quiz(chat_id: int, current_user: dict = Depends(auth.get_curren
         raise HTTPException(status_code=403, detail="Forbidden.")
 
     history_url = chat["history_url"] # Get the chat history file path
-    metadata_path = get_chat_metadata_path(history_url) # chat metadata file path
+    if not os.path.exists(history_url):
+        raise HTTPException(status_code=400, detail="No messages found in the chat history to generate quiz.")
+    with open(history_url, "r") as file:
+        history = jsonpickle.decode(file.read()) # Read the chat history from the file
 
-    chat_content = None # If the file doesn't exist (i.e. it's the very first message), set chat_content to None
-    if os.path.exists(history_url):
-        with open(history_url, "r") as file:
-            chat_content = file.read() # Read the chat history from the file
+    chat_model = genai.GenerativeModel(
+        MODEL_VERSION, system_instruction=SYSTEM_PROMPT, 
+        generation_config={"response_mime_type": "application/json"}
+    ).start_chat(history=history)
+
+    print(QUIZZES_PROMPT)
+
+    response = chat_model.send_message(QUIZZES_PROMPT)
+    response_dict = json.loads(response.text)
+    if not response_dict["success"]:
+        raise HTTPException(status_code=500, detail="Failed to generate quiz.")
     
-    history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
+    data = response_dict["data"]
+
+    print("################dat################)")
+    print(data)
+
+    quiz = data["quiz"]
+    answers = data["answers"]
+
+    quizzes_base_path = get_quizzes_folder_path(chat_id)
+    os.makedirs(quizzes_base_path, exist_ok=True)
+    quiz_file_name = f"{generate_hash('quiz', strategy='timestamp')}.md"
+    answers_file_name = f"{generate_hash('quiz', strategy='timestamp')}_answers.json"
+
+    quiz_file_path = os.path.join(quizzes_base_path, quiz_file_name)
+    answers_file_path = os.path.join(quizzes_base_path, answers_file_name)
+
+    with open(quiz_file_path, "w") as file:
+        file.write(quiz)
+
+    with open(answers_file_path, "w") as file:
+        answers_list = [{idx + 1: answer} for idx, answer in enumerate(answers)]
+        json.dump(answers_list, file, indent=4)
+    
+    return {"quiz": quiz, "answers": answers}

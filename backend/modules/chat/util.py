@@ -71,3 +71,7 @@ def get_chat_metadata_path(history_path: str):
 
 def get_chat_folder_path(chat_id: int):
     return os.path.join(FILES_DIR, f"chat_{chat_id}") # construct the storage directory
+
+
+def get_quizzes_folder_path(chat_id: int):
+    return os.path.join(get_chat_folder_path(chat_id), "quiz") # construct the storage directory
