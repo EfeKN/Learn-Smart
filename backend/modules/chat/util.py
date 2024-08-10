@@ -75,3 +75,6 @@ def get_chat_folder_path(chat_id: int):
 
 def get_quizzes_folder_path(chat_id: int):
     return os.path.join(get_chat_folder_path(chat_id), "quiz") # construct the storage directory
+
+def get_flashcards_folder_part(chat_id: int):
+    return os.path.join(get_chat_folder_path(chat_id), "flashcards") # construct the storage directory
