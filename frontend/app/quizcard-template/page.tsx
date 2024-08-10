@@ -4,6 +4,7 @@ import { useState } from "react";
 import FlashCard from "../components/flashcard";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import "../style/bg-animation.css";
+import axios from "axios";
 
 type QuizData = {
   question: string;
@@ -170,6 +171,7 @@ export default function QuizCard() {
 
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [flashcards, setFlashcards] = useState("");
 
   const handleNextCard = () => {
     setIsTransitioning(true);
@@ -189,26 +191,62 @@ export default function QuizCard() {
     }, 300);
   };
 
+  const generateFlashcards = async () => {
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/course/generate_flashcards",
+        {
+          course_flashcard_file_content: `
+              Course Title: Introduction to Computer Science
+              Course ID: CS101
+              Instructor: Dr. Jane Doe
+
+              Course Description:
+              This course provides an introduction to the fundamental concepts of computer science, including programming, algorithms, and data structures. Students will gain hands-on experience through various projects and assignments.
+
+              Course Objectives:
+              1. Understand the basics of programming in Python.
+              2. Learn how to design and implement algorithms.
+              3. Gain experience with data structures such as lists, stacks, and queues.
+              4. Develop problem-solving skills through coding challenges.
+
+              Course Schedule:
+              Week 1: Introduction to Python
+              Week 2: Control Structures and Functions
+              Week 3: Data Structures - Lists and Tuples
+              Week 4: Data Structures - Dictionaries and Sets
+              Week 5: Algorithms - Sorting and Searching
+              Week 6: Midterm Exam
+              Week 7: Advanced Topics in Algorithms
+              Week 8: Project Development
+              Week 9: Project Presentation
+              Week 10: Final Exam
+
+              Assessment:
+              - Midterm Exam: 30%
+              - Final Exam: 40%
+              - Project: 30%
+
+              Resources:
+              - Textbook: "Introduction to Computer Science" by John Smith
+              - Online Tutorials: Codecademy, Coursera
+              - Office Hours: Monday and Wednesday, 2-4 PM
+            `,
+          course_id: "CS101",
+        }
+      );
+      setFlashcards(response.data.data);
+    } catch (error) {
+      console.error("Error generating flashcards:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 min-h-screen animated-gradient">
       <div className="flex justify-between w-full items-center">
-        <button
-          onClick={handlePreviousCard}
-          className="text-blue-500 hover:text-blue-600 focus:outline-none"
-        >
-          <FaArrowLeft size={24} />
-        </button>
-        <FlashCard
-          question={quizData[currentCardIndex].question}
-          answer={quizData[currentCardIndex].answer}
-          isTransitioning={isTransitioning}
-        />
-        <button
-          onClick={handleNextCard}
-          className="text-blue-500 hover:text-blue-600 focus:outline-none"
-        >
-          <FaArrowRight size={24} />
-        </button>
+        <h2>Flashcards</h2>
+        <button onClick={generateFlashcards}>Generate Flashcards</button>
+        <pre>{flashcards}</pre>
       </div>
     </div>
   );

@@ -13,6 +13,15 @@ from tools import validate_file_extension
 
 router = APIRouter(prefix="/course", tags=["Course"])
 
+@router.post("/generate_flashcards")
+def generate_flashcards(course_flashcard_file_content: str = Form(...), course_id: str = Form(...)):
+    # Add logging or print statements to inspect the incoming data
+    print(f"course_flashcard_file_content: {course_flashcard_file_content}")
+    print(f"course_id: {course_id}")
+
+    # Your logic to generate flashcards
+    success, data = create_flashcards(course_flashcard_file_content, course_id)
+    return {"success": success, "data": data}
 
 @router.get("/{course_id}")
 async def get_course(course_id: int, current_user: dict = Depends(auth.get_current_user)):
