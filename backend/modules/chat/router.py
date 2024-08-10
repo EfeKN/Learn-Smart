@@ -443,3 +443,57 @@ async def create_quiz(chat_id: int, current_user: dict = Depends(auth.get_curren
         json.dump(answers_list, file, indent=4)
     
     return {"quiz": quiz, "answers": answers}
+
+@router.post("/{chat_id}/create_flashcards")
+async def create_flashcards(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
+    chat = ChatDB.fetch(chat_id=chat_id)
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+
+    course = CourseDB.fetch(course_id=chat["course_id"])
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+
+    history_url = chat["history_url"] # Get the chat history file path
+    if not os.path.exists(history_url):
+        raise HTTPException(status_code=400, detail="No messages found in the chat history to generate any flashcard.")
+    with open(history_url, "r") as file:
+        history = jsonpickle.decode(file.read()) # Read the chat history from the file
+
+    print(history)
+
+    chat_model = genai.GenerativeModel(
+        MODEL_VERSION, system_instruction=SYSTEM_PROMPT, 
+        generation_config={"response_mime_type": "application/json"}
+    ).start_chat(history=history)
+
+    print(FLASHCARD_PROMPT)
+
+    response = chat_model.send_message(FLASHCARD_PROMPT)
+    response_dict = json.loads(response.text)
+    if not response_dict["success"]:
+        raise HTTPException(status_code=500, detail="Failed to generate flashcards.")
+    
+    data = response_dict["data"]
+
+    print("################dat################)")
+    print(data)
+
+    flashcards = data["flashcards"]
+    answers = data["answers"]
+
+    flashcards_base_path = get_flashcards_folder_part(chat_id)
+    os.makedirs(flashcards_base_path, exist_ok=True)
+    flashcards_file_name = f"{generate_hash('flashcards', strategy='timestamp')}.md"
+    answers_file_name = f"{generate_hash('flashcards', strategy='timestamp')}_answers.json"
+
+    flashcards_file_path = os.path.join(flashcards_base_path, flashcards_file_name)
+    answers_file_path = os.path.join(flashcards_base_path, answers_file_name)
+
+    with open(flashcards_file_path, "w") as file:
+        file.write(flashcards)
+
+    with open(answers_file_path, "w") as file:
+        file.write(answers)
+    
+    return {"flashcards": flashcards, "answers": answers}
