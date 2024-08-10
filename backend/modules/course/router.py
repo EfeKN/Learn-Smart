@@ -1,7 +1,8 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, File, UploadFile
 import google.generativeai as genai
-import os, shutil
+import os
+import shutil
 
 from middleware import authentication as auth
 from middleware.filemanager import FileFactory
@@ -75,6 +76,112 @@ async def get_chats(course_id: int, current_user: dict = Depends(auth.get_curren
     return [{"chat_id": chat["chat_id"],
                        "chat_title": chat["chat_title"],
                        "created_at": chat["created_at"]} for chat in chats]  # return chat titles along with chat IDs
+
+
+@router.get("/{course_id}/quizzes")
+async def get_quizzes(course_id: int, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Get all quizzes for a course.
+
+    Args:
+        course_id (int): The ID of the course.
+        current_user (User): The current authenticated user (used for authentication).
+
+    Returns:
+        list: A list of quizzes.
+    """
+
+    course = CourseDB.fetch(course_id=course_id)
+
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found.")
+
+    chats = ChatDB.fetch(course_id=course_id, all=True)
+    all_quizzes = []
+    for chat in chats:
+        quizzes_path = get_quizzes_folder_path(chat["chat_id"])
+        if os.path.exists(quizzes_path):
+            # get all markdown files in the quizzes folder of the chat
+            md_files = [splitext(filename)[0] for filename in os.listdir(quizzes_path) if splitext(filename)[1] == "md"]
+            all_quizzes.append({"chat_id": chat["chat_id"], "chat_title": chat["chat_title"], "quizzes": md_files})
+    return all_quizzes
+
+
+# Quizzes don't have entries in DB and don't have IDs, which makes this function inefficient
+@router.put("/{course_id}/quizzes/{quiz_name}")
+async def rename_quiz(course_id: int, quiz_name: str, new_quiz_name: str,
+                      current_user: dict = Depends(auth.get_current_user)):
+    """
+    Rename a quiz.
+
+    Args:
+        course_id (int): The ID of the course.
+        quiz_name (str): The current name of the quiz.
+        new_quiz_name (str): The new name of the quiz.
+        current_user (User): The current authenticated user (used for authentication).
+
+    Returns:
+        dict: A dictionary containing the new quiz name.
+
+    Raises:
+        HTTPException: If there is an error renaming the quiz.
+    """
+
+    course = CourseDB.fetch(course_id=course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found.")
+
+    chats = ChatDB.fetch(course_id=course_id, all=True)
+    for chat in chats:
+        quizzes_path = get_quizzes_folder_path(chat["chat_id"])
+        if os.path.exists(quizzes_path):
+            # get all markdown files in the quizzes folder of the chat
+            md_files = [splitext(filename)[0] for filename in os.listdir(quizzes_path) if splitext(filename)[1] == "md"]
+            if quiz_name in md_files:
+                new_name = f"{new_quiz_name}"
+                os.rename(os.path.join(quizzes_path, f"{quiz_name}.md"), os.path.join(quizzes_path, f"{new_name}.md"))
+                os.rename(os.path.join(quizzes_path, f"{quiz_name}_answers.json"), 
+                          os.path.join(quizzes_path, f"{new_quiz_name}_answers.json"))
+
+                return {"new_quiz_name": new_quiz_name}
+
+    raise HTTPException(status_code=404, detail="Quiz not found.")
+
+
+@router.delete("/{course_id}/quizzes/{quiz_name}")
+async def delete_quiz(course_id: int, quiz_name: str, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Delete a quiz.
+
+    Args:
+        course_id (int): The ID of the course.
+        quiz_name (str): The name of the quiz.
+        current_user (User): The current authenticated user (used for authentication).
+
+    Returns:
+        dict: A dictionary containing the success message.
+
+    Raises:
+        HTTPException: If there is an error deleting the quiz.
+    """
+
+    course = CourseDB.fetch(course_id=course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found.")
+
+    chats = ChatDB.fetch(course_id=course_id, all=True)
+    for chat in chats:
+        quizzes_path = get_quizzes_folder_path(chat["chat_id"])
+        if os.path.exists(quizzes_path):
+            # get all markdown files in the quizzes folder of the chat
+            md_files = [splitext(filename)[0] for filename in os.listdir(quizzes_path) if splitext(filename)[1] == "md"]
+            if quiz_name in md_files:
+                os.remove(os.path.join(quizzes_path, f"{quiz_name}.md"))
+                os.remove(os.path.join(quizzes_path, f"{quiz_name}_answers.json"))
+
+                return {"message": "Quiz deleted successfully."}
+
+    raise HTTPException(status_code=404, detail="Quiz not found.")
 
 
 @router.post("/create")
