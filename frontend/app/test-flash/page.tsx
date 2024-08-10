@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import axios from "axios";
+import backendAPI from "@/environment/backend_api";
 
 const GenerateFlashcards: React.FC = () => {
   const [courseContent, setCourseContent] = useState<string>("");
@@ -16,8 +17,8 @@ const GenerateFlashcards: React.FC = () => {
       formData.append("course_flashcard_file_content", courseContent);
       formData.append("course_id", courseId);
 
-      const response = await axios.post(
-        "http://localhost:8000/api/course/generate_flashcards",
+      const response = await backendAPI.post(
+        "/course/generate_flashcards",
         formData,
         {
           headers: {
