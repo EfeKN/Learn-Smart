@@ -475,7 +475,7 @@ async def create_flashcards(chat_id: int, current_user: dict = Depends(auth.get_
     flashcards = [item["topic"] for item in data]
     explanations = [item["explanation"] for item in data]
 
-    flashcards_base_path = get_flashcards_folder_part(chat_id)
+    flashcards_base_path = get_flashcards_folder_path(chat_id)
     os.makedirs(flashcards_base_path, exist_ok=True)
     flashcards_file_name = f"{generate_hash('flashcards', strategy='timestamp')}.json"
 
@@ -489,4 +489,39 @@ async def create_flashcards(chat_id: int, current_user: dict = Depends(auth.get_
     with open(flashcards_file_path, "w") as file:
         json.dump(combined_data, file, indent=4)
 
-    return {"flashcards_file": flashcards_file_path}
+    return {"combined_data": combined_data}
+
+@router.get("/{chat_id}/flashcards")
+async def get_flashcards(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Get all flashcard JSONs for a specific chat.
+
+    Args:
+        chat_id (int): The ID of the chat.
+        current_user (dict): The current authenticated user (used for authentication).
+
+    Returns:
+        list: A list of flashcards in JSON format.
+    """
+
+    # Fetch the chat from the database
+    chat = ChatDB.fetch(chat_id=chat_id)
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+
+    flashcards_path = get_flashcards_folder_path(chat["chat_id"])
+
+    if not os.path.exists(flashcards_path):
+        raise HTTPException(status_code=404, detail="Flashcards folder not found.")
+
+    flashcards = []
+    for filename in os.listdir(flashcards_path):
+        if filename.endswith(".json"):
+            with open(os.path.join(flashcards_path, filename), "r") as f:
+                flashcard = json.load(f)
+                flashcards.append(flashcard)
+
+    print(flashcard)
+
+    return flashcards
