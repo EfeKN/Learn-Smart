@@ -10,7 +10,7 @@ import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, Fragment } from "react";
 import { FaArrowCircleRight, FaCalendarAlt } from "react-icons/fa";
 import { GiBookmarklet, GiSpellBook } from "react-icons/gi";
 import ReactMarkdown from "react-markdown";
@@ -26,9 +26,8 @@ export default function InstructorPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [showScrollButton, setShowScrollButton] = useState<boolean>(false);
-  const [changeOccured, setChangeOccured] = useState<boolean>(false);
   const router = useRouter();
-
+  const [slidesMode, setSlidesMode] = useState<boolean>(false);
   const params = useParams<{ course_id: string }>();
   const course_id = params.course_id;
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -196,9 +195,46 @@ export default function InstructorPage() {
     }
   };
 
+  const categorizeChats = (chats: Chat[]) => {
+    const categories = {
+      today: [] as Chat[],
+      yesterday: [] as Chat[],
+      lastWeek: [] as Chat[],
+      other: [] as Chat[],
+    };
+
+    const now = new Date();
+    chats.forEach((chat) => {
+      const chatDate = new Date(chat.created_at);
+      const diffTime = now.getTime() - chatDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      if (diffDays === 0) {
+        categories.today.push(chat);
+      } else if (diffDays === 1) {
+        categories.yesterday.push(chat);
+      } else if (diffDays <= 7) {
+        categories.lastWeek.push(chat);
+      } else {
+        categories.other.push(chat);
+      }
+    });
+    return categories;
+  }
+
+  const fetchAndUpdateSlidesMode = (chat_id: string) => {
+    fetchChat(chat_id)
+      .then((data) => {
+        setSlidesMode(data.slides_mode);
+      })
+      .catch((error) => {
+        console.error("Error on slides mode:", error);
+      });
+  };
+
   return (
     <main>
-      {course ? (
+      {course && chats ? (
         <div className="flex h-screen">
           <div
             className={`text-gray-400 h-full p-2 pt-8 ${
@@ -244,57 +280,68 @@ export default function InstructorPage() {
             </div>
 
             {open && (
-              <div>
-                <div className="inline-flex items-center mb-5">
-                  <Image
-                    className="rounded-full mr-3"
-                    src={logo}
-                    alt="logo"
-                    width={40}
-                    height={40}
-                  />
-                  <h1 className="origin-left font-medium duration-300 text-2xl">
-                    {course?.course_name || "Loading..."}
-                  </h1>
+                <div className="flex-grow flex flex-col relative h-5/6">
+                  <div className="inline-flex items-center mb-12">
+                    <Image
+                        className="rounded-full mr-3"
+                        src={logo}
+                        alt="logo"
+                        width={40}
+                        height={40}
+                    />
+                    <h1 className="origin-left font-medium duration-300 text-xl">
+                      {course?.course_name || "Loading..."}
+                    </h1>
+                  </div>
+                  <ul className="flex-grow overflow-y-auto">
+                    {Object.entries(categorizeChats(chats)).filter(([, chats]) => chats.length > 0).
+                    map(([category, chats]) => (
+                        <Fragment key={category}>
+                          <h2 className="text-sm font-semibold text-gray-500 capitalize p-2">
+                            {category === 'lastWeek' ? 'Last Week' : category}
+                          </h2>
+                          {chats.map((chat) => (
+                              <li
+                                  key={chat.chat_id}
+                                  className={`p-2 cursor-pointer rounded mb-2 ${
+                                      selectedChat && selectedChat.chat_id === chat.chat_id
+                                          ? "bg-gray-700"
+                                          : "hover:bg-gray-700"
+                                  }`}
+                                  onClick={() => handleChatSelection(chat.chat_id)}
+                              >
+                                <p className="text-sm font-normal text-gray-400">
+                                  {chat.chat_title}
+                                </p>
+                              </li>
+                          ))}
+                        </Fragment>
+                    ))}
+                  </ul>
                 </div>
-                <ul>
-                  {chats.map((chat) => (
-                    <li
-                      key={chat.chat_id}
-                      className={`p-2 cursor-pointer rounded mb-2 ${
-                        selectedChat && selectedChat.chat_id === chat.chat_id
-                          ? "bg-gray-700"
-                          : "hover:bg-gray-700"
-                      }`}
-                      onClick={() => handleChatSelection(chat.chat_id)}
-                    >
-                      {chat.chat_title}
-                    </li>
-                  ))}
-                </ul>
-              </div>
             )}
           </div>
           <div className="p-10 flex-grow flex flex-col relative bg-transparent">
             {selectedChat ? (
-              <div className="flex flex-col h-full">
-                <div className="flex justify-between items-center mb-4">
-                  <h1 className="text-2xl font-semibold">
-                    {selectedChat.chat_title}
-                  </h1>
-                  {selectedChat.slides_mode && (
-                    <button
-                      className="bg-transparent text-4xl p-2 text-black"
+                <div className="flex flex-col h-full">
+                  <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-2xl font-semibold">
+                      {selectedChat.chat_title}
+                    </h1>
+                    {fetchAndUpdateSlidesMode(selectedChat.chat_id)}
+                    {slidesMode && (
+                      <button
+                      className={`bg-transparent text-4xl p-2 text-black cursor-pointer`}
                       onClick={() => fetchNewSlide(selectedChat.chat_id)}
                       type="button"
-                    >
+                      >
                       <FaArrowCircleRight />
                     </button>
                   )}
                 </div>
                 <div
                   ref={chatContainerRef}
-                  className="flex-grow mt-5 overflow-y-auto overflow-x-auto"
+                  className="flex-grow mt-5 overflow-y-auto"
                 >
                   {messages.map((message) => (
                     <div
@@ -311,7 +358,7 @@ export default function InstructorPage() {
                             message.role === "user"
                               ? "bg-blue-500 text-white"
                               : "bg-gray-300 text-black"
-                          } max-w-7xl rounded-lg`}
+                          } max-w-5xl rounded-lg`}
                         >
                           {message.media_url && (
                             <div className="flex justify-center mb-2">
@@ -375,7 +422,9 @@ export default function InstructorPage() {
                 </div>
                 <div className="mx-3 mt-12 flex flex-col items-center justify-center gap-4">
                   <div className="flex flex-wrap items-center justify-center gap-4">
-                    <button className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
+                    <button className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
+                    px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
+                    disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
                       <GiSpellBook
                         className="text-2xl"
                         style={{ color: "rgb(44, 84, 102)" }}
@@ -384,7 +433,9 @@ export default function InstructorPage() {
                         Create Quiz for {course?.course_name || "the Course"}
                       </div>
                     </button>
-                    <button className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
+                    <button className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
+                    px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
+                    disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
                       <GiBookmarklet
                         className="text-2xl"
                         style={{ color: "rgb(118, 208, 235)" }}
@@ -393,7 +444,9 @@ export default function InstructorPage() {
                         Flashcard for {course?.course_name || "the Course"}
                       </div>
                     </button>
-                    <button className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
+                    <button className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
+                    px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
+                    disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
                       <FaCalendarAlt
                         className="text-2xl"
                         style={{ color: "rgb(203, 139, 208)" }}

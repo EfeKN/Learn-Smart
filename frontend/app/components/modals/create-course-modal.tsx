@@ -45,7 +45,15 @@ export default function CreateCourseModal(
     fileType: string
   ) {
     const file = event.target.files && event.target.files[0];
+    handleFile(file, setter, setError, fileType);
+  }
 
+  function handleFile(
+    file: File | null,
+    setter: React.Dispatch<React.SetStateAction<any>>,
+    setError: React.Dispatch<React.SetStateAction<string>>,
+    fileType: string
+  ) {
     // Check if file is of correct type for document
     if (
       file &&
@@ -55,10 +63,7 @@ export default function CreateCourseModal(
       setter(file);
       setError("");
       printDebugMessage(`Selected file: ${file.name}`);
-    }
-
-    // Check if file is of correct type for image
-    else if (
+    } else if (
       file &&
       fileType === "image" &&
       imageMimeTypes.includes(file.type)
@@ -66,13 +71,8 @@ export default function CreateCourseModal(
       setter(file);
       setError("");
       printDebugMessage(`Selected file: ${file.name}`);
-    }
-
-    // Invalid file type for document
-    else {
+    } else {
       setter(null);
-
-      // Set error message based on file type
       if (fileType === "document") {
         setError("Invalid file type. Allowed types are: PDF, DOCX");
       } else {
@@ -194,7 +194,14 @@ export default function CreateCourseModal(
             />
           </div>
           <div className="flex space-x-4 mb-4 items-start">
-            <div className="flex flex-col items-center justify-center w-1/2">
+            <div className="flex flex-col items-center justify-center w-1/2"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                handleFile(file, setSyllabus, setSyllabusError, "document");
+              }}
+            >
               <label
                 htmlFor="syllabus"
                 className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
@@ -260,7 +267,14 @@ export default function CreateCourseModal(
                 study plan.
               </p>
             </div>
-            <div className="flex flex-col items-center justify-center w-1/2">
+            <div className="flex flex-col items-center justify-center w-1/2"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
+                handleFile(file, setIcon, setIconError, "image");
+              }}
+            >
               <label
                 htmlFor="image"
                 className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"

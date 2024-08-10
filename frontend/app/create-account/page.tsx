@@ -78,7 +78,9 @@ export default function CreateAccountPage() {
       .then((response) => {
         if (response.status === 200) {
           toast.success("Account created successfully");
-          router.push("/login");
+          setTimeout(() => {
+            router.push("/login");
+          }, 1500);
         }
       })
       .catch((error) => {

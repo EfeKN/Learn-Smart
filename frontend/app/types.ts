@@ -139,6 +139,7 @@ export interface Chat {
   chat_id: string;
   chat_title: string;
   slides_mode: boolean;
+  created_at: string;
 }
 
 export interface Notification {
