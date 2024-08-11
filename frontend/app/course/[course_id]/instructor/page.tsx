@@ -34,6 +34,7 @@ export default function InstructorPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef(null);
+
   const fetchChat = (chat_id: string) => {
     return backendAPI
       .get(`/chat/${chat_id}`, {
@@ -160,8 +161,6 @@ export default function InstructorPage() {
     fetchChatMessages(newChat.chat_id);
   };
 
-
-
   const categorizeChats = (chats: Chat[]) => {
     const categories = {
       today: [] as Chat[],
@@ -193,6 +192,16 @@ export default function InstructorPage() {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  const fetchChatData = async () => {
+    try {
+      const data = await fetchChat(selectedChat.chat_id);
+      setSlidesMode(data.slides_mode);
+    } catch (error) {
+      console.error("Error fetching slides mode:", error);
+    }
+  };
+
   useEffect(() => {
     setToken(Cookies.get("authToken") || "");
   }, []);
@@ -212,19 +221,9 @@ export default function InstructorPage() {
     router.replace("/login");
   }
 
-  const fetchChatData = async () => {
-    try {
-      const data = await fetchChat(selectedChat.chat_id);
-      setSlidesMode(data.slides_mode);
-    } catch (error) {
-      console.error("Error fetching slides mode:", error);
-    }
-  };
-
-  // Start polling when a chat is selected
   useEffect(() => {
     if (selectedChat) {
-      fetchChatData(); // Initial fetch
+      fetchChatData();
       intervalRef.current = setInterval(fetchChatData, 10);
     }
     return () => clearInterval(intervalRef.current);
