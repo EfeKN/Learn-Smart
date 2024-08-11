@@ -47,9 +47,10 @@
 1. `python -m venv backend`
 
 2. * `backend\Scripts\activate` for Windows
-   * `source backend/bin/activate` for Mac
+   * `source backend/bin/activate` for Unix
 
-3. `cd backend && mkdir files chat_histories`. This is where the file uploads are stored (for now).
+3. `cd backend && mkdir files chat_histories` for Unix
+    `cd backend && mkdir files && chat_histories`. for Windows. This is where the file uploads are stored (for now).
 
 4. `pip install -r requirements.txt`
 

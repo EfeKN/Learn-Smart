@@ -25,6 +25,7 @@
 /backend/Scripts
 /backend/pyvenv.cfg
 /backend/upload_files/
+/backend/.logs
 /backend/chats/
 /backend/chat_histories
 /backend/files
