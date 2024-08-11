@@ -345,11 +345,11 @@ class ChatDB(DatabaseInterface):
                 chat.chat_title = chat_title
             if history_url:
                 chat.history_url = history_url
-            if slides_fname:
+            if slides_fname is not None:
                 chat.slides_fname = slides_fname
-            if slides_furl:
+            if slides_furl is not None:
                 chat.slides_furl = slides_furl
-            if slides_mode:
+            if slides_mode is not None:
                 chat.slides_mode = slides_mode
 
             db.commit()

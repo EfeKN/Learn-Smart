@@ -164,9 +164,8 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
     chat["history"] = messages # Add the chat history to response
     return chat
 
-
 @router.get("/{chat_id}/next_slide")
-def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_user)):
+def get_next_slide(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
     """
     Get the next slide content for a given chat.
 
@@ -238,8 +237,11 @@ def get_next_slide(chat_id: int, current_user: User = Depends(auth.get_current_u
         return {"text": response.text, "media_url": content_url} # return the response in dictionary format
 
     except StopIteration:
-        raise HTTPException(status_code=404, detail="No more slides to show.")
-    
+        chat_update_data = {
+            "slides_mode" : False
+        }
+        ChatDB.update(chat_id=chat_id, **chat_update_data)
+
 
 @router.post("/{chat_id}/send_message")
 async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = File(None),
