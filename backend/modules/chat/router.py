@@ -501,10 +501,9 @@ async def get_flashcards(chat_id: int, current_user: dict = Depends(auth.get_cur
         current_user (dict): The current authenticated user (used for authentication).
 
     Returns:
-        list: A list of flashcards in JSON format.
+        list: A list of dictionaries, each containing the file name and flashcard content.
     """
 
-    # Fetch the chat from the database
     chat = ChatDB.fetch(chat_id=chat_id)
 
     if not chat:
@@ -520,8 +519,153 @@ async def get_flashcards(chat_id: int, current_user: dict = Depends(auth.get_cur
         if filename.endswith(".json"):
             with open(os.path.join(flashcards_path, filename), "r") as f:
                 flashcard = json.load(f)
-                flashcards.append(flashcard)
-
-    print(flashcard)
+                flashcards.append({
+                    "filename": filename,
+                    "content": flashcard
+                })
 
     return flashcards
+
+@router.get("/{chat_id}/flashcards/{flashcard_name}")
+async def get_flashcard(chat_id: int, flashcard_name: str, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Get a specific flashcard JSON by its file name.
+
+    Args:
+        chat_id (int): The ID of the chat.
+        flashcard_name (str): The name of the flashcard file (without the .json extension).
+        current_user (dict): The current authenticated user (used for authentication).
+
+    Returns:
+        dict: A dictionary containing the file name and flashcard content.
+    """
+
+    chat = ChatDB.fetch(chat_id=chat_id)
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+
+    flashcards_path = get_flashcards_folder_path(chat["chat_id"])
+
+    if not os.path.exists(flashcards_path):
+        raise HTTPException(status_code=404, detail="Flashcards folder not found.")
+
+    file_path = os.path.join(flashcards_path, f"{flashcard_name}.json")
+
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Flashcard not found.")
+
+    with open(file_path, "r") as f:
+        flashcard = json.load(f)
+
+    return {
+        "filename": f"{flashcard_name}.json",
+        "content": flashcard
+    }
+
+@router.put("/{chat_id}/flashcards/{flashcard_name}")
+async def rename_flashcard(chat_id: int, flashcard_name: str, new_name: str, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Rename a specific flashcard file.
+
+    Args:
+        chat_id (int): The ID of the chat.
+        flashcard_name (str): The current name of the flashcard file (without the .json extension).
+        new_name (str): The new name for the flashcard file (without the .json extension).
+        current_user (dict): The current authenticated user (used for authentication).
+
+    Returns:
+        dict: A message indicating the flashcard was successfully renamed.
+    """
+
+    chat = ChatDB.fetch(chat_id=chat_id)
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+
+    flashcards_path = get_flashcards_folder_path(chat["chat_id"])
+
+    if not os.path.exists(flashcards_path):
+        raise HTTPException(status_code=404, detail="Flashcards folder not found.")
+
+    old_file_path = os.path.join(flashcards_path, f"{flashcard_name}.json")
+    new_file_path = os.path.join(flashcards_path, f"{new_name}.json")
+
+    if not os.path.exists(old_file_path):
+        raise HTTPException(status_code=404, detail="Flashcard not found.")
+
+    if os.path.exists(new_file_path):
+        raise HTTPException(status_code=400, detail="A flashcard with the new name already exists.")
+
+    os.rename(old_file_path, new_file_path)
+
+    return {"message": f"Flashcard '{flashcard_name}.json' has been successfully renamed to '{new_name}.json'."}
+
+@router.delete("/{chat_id}/flashcards")
+async def delete_all_flashcards(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Delete all flashcard files inside the folder without deleting the folder.
+
+    Args:
+        chat_id (int): The ID of the chat.
+        current_user (dict): The current authenticated user (used for authentication).
+
+    Returns:
+        dict: A message indicating all flashcards were successfully deleted.
+    """
+
+    chat = ChatDB.fetch(chat_id=chat_id)
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+
+    flashcards_path = get_flashcards_folder_path(chat["chat_id"])
+
+    if not os.path.exists(flashcards_path):
+        raise HTTPException(status_code=404, detail="Flashcards folder not found.")
+
+    if not os.listdir(flashcards_path):
+        return {"message": "No flashcards to delete; the folder is already empty."}
+
+    for filename in os.listdir(flashcards_path):
+        name, ext = os.path.splitext(filename)
+        file_path = os.path.join(flashcards_path, f"{name}.json")
+        os.remove(file_path)
+        print(file_path)
+        
+        
+
+    return {"message": "All flashcards have been successfully deleted."}
+
+@router.delete("/{chat_id}/flashcards/{flashcard_name}")
+async def delete_flashcard(chat_id: int, flashcard_name: str, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Delete a specific flashcard by its file name.
+
+    Args:
+        chat_id (int): The ID of the chat.
+        flashcard_name (str): The name of the flashcard file (without the .json extension).
+        current_user (dict): The current authenticated user (used for authentication).
+
+    Returns:
+        dict: A message indicating the flashcard was successfully deleted.
+    """
+
+    chat = ChatDB.fetch(chat_id=chat_id)
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+
+    flashcards_path = get_flashcards_folder_path(chat["chat_id"])
+
+    if not os.path.exists(flashcards_path):
+        raise HTTPException(status_code=404, detail="Flashcards folder not found.")
+
+    file_path = os.path.join(flashcards_path, f"{flashcard_name}.json")
+
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Flashcard not found.")
+
+    os.remove(file_path)
+
+    return {"message": f"Flashcard '{flashcard_name}.json' has been successfully deleted."}
