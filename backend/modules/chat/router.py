@@ -508,6 +508,11 @@ async def get_flashcards(chat_id: int, current_user: dict = Depends(auth.get_cur
 
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
 
     flashcards_path = get_flashcards_folder_path(chat["chat_id"])
 
@@ -544,6 +549,11 @@ async def get_flashcard(chat_id: int, flashcard_name: str, current_user: dict = 
 
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
 
     flashcards_path = get_flashcards_folder_path(chat["chat_id"])
 
@@ -582,6 +592,11 @@ async def rename_flashcard(chat_id: int, flashcard_name: str, new_name: str, cur
 
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
 
     flashcards_path = get_flashcards_folder_path(chat["chat_id"])
 
@@ -618,6 +633,11 @@ async def delete_all_flashcards(chat_id: int, current_user: dict = Depends(auth.
 
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
 
     flashcards_path = get_flashcards_folder_path(chat["chat_id"])
 
@@ -655,6 +675,11 @@ async def delete_flashcard(chat_id: int, flashcard_name: str, current_user: dict
 
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+    
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
 
     flashcards_path = get_flashcards_folder_path(chat["chat_id"])
 
