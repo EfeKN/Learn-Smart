@@ -11,7 +11,8 @@ import Cookies from "js-cookie";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState, Fragment } from "react";
-import { FaArrowCircleRight, FaCalendarAlt } from "react-icons/fa";
+import {FaArrowCircleRight, FaCalendarAlt} from "react-icons/fa";
+import { ImSpinner8 } from "react-icons/im";
 import { GiBookmarklet, GiSpellBook } from "react-icons/gi";
 import ReactMarkdown from "react-markdown";
 
@@ -24,59 +25,15 @@ export default function InstructorPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [lastMessageID, setLastMessageID] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [showScrollButton, setShowScrollButton] = useState<boolean>(false);
   const router = useRouter();
   const [slidesMode, setSlidesMode] = useState<boolean>(false);
   const params = useParams<{ course_id: string }>();
   const course_id = params.course_id;
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setToken(Cookies.get("authToken") || "");
-  }, []);
-
-  useEffect(() => {
-    if (token) {
-      fetchCourse();
-      fetchAllChats();
-    }
-  }, [token]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (chatContainerRef.current) {
-        const { scrollTop, clientHeight, scrollHeight } =
-          chatContainerRef.current;
-
-        // TODO: THIS DO NOT WORK
-        if (scrollTop > 0) {
-          // User has scrolled upwards
-          setShowScrollButton(true);
-        } else {
-          // User is at the top of the chat container
-          setShowScrollButton(false);
-        }
-      }
-    };
-
-    if (chatContainerRef.current) {
-      chatContainerRef.current.addEventListener("scroll", handleScroll);
-      return () =>
-        chatContainerRef.current?.removeEventListener("scroll", handleScroll);
-    }
-  }, []);
-
-  if (token == null) {
-    router.replace("/login");
-  }
-
+  const intervalRef = useRef(null);
   const fetchChat = (chat_id: string) => {
     return backendAPI
       .get(`/chat/${chat_id}`, {
@@ -149,7 +106,7 @@ export default function InstructorPage() {
   };
 
   const fetchNewSlide = async (chat_id: string) => {
-    fetchChat(chat_id);
+    setIsFetching(true);
     backendAPI
       .get(`/chat/${chat_id}/next_slide`, {
         headers: {
@@ -158,22 +115,36 @@ export default function InstructorPage() {
         },
       })
       .then((response) => {
-        const modelResponse = {
-          text: response.data.text,
-          role: "model",
-          media_url: `http://127.0.0.1:8000/${response.data.media_url}`,
-          message_id: lastMessageID + 1,
-        };
-        setMessages((prevMessages: Message[]) => [
-          ...prevMessages,
-          modelResponse,
-        ]);
-        setLastMessageID(lastMessageID + 1);
+        let text, media_url = null;
+
+        if (response.data != null) {
+          ({ text, media_url } = response.data);
+        }
+
+        if (text !== null && media_url !== null) {
+          const modelResponse = {
+            text: text,
+            role: "model",
+            media_url: `http://127.0.0.1:8000/${media_url}`,
+            message_id: lastMessageID + 1,
+          };
+
+          setMessages((prevMessages: Message[]) => [
+            ...prevMessages,
+            modelResponse,
+          ]);
+          setLastMessageID(lastMessageID + 1);
+        } else {
+          console.log("Received null not fetching new slide.");
+        }
       })
       .catch((error) => {
         console.error("Error fetching chat messages:", error);
-      });
+      }).finally(()=>{
+        setIsFetching(false);
+    });
   };
+
 
   const handleChatSelection = async (chat_id: string) => {
     if (chat_id !== selectedChat?.chat_id) {
@@ -189,11 +160,7 @@ export default function InstructorPage() {
     fetchChatMessages(newChat.chat_id);
   };
 
-  const scrollToBottom = () => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+
 
   const categorizeChats = (chats: Chat[]) => {
     const categories = {
@@ -221,16 +188,48 @@ export default function InstructorPage() {
     });
     return categories;
   }
-
-  const fetchAndUpdateSlidesMode = (chat_id: string) => {
-    fetchChat(chat_id)
-      .then((data) => {
-        setSlidesMode(data.slides_mode);
-      })
-      .catch((error) => {
-        console.error("Error on slides mode:", error);
-      });
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
+  useEffect(() => {
+    setToken(Cookies.get("authToken") || "");
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      fetchCourse();
+      fetchAllChats();
+    }
+  }, [token]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  if (token == null) {
+    router.replace("/login");
+  }
+
+  const fetchChatData = async () => {
+    try {
+      const data = await fetchChat(selectedChat.chat_id);
+      setSlidesMode(data.slides_mode);
+    } catch (error) {
+      console.error("Error fetching slides mode:", error);
+    }
+  };
+
+  // Start polling when a chat is selected
+  useEffect(() => {
+    if (selectedChat) {
+      fetchChatData(); // Initial fetch
+      intervalRef.current = setInterval(fetchChatData, 10);
+    }
+    return () => clearInterval(intervalRef.current);
+  }, [selectedChat]);
+
 
   return (
     <main>
@@ -239,7 +238,7 @@ export default function InstructorPage() {
           <div
             className={`text-gray-400 h-full p-2 pt-8 ${
               open ? "w-60 bg-[#181414]" : "w-20 bg-transparent"
-            } duration-300 relative`}
+            } duration-200 relative`}
           >
             <div className="flex justify-between items-center mb-5 text-gray-400">
               <button
@@ -289,7 +288,7 @@ export default function InstructorPage() {
                         width={40}
                         height={40}
                     />
-                    <h1 className="origin-left font-medium duration-300 text-xl">
+                    <h1 className="origin-left font-medium text-lg">
                       {course?.course_name || "Loading..."}
                     </h1>
                   </div>
@@ -323,19 +322,19 @@ export default function InstructorPage() {
           </div>
           <div className="p-10 flex-grow flex flex-col relative bg-transparent">
             {selectedChat ? (
-                <div className="flex flex-col h-full">
-                  <div className="flex justify-between items-center mb-4">
-                    <h1 className="text-2xl font-semibold">
-                      {selectedChat.chat_title}
-                    </h1>
-                    {fetchAndUpdateSlidesMode(selectedChat.chat_id)}
-                    {slidesMode && (
-                      <button
-                      className={`bg-transparent text-4xl p-2 text-black cursor-pointer`}
-                      onClick={() => fetchNewSlide(selectedChat.chat_id)}
+              <div className="flex flex-col h-full">
+                <div className="flex justify-between items-center mb-4">
+                  <h1 className="text-2xl font-semibold">
+                    {selectedChat.chat_title}
+                  </h1>
+                  {slidesMode && (
+                    <button
+                      className={`bg-transparent text-4xl p-2 text-black  ${isFetching ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                      onClick={() => !isFetching && fetchNewSlide(selectedChat?.chat_id)}
                       type="button"
-                      >
-                      <FaArrowCircleRight />
+                      disabled={isFetching}
+                    >
+                      {isFetching ? <ImSpinner8 className="animate-spin" /> : <FaArrowCircleRight />}
                     </button>
                   )}
                 </div>
