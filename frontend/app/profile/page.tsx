@@ -11,15 +11,20 @@ export default function Profile() {
   const [token, setToken] = useState<string>(
     Cookies.get("authToken") as string
   );
-  const [courses, setCourses] = useState([]); // TODO: replace with actual courses
-  const [user, setUser] = useState<User>(fecthUserData);
+  const [user, setUser] = useState<User>({
+    name: "",
+    nickname: "",
+    email: "",
+    password: "",
+  });
+  // const [courses, setCourses] = useState([]); // TODO: replace with actual courses
 
   useEffect(() => {
-    setToken(Cookies.get("authToken") as string);
+    fetchUserData();
     printDebugMessage("Token: " + token);
   }, []);
 
-  async function fecthUserData() {
+  async function fetchUserData() {
     printDebugMessage(
       "Fetching user data from backend for profile page with token: " + token
     );
@@ -37,8 +42,6 @@ export default function Profile() {
         printDebugMessage("User data fetched successfully");
         printDebugMessage(response);
       });
-
-    return user;
   }
 
   return (
@@ -59,7 +62,7 @@ export default function Profile() {
         <div className="flex justify-center flex-col mt-5 mb-3.5">
           <h1 className="text-center font-bold text-3xl">{user.nickname}</h1>
           <a href="#" className="text-center text-gray-600 font-semibold">
-            What to put here?
+            {user.email}
           </a>
           <hr className="full flex self-center w-2/3 mt-2" />
         </div>
