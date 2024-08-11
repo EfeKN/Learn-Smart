@@ -14,7 +14,9 @@ import { useEffect, useRef, useState, Fragment } from "react";
 import {FaArrowCircleRight, FaCalendarAlt} from "react-icons/fa";
 import { ImSpinner8 } from "react-icons/im";
 import { GiBookmarklet, GiSpellBook } from "react-icons/gi";
+import { CiMenuKebab } from "react-icons/ci";
 import ReactMarkdown from "react-markdown";
+import ChatsList from "@/app/components/chats-list";
 
 export default function InstructorPage() {
   const [open, setOpen] = useState<boolean>(true);
@@ -161,32 +163,6 @@ export default function InstructorPage() {
     fetchChatMessages(newChat.chat_id);
   };
 
-  const categorizeChats = (chats: Chat[]) => {
-    const categories = {
-      today: [] as Chat[],
-      yesterday: [] as Chat[],
-      lastWeek: [] as Chat[],
-      other: [] as Chat[],
-    };
-
-    const now = new Date();
-    chats.forEach((chat) => {
-      const chatDate = new Date(chat.created_at);
-      const diffTime = now.getTime() - chatDate.getTime();
-      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-      if (diffDays === 0) {
-        categories.today.push(chat);
-      } else if (diffDays === 1) {
-        categories.yesterday.push(chat);
-      } else if (diffDays <= 7) {
-        categories.lastWeek.push(chat);
-      } else {
-        categories.other.push(chat);
-      }
-    });
-    return categories;
-  }
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
@@ -291,31 +267,11 @@ export default function InstructorPage() {
                       {course?.course_name || "Loading..."}
                     </h1>
                   </div>
-                  <ul className="flex-grow overflow-y-auto">
-                    {Object.entries(categorizeChats(chats)).filter(([, chats]) => chats.length > 0).
-                    map(([category, chats]) => (
-                        <Fragment key={category}>
-                          <h2 className="text-sm font-semibold text-gray-500 capitalize p-2">
-                            {category === 'lastWeek' ? 'Last Week' : category}
-                          </h2>
-                          {chats.map((chat) => (
-                              <li
-                                  key={chat.chat_id}
-                                  className={`p-2 cursor-pointer rounded mb-2 ${
-                                      selectedChat && selectedChat.chat_id === chat.chat_id
-                                          ? "bg-gray-700"
-                                          : "hover:bg-gray-700"
-                                  }`}
-                                  onClick={() => handleChatSelection(chat.chat_id)}
-                              >
-                                <p className="text-sm font-normal text-gray-400">
-                                  {chat.chat_title}
-                                </p>
-                              </li>
-                          ))}
-                        </Fragment>
-                    ))}
-                  </ul>
+                  <ChatsList
+                    chats={chats}
+                    selectedChat={selectedChat}
+                    handleChatSelection={handleChatSelection}
+                  />
                 </div>
             )}
           </div>
