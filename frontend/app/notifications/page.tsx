@@ -1,31 +1,91 @@
 "use client";
 
-import { useState } from "react";
+import backendAPI from "@/environment/backend_api";
+import Cookies from "js-cookie";
+import { useEffect, useState } from "react";
 import { IoIosNotifications, IoIosNotificationsOutline } from "react-icons/io";
-import { Notification } from "../types";
+import { printDebugMessage } from "../debugger";
+import { Notification, User } from "../types";
 
 export default function Notifications() {
+  const [token, setToken] = useState<string>(
+    Cookies.get("authToken") as string
+  );
+  const [user, setUser] = useState<User>({
+    user_id: "",
+    name: "",
+    nickname: "",
+    email: "",
+    password: "",
+    created_at: "",
+    courses: [],
+  });
+
   const [notifications, setNotifications] = useState<Notification[]>([
     {
-      notification_id: "0",
-      notification_title: "Example Title",
-      notification_content: "Example Content",
-      notification_date: "2024-07-06",
+      notification_id: "",
+      notification_title: "",
+      notification_content: "",
+      notification_date: "",
       notification_is_new: false,
+      notification_receiver_id: "",
+      notification_sender_id: "",
     },
   ]);
+
+  useEffect(() => {
+    printDebugMessage("Token: " + token);
+    fetchCurrentUser();
+  }, [token]);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [user]);
+
+  async function fetchNotifications() {
+    if (
+      user.user_id === "" ||
+      user.user_id === undefined ||
+      user.user_id === null
+    ) {
+      return;
+    }
+
+    await backendAPI
+      .get("/notification/all/" + user.user_id, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        setNotifications(response.data);
+
+        printDebugMessage("Notifications fetched successfully");
+        printDebugMessage(response);
+      });
+  }
+
+  async function fetchCurrentUser() {
+    await backendAPI
+      .get("/users/me", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        printDebugMessage("User data fetched successfully");
+        printDebugMessage(response);
+
+        setUser(response.data);
+      });
+  }
 
   function newNotificationCount() {
     return notifications.filter(
       (notification) => notification.notification_is_new
     ).length;
-  }
-
-  function isNew(notification_id: string) {
-    const index = notifications.findIndex(
-      (notification) => notification.notification_id === notification_id
-    );
-    return notifications[index].notification_is_new;
   }
 
   function markAllAsRead() {
@@ -41,20 +101,6 @@ export default function Notifications() {
       notifications.map((notification) => {
         if (notification.notification_id === notification_id) {
           return { ...notification, notification_is_new: true };
-        }
-        return notification;
-      })
-    );
-  }
-
-  function toggleNotification(notification_id: string) {
-    setNotifications(
-      notifications.map((notification) => {
-        if (notification.notification_id === notification_id) {
-          return {
-            ...notification,
-            notification_is_new: !notification.notification_is_new,
-          };
         }
         return notification;
       })

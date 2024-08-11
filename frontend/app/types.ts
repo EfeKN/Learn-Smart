@@ -115,11 +115,13 @@ export interface Message {
 }
 
 export interface User {
-  [key: string]: string;
+  user_id: string;
   name: string;
   nickname: string;
   email: string;
   password: string;
+  created_at: string;
+  courses: Course[];
 }
 
 export interface NavbarElement {
@@ -149,4 +151,6 @@ export interface Notification {
   notification_content: string;
   notification_date: string;
   notification_is_new: boolean;
+  notification_receiver_id: string;
+  notification_sender_id: string;
 }

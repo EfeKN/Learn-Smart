@@ -12,10 +12,13 @@ export default function Profile() {
     Cookies.get("authToken") as string
   );
   const [user, setUser] = useState<User>({
+    user_id: "",
     name: "",
     nickname: "",
     email: "",
     password: "",
+    created_at: "",
+    courses: [],
   });
   // const [courses, setCourses] = useState([]); // TODO: replace with actual courses
 
