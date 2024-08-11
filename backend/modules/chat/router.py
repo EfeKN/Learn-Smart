@@ -11,7 +11,7 @@ from tools import generate_hash, splitext
 from modules.chat.util import *
 from modules.chat import CHATS_DIR
 from middleware import FILES_DIR
-from . import SYSTEM_PROMPT, MODEL_VERSION, EXPLAIN_SLIDE_PROMPT
+from . import SYSTEM_PROMPT, MODEL_VERSION, EXPLAIN_SLIDE_PROMPT, FLASHCARD_PROMPT, QUIZZES_PROMPT
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
@@ -123,11 +123,11 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
 
     # Construct the chat history file path and metadata file path
     # chat history file path
-    file_path = os.path.join(CHATS_DIR, hist_file_name) 
+    chat_history_path = os.path.join(CHATS_DIR, hist_file_name) 
     # chat metadata file path
     metadata_path = os.path.join(CHATS_DIR, metadata_file_name)
     
-    logger.info(f"Chat history file path: {file_path}")
+    logger.info(f"Chat history file path: {chat_history_path}")
     logger.info(f"Chat metadata file path: {metadata_path}")
 
     metadata = {} # initialize metadata to an empty dictionary
@@ -136,8 +136,8 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
             metadata = {item['message_id']: item for item in json.load(file)}
 
     chat_content = None # set chat_content to None if no chat history yet
-    if os.path.exists(file_path):
-        with open(file_path, "r") as file:
+    if os.path.exists(chat_history_path):
+        with open(chat_history_path, "r") as file:
             chat_content = file.read() # Read the chat history from the file
     
     history = jsonpickle.decode(chat_content) if chat_content else [] # Decode the chat content from JSON
@@ -266,6 +266,7 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
 
     file_content, prompt = None, text
     if file: # if file is uploaded to be sent to the LLM
+        print("file uploaded: ", file.filename)
         filename = file.filename
         name, extension = splitext(filename) # split name and extension, e.g. myfile.pdf -> (myfile, pdf)
 
@@ -325,7 +326,6 @@ async def send_message(chat_id: int, text: str = Form(...), file: UploadFile = F
     return {"text": response.text, "role": "model"}
 
 
-
 @router.put("/{chat_id}/update_slides")
 async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
                              current_user: dict = Depends(auth.get_current_user)):
@@ -363,7 +363,7 @@ async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
     # Construct the storage directory and slides file URL
     storage_dir = get_chat_folder_path(chat_id)
     os.makedirs(storage_dir, exist_ok=True)
-    slides_furl = os.path.join(storage_dir, f"{generate_hash(name, strategy='uuid')}{extension}")
+    slides_furl = os.path.join(storage_dir, f"{generate_hash(name, strategy='uuid')}.{extension}")
 
     try:
         # Save the new slides file to the server
@@ -385,8 +385,314 @@ async def update_chat_slides(chat_id: int, slides: UploadFile = File(...),
         with open(dumped_generator_path, "w") as file:
             file.write(dumped_generator)
 
-        return {"chat_id": chat_id, "slides_fname": slides_fname, "slides_furl": slides_furl, "slides_mode": True, "message": "Slides updated successfully."}
+        return {"chat_id": chat_id, "slides_fname": slides_fname, "slides_furl": slides_furl,
+                "slides_mode": True, "message": "Slides updated successfully."}
 
     except Exception as e:
         shutil.rmtree(storage_dir)
         raise HTTPException(status_code=500, detail=f"Internal server error occurred: {str(e)}")
+
+
+@router.post("/{chat_id}/create_quiz")
+async def create_quiz(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
+    chat = ChatDB.fetch(chat_id=chat_id)
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+
+    course = CourseDB.fetch(course_id=chat["course_id"])
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+
+    history_url = chat["history_url"] # Get the chat history file path
+    if not os.path.exists(history_url):
+        raise HTTPException(status_code=400, detail="No messages found in the chat history to generate quiz.")
+    with open(history_url, "r") as file:
+        history = jsonpickle.decode(file.read()) # Read the chat history from the file
+
+    chat_model = genai.GenerativeModel(
+        MODEL_VERSION, system_instruction=SYSTEM_PROMPT, 
+        generation_config={"response_mime_type": "application/json"}
+    ).start_chat(history=history)
+
+    print(QUIZZES_PROMPT)
+
+    response = chat_model.send_message(QUIZZES_PROMPT)
+    response_dict = json.loads(response.text)
+    if not response_dict["success"]:
+        raise HTTPException(status_code=500, detail="Failed to generate quiz.")
+    
+    data = response_dict["data"]
+
+    print("################dat################)")
+    print(data)
+
+    quiz = data["quiz"]
+    answers = data["answers"]
+
+    quizzes_base_path = get_quizzes_folder_path(chat_id)
+    os.makedirs(quizzes_base_path, exist_ok=True)
+    quiz_file_name = f"{generate_hash('quiz', strategy='timestamp')}.md"
+    answers_file_name = f"{generate_hash('quiz', strategy='timestamp')}_answers.json"
+
+    quiz_file_path = os.path.join(quizzes_base_path, quiz_file_name)
+    answers_file_path = os.path.join(quizzes_base_path, answers_file_name)
+
+    with open(quiz_file_path, "w") as file:
+        file.write(quiz)
+
+    with open(answers_file_path, "w") as file:
+        answers_list = [{idx + 1: answer} for idx, answer in enumerate(answers)]
+        json.dump(answers_list, file, indent=4)
+    
+    return {"quiz": quiz, "answers": answers}
+
+@router.post("/{chat_id}/create_flashcards")
+async def create_flashcards(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
+    chat = ChatDB.fetch(chat_id=chat_id)
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+
+    course = CourseDB.fetch(course_id=chat["course_id"])
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+
+    history_url = chat["history_url"] # Get the chat history file path
+    if not os.path.exists(history_url):
+        raise HTTPException(status_code=400, detail="No messages found in the chat history to generate any flashcard.")
+    with open(history_url, "r") as file:
+        history = jsonpickle.decode(file.read()) # Read the chat history from the file
+
+    chat_model = genai.GenerativeModel(
+        MODEL_VERSION, system_instruction=SYSTEM_PROMPT, 
+        generation_config={"response_mime_type": "application/json"}
+    ).start_chat(history=history)
+
+    response = chat_model.send_message(FLASHCARD_PROMPT)
+    response_dict = json.loads(response.text)
+    if not response_dict["success"]:
+        raise HTTPException(status_code=500, detail="Failed to generate flashcards.")
+    
+    data = response_dict["data"]
+
+    flashcards = [item["topic"] for item in data]
+    explanations = [item["explanation"] for item in data]
+
+    flashcards_base_path = get_flashcards_folder_path(chat_id)
+    os.makedirs(flashcards_base_path, exist_ok=True)
+    flashcards_file_name = f"{generate_hash('flashcards', strategy='timestamp')}.json"
+
+    flashcards_file_path = os.path.join(flashcards_base_path, flashcards_file_name)
+
+    combined_data = {
+        "flashcards": flashcards,
+        "explanations": explanations
+    }
+
+    with open(flashcards_file_path, "w") as file:
+        json.dump(combined_data, file, indent=4)
+
+    return {"combined_data": combined_data}
+
+@router.get("/{chat_id}/flashcards")
+async def get_flashcards(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Get all flashcard JSONs for a specific chat.
+
+    Args:
+        chat_id (int): The ID of the chat.
+        current_user (dict): The current authenticated user (used for authentication).
+
+    Returns:
+        list: A list of dictionaries, each containing the file name and flashcard content.
+    """
+
+    chat = ChatDB.fetch(chat_id=chat_id)
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+
+    flashcards_path = get_flashcards_folder_path(chat["chat_id"])
+
+    if not os.path.exists(flashcards_path):
+        raise HTTPException(status_code=404, detail="Flashcards folder not found.")
+
+    flashcards = []
+    for filename in os.listdir(flashcards_path):
+        if filename.endswith(".json"):
+            with open(os.path.join(flashcards_path, filename), "r") as f:
+                flashcard = json.load(f)
+                flashcards.append({
+                    "filename": filename,
+                    "content": flashcard
+                })
+
+    return flashcards
+
+@router.get("/{chat_id}/flashcards/{flashcard_name}")
+async def get_flashcard(chat_id: int, flashcard_name: str, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Get a specific flashcard JSON by its file name.
+
+    Args:
+        chat_id (int): The ID of the chat.
+        flashcard_name (str): The name of the flashcard file (without the .json extension).
+        current_user (dict): The current authenticated user (used for authentication).
+
+    Returns:
+        dict: A dictionary containing the file name and flashcard content.
+    """
+
+    chat = ChatDB.fetch(chat_id=chat_id)
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+
+    flashcards_path = get_flashcards_folder_path(chat["chat_id"])
+
+    if not os.path.exists(flashcards_path):
+        raise HTTPException(status_code=404, detail="Flashcards folder not found.")
+
+    file_path = os.path.join(flashcards_path, f"{flashcard_name}.json")
+
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Flashcard not found.")
+
+    with open(file_path, "r") as f:
+        flashcard = json.load(f)
+
+    return {
+        "filename": f"{flashcard_name}.json",
+        "content": flashcard
+    }
+
+@router.put("/{chat_id}/flashcards/{flashcard_name}")
+async def rename_flashcard(chat_id: int, flashcard_name: str, new_name: str, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Rename a specific flashcard file.
+
+    Args:
+        chat_id (int): The ID of the chat.
+        flashcard_name (str): The current name of the flashcard file (without the .json extension).
+        new_name (str): The new name for the flashcard file (without the .json extension).
+        current_user (dict): The current authenticated user (used for authentication).
+
+    Returns:
+        dict: A message indicating the flashcard was successfully renamed.
+    """
+
+    chat = ChatDB.fetch(chat_id=chat_id)
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+
+    flashcards_path = get_flashcards_folder_path(chat["chat_id"])
+
+    if not os.path.exists(flashcards_path):
+        raise HTTPException(status_code=404, detail="Flashcards folder not found.")
+
+    old_file_path = os.path.join(flashcards_path, f"{flashcard_name}.json")
+    new_file_path = os.path.join(flashcards_path, f"{new_name}.json")
+
+    if not os.path.exists(old_file_path):
+        raise HTTPException(status_code=404, detail="Flashcard not found.")
+
+    if os.path.exists(new_file_path):
+        raise HTTPException(status_code=400, detail="A flashcard with the new name already exists.")
+
+    os.rename(old_file_path, new_file_path)
+
+    return {"message": f"Flashcard '{flashcard_name}.json' has been successfully renamed to '{new_name}.json'."}
+
+@router.delete("/{chat_id}/flashcards")
+async def delete_all_flashcards(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Delete all flashcard files inside the folder without deleting the folder.
+
+    Args:
+        chat_id (int): The ID of the chat.
+        current_user (dict): The current authenticated user (used for authentication).
+
+    Returns:
+        dict: A message indicating all flashcards were successfully deleted.
+    """
+
+    chat = ChatDB.fetch(chat_id=chat_id)
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+
+    flashcards_path = get_flashcards_folder_path(chat["chat_id"])
+
+    if not os.path.exists(flashcards_path):
+        raise HTTPException(status_code=404, detail="Flashcards folder not found.")
+
+    if not os.listdir(flashcards_path):
+        return {"message": "No flashcards to delete; the folder is already empty."}
+
+    for filename in os.listdir(flashcards_path):
+        name, ext = os.path.splitext(filename)
+        file_path = os.path.join(flashcards_path, f"{name}.json")
+        os.remove(file_path)
+        print(file_path)
+        
+        
+
+    return {"message": "All flashcards have been successfully deleted."}
+
+@router.delete("/{chat_id}/flashcards/{flashcard_name}")
+async def delete_flashcard(chat_id: int, flashcard_name: str, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Delete a specific flashcard by its file name.
+
+    Args:
+        chat_id (int): The ID of the chat.
+        flashcard_name (str): The name of the flashcard file (without the .json extension).
+        current_user (dict): The current authenticated user (used for authentication).
+
+    Returns:
+        dict: A message indicating the flashcard was successfully deleted.
+    """
+
+    chat = ChatDB.fetch(chat_id=chat_id)
+
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+    
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+
+    flashcards_path = get_flashcards_folder_path(chat["chat_id"])
+
+    if not os.path.exists(flashcards_path):
+        raise HTTPException(status_code=404, detail="Flashcards folder not found.")
+
+    file_path = os.path.join(flashcards_path, f"{flashcard_name}.json")
+
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Flashcard not found.")
+
+    os.remove(file_path)
+
+    return {"message": f"Flashcard '{flashcard_name}.json' has been successfully deleted."}

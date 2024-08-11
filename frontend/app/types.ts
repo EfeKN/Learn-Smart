@@ -105,6 +105,7 @@ export interface UploadChoiceModalProps {
   onClose: () => void;
   onChatUpdated: (chat: any) => void;
   onUploadFile: (file: File) => void;
+  setFile: (file: File | null) => void;
 }
 export interface Message {
   text: string;

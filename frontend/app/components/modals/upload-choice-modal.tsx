@@ -10,6 +10,7 @@ export default function UploadChoiceModal({
   token,
   onChatUpdated,
   onUploadFile,
+  setFile
 }: UploadChoiceModalProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
@@ -36,27 +37,29 @@ export default function UploadChoiceModal({
     const formData = new FormData();
     formData.append(fileType, selectedFile);
 
-    try {
-      const response = await backendAPI.put(
-        `/chat/${selectedChat.chat_id}/update_slides`,
-        formData,
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-
+    backendAPI.put(
+      `/chat/${selectedChat.chat_id}/update_slides`,
+      formData,
+      {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    )
+    .then(response => {
       console.log("Chat update response: ", response);
-
+    
       const updatedChat = response.data;
       onChatUpdated(updatedChat);
+      setSelectedFile(null);
+      setFile(null);  
       onClose();
-    } catch (error) {
+    })
+    .catch(error => {
       console.error("Error updating chat slides: ", error);
-    }
+    });
   };
 
   const handleClose = () => {

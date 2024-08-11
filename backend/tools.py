@@ -14,7 +14,7 @@ CHATS_DIR = f".{os.sep}" + os.getenv("CHATS_DIR", "chat_histories")
 FILES_DIR = f".{os.sep}" + os.getenv("FILES_DIR", "files")
 
 # Function to generate hash of a given string based on the strategy
-def generate_hash(filename, strategy="sha256"):
+def generate_hash(filename: str, strategy="sha256"):
     if strategy == "sha256":
         return hashlib.sha256(filename.encode()).hexdigest() # generate a SHA-256 hash
     elif strategy == "uuid":
