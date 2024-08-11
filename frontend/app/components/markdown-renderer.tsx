@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import Markdown from 'react-markdown';
+import React from "react";
+import Markdown from "react-markdown";
 
-interface MarkdownContentProps {
+interface MarkdownContentParameters {
   content: string;
 }
 
-const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
+const MarkdownContent: React.FC<MarkdownContentParameters> = ({ content }) => {
   return <Markdown>{content}</Markdown>;
 };
 

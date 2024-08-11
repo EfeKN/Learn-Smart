@@ -1,7 +1,7 @@
 import UploadChoiceModal from "@/app/components/modals/upload-choice-modal";
 import backendAPI from "@/environment/backend_api";
 import { useState } from "react";
-import { ChatFieldProps, Message } from "../types";
+import { ChatFieldParameters, Message } from "../types";
 
 export default function ChatFieldMenu({
   selectedChat,
@@ -10,7 +10,7 @@ export default function ChatFieldMenu({
   setLastMessageID,
   lastMessageID,
   setIsLoading,
-}: ChatFieldProps) {
+}: ChatFieldParameters) {
   const [input, setInput] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);

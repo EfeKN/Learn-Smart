@@ -1,12 +1,20 @@
+import { Chat, ChatsListParameters } from "@/app/types";
+import backendAPI from "@/environment/backend_api";
+import Cookies from "js-cookie";
 import { Fragment, useState } from "react";
+import { FaEdit, FaQuestionCircle, FaTrashAlt } from "react-icons/fa";
 import { IoEllipsisHorizontal } from "react-icons/io5";
-import { FaEdit, FaTrashAlt, FaQuestionCircle } from "react-icons/fa";
-import { Chat } from "@/app/types";
-import { useRouter } from "next/navigation";
+import { printDebugMessage } from "../debugger";
 
-export default function ChatsList({ chats, selectedChat, handleChatSelection }) {
-  const [openMenuId, setOpenMenuId] = useState(null);
-  const router = useRouter();
+export default function ChatsList({
+  chats,
+  selectedChat,
+  handleChatSelection,
+}: ChatsListParameters) {
+  const [openMenuId, setOpenMenuId] = useState<string>("");
+  const [token, setToken] = useState<string>(
+    Cookies.get("authToken") as string
+  );
 
   const categorizeChats = (chats: Chat[]) => {
     const categories = {
@@ -35,20 +43,35 @@ export default function ChatsList({ chats, selectedChat, handleChatSelection }) 
     return categories;
   };
 
-  const handleToggleMenu = (chatId) => {
-    setOpenMenuId(openMenuId === chatId ? null : chatId);
+  const handleToggleMenu = (chat_id: string) => {
+    setOpenMenuId(openMenuId === chat_id ? "" : chat_id);
   };
 
-  const handleRename = (chatId) => {
-    console.log("Rename chat:", chatId);
+  const handleRename = (chat_id: string) => {
+    printDebugMessage("Rename chat:", chat_id);
   };
 
-  const handleCreateQuiz = (chatId) => {
-    console.log("Create quiz from chat:", chatId);
+  const handleCreateQuiz = (chat_id: string) => {
+    printDebugMessage("Create quiz from chat:", chat_id);
   };
 
-  const handleDelete = (chatId) => {
-    console.log("Delete chat:", chatId);
+  const handleDelete = async (chat_id: string) => {
+    printDebugMessage("Deleting chat:", chat_id);
+
+    await backendAPI
+      .delete(`/chat/${chat_id}`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        printDebugMessage("Chat to delete:", response.data);
+        handleToggleMenu(chat_id);
+
+        // TODO: Remove chat from chats list without reloading the page
+        window.location.reload();
+      });
   };
 
   return (

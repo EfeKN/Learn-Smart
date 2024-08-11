@@ -37,7 +37,7 @@ export default function ChatInterface() {
       </div>
       <div>
         <input
-          placeholder="31"
+          placeholder="Type a message..."
           type="text"
           value={inputValue}
           onChange={handleInputChange}

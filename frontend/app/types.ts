@@ -24,6 +24,12 @@ export interface CreateCourseModalParameters {
   onCourseCreation: () => void;
 }
 
+export interface ChatsListParameters {
+  chats: Chat[];
+  selectedChat: Chat;
+  handleChatSelection: (chat_id: string) => void;
+}
+
 export interface CourseHomepageParameters {}
 
 export interface NavbarNotificationsFlyoutMenuParameters {
@@ -47,7 +53,7 @@ export interface NavbarFlyoutMenuParameters {
   onClose: () => void;
 }
 
-export interface MarkdownContentProps {
+export interface MarkdownContentParameters {
   markdown_content: string;
 }
 
@@ -89,7 +95,7 @@ export interface Course {
   course_icon_url: string;
 }
 
-export interface ChatFieldProps {
+export interface ChatFieldParameters {
   selectedChat: Chat;
   token: string;
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
@@ -98,7 +104,7 @@ export interface ChatFieldProps {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export interface UploadChoiceModalProps {
+export interface UploadChoiceModalParameters {
   isOpen: boolean;
   selectedChat: Chat;
   token: string;
@@ -143,6 +149,7 @@ export interface Chat {
   chat_title: string;
   slides_mode: boolean;
   created_at: string;
+  history: Message[];
 }
 
 export interface Notification {

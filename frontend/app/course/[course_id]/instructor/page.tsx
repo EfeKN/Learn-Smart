@@ -1,8 +1,10 @@
 "use client";
 
 import ChatFieldMenu from "@/app/components/chat-field-menu";
+import ChatsList from "@/app/components/chats-list";
 import LoadingMessage from "@/app/components/loading-message";
 import CreateChatModal from "@/app/components/modals/create-chat-modal";
+import { printDebugMessage } from "@/app/debugger";
 import "@/app/style/logo-font.css";
 import { Chat, Course, Message } from "@/app/types";
 import logo from "@/assets/chatbot-logo.png";
@@ -10,20 +12,18 @@ import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useRef, useState, Fragment } from "react";
-import {FaArrowCircleRight, FaCalendarAlt} from "react-icons/fa";
-import { ImSpinner8 } from "react-icons/im";
+import { useEffect, useRef, useState } from "react";
+import { FaArrowCircleRight, FaCalendarAlt } from "react-icons/fa";
 import { GiBookmarklet, GiSpellBook } from "react-icons/gi";
-import { CiMenuKebab } from "react-icons/ci";
+import { ImSpinner8 } from "react-icons/im";
 import ReactMarkdown from "react-markdown";
-import ChatsList from "@/app/components/chats-list";
 
 export default function InstructorPage() {
   const [open, setOpen] = useState<boolean>(true);
   const [token, setToken] = useState<string>("");
-  const [course, setCourse] = useState<Course | null>(null);
+  const [course, setCourse] = useState<Course>({} as Course);
   const [chats, setChats] = useState<Chat[]>([]);
-  const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
+  const [selectedChat, setSelectedChat] = useState<Chat>({} as Chat);
   const [messages, setMessages] = useState<Message[]>([]);
   const [lastMessageID, setLastMessageID] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -35,18 +35,22 @@ export default function InstructorPage() {
   const course_id = params.course_id;
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const intervalRef = useRef(null);
 
-  const fetchChat = (chat_id: string) => {
-    return backendAPI
+  if (token == null) {
+    router.replace("/login");
+  }
+
+  const fetchChat = async (chat_id: string) => {
+    if (!token || chat_id == null || chat_id === "" || chat_id === undefined) {
+      return;
+    }
+
+    await backendAPI
       .get(`/chat/${chat_id}`, {
         headers: {
           Accept: "application/json",
           Authorization: `Bearer ${token}`,
         },
-      })
-      .then((response) => {
-        return response.data;
       })
       .catch((error) => {
         console.error(error);
@@ -55,6 +59,10 @@ export default function InstructorPage() {
   };
 
   const fetchAllChats = async () => {
+    if (!token || course_id == null || course_id === "") {
+      return;
+    }
+
     backendAPI
       .get(`/course/${course_id}/chats`, {
         headers: {
@@ -64,6 +72,8 @@ export default function InstructorPage() {
       })
       .then((response) => {
         setChats(response.data);
+
+        printDebugMessage("Chats: " + JSON.stringify(response.data));
       })
       .catch((error) => {
         console.error("Error fetching chats:", error);
@@ -71,6 +81,10 @@ export default function InstructorPage() {
   };
 
   const fetchCourse = () => {
+    if (!token || course_id == null || course_id === "") {
+      return;
+    }
+
     backendAPI
       .get(`/course/${course_id}`, {
         headers: {
@@ -80,6 +94,8 @@ export default function InstructorPage() {
       })
       .then((response) => {
         setCourse(response.data);
+
+        printDebugMessage("Course: " + JSON.stringify(response.data));
       })
       .catch((error) => {
         console.error("Error fetching course:", error);
@@ -87,28 +103,18 @@ export default function InstructorPage() {
   };
 
   const fetchChatMessages = (chat_id: string) => {
-    fetchChat(chat_id)
-      .then((data) => {
-        const chatMessages = data.history.map((msg: Message) => ({
-          text: msg.text,
-          role: msg.role,
-          media_url: msg.media_url
-            ? `http://localhost:8000/${msg.media_url}`
-            : null,
-          message_id: msg.message_id,
-        }));
+    if (!token || chat_id == null || chat_id === "") {
+      return;
+    }
 
-        setMessages(chatMessages);
-        if (data.history.length > 0) {
-          setLastMessageID(data.history[data.history.length - 1].message_id);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching chat messages:", error);
-      });
+    fetchChat(chat_id);
   };
 
   const fetchNewSlide = async (chat_id: string) => {
+    if (!token || chat_id == null || chat_id === "") {
+      return;
+    }
+
     setIsFetching(true);
     backendAPI
       .get(`/chat/${chat_id}/next_slide`, {
@@ -118,7 +124,10 @@ export default function InstructorPage() {
         },
       })
       .then((response) => {
-        let text, media_url = null;
+        let text,
+          media_url = null;
+
+        printDebugMessage("Response: " + JSON.stringify(response.data));
 
         if (response.data != null) {
           ({ text, media_url } = response.data);
@@ -137,27 +146,70 @@ export default function InstructorPage() {
             modelResponse,
           ]);
           setLastMessageID(lastMessageID + 1);
+
+          printDebugMessage("Model Response: " + JSON.stringify(modelResponse));
         } else {
-          console.log("Received null not fetching new slide.");
+          printDebugMessage("Received null not fetching new slide.");
         }
       })
       .catch((error) => {
         console.error("Error fetching chat messages:", error);
-      }).finally(()=>{
+      })
+      .finally(() => {
         setIsFetching(false);
-    });
+      });
   };
 
-
   const handleChatSelection = async (chat_id: string) => {
+    if (!token || chat_id == null || chat_id === "") {
+      return;
+    }
+
     if (chat_id !== selectedChat?.chat_id) {
-      const chat = await fetchChat(chat_id);
-      setSelectedChat(chat);
-      fetchChatMessages(chat.chat_id);
+      await backendAPI
+        .get(`/chat/${chat_id}`, {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then((response) => {
+          printDebugMessage("Chat Data: " + JSON.stringify(response.data));
+
+          const chatMessages = response.data.history.map((msg: Message) => ({
+            text: msg.text,
+            role: msg.role,
+            media_url: msg.media_url
+              ? `http://localhost:8000/${msg.media_url}`
+              : null,
+            message_id: msg.message_id,
+          }));
+
+          setMessages(chatMessages);
+          if (response.data.history.length > 0) {
+            setLastMessageID(
+              response.data.history[response.data.history.length - 1].message_id
+            );
+          }
+
+          printDebugMessage("Messages: " + JSON.stringify(chatMessages));
+          printDebugMessage("Last Message ID: " + lastMessageID);
+          printDebugMessage("Chat Data: " + JSON.stringify(response.data));
+          printDebugMessage("Slides Mode: " + response.data.slides_mode);
+
+          setSelectedChat(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching chat messages:", error);
+        });
     }
   };
 
   const handleChatCreated = (newChat: Chat) => {
+    if (!newChat) {
+      return;
+    }
+
     setChats([...chats, newChat]);
     setSelectedChat(newChat);
     fetchChatMessages(newChat.chat_id);
@@ -170,9 +222,13 @@ export default function InstructorPage() {
   };
 
   const fetchChatData = async () => {
+    if (!selectedChat || !token) {
+      return;
+    }
+
     try {
-      const data = await fetchChat(selectedChat.chat_id);
-      setSlidesMode(data.slides_mode);
+      await fetchChat(selectedChat.chat_id);
+      setSlidesMode(selectedChat.slides_mode);
     } catch (error) {
       console.error("Error fetching slides mode:", error);
     }
@@ -193,18 +249,13 @@ export default function InstructorPage() {
     scrollToBottom();
   }, [messages]);
 
-  if (token == null) {
-    router.replace("/login");
-  }
-
   useEffect(() => {
     if (selectedChat) {
-      fetchChatData();
-      intervalRef.current = setInterval(fetchChatData, 10);
+      setTimeout(() => {
+        fetchChatData();
+      }, 5000);
     }
-    return () => clearInterval(intervalRef.current);
   }, [selectedChat]);
-
 
   return (
     <main>
@@ -254,25 +305,25 @@ export default function InstructorPage() {
             </div>
 
             {open && (
-                <div className="flex-grow flex flex-col relative h-5/6">
-                  <div className="inline-flex items-center mb-12">
-                    <Image
-                        className="rounded-full mr-3"
-                        src={logo}
-                        alt="logo"
-                        width={40}
-                        height={40}
-                    />
-                    <h1 className="origin-left font-medium text-lg">
-                      {course?.course_name || "Loading..."}
-                    </h1>
-                  </div>
-                  <ChatsList
-                    chats={chats}
-                    selectedChat={selectedChat}
-                    handleChatSelection={handleChatSelection}
+              <div className="flex-grow flex flex-col relative h-5/6">
+                <div className="inline-flex items-center mb-12">
+                  <Image
+                    className="rounded-full mr-3"
+                    src={logo}
+                    alt="logo"
+                    width={40}
+                    height={40}
                   />
+                  <h1 className="origin-left font-medium text-lg">
+                    {course?.course_name || "Loading..."}
+                  </h1>
                 </div>
+                <ChatsList
+                  chats={chats}
+                  selectedChat={selectedChat}
+                  handleChatSelection={handleChatSelection}
+                />
+              </div>
             )}
           </div>
           <div className="p-10 flex-grow flex flex-col relative bg-transparent">
@@ -284,12 +335,20 @@ export default function InstructorPage() {
                   </h1>
                   {slidesMode && (
                     <button
-                      className={`bg-transparent text-4xl p-2 text-black  ${isFetching ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                      onClick={() => !isFetching && fetchNewSlide(selectedChat?.chat_id)}
+                      className={`bg-transparent text-4xl p-2 text-black  ${
+                        isFetching ? "cursor-not-allowed" : "cursor-pointer"
+                      }`}
+                      onClick={() =>
+                        !isFetching && fetchNewSlide(selectedChat?.chat_id)
+                      }
                       type="button"
                       disabled={isFetching}
                     >
-                      {isFetching ? <ImSpinner8 className="animate-spin" /> : <FaArrowCircleRight />}
+                      {isFetching ? (
+                        <ImSpinner8 className="animate-spin" />
+                      ) : (
+                        <FaArrowCircleRight />
+                      )}
                     </button>
                   )}
                 </div>
@@ -376,9 +435,11 @@ export default function InstructorPage() {
                 </div>
                 <div className="mx-3 mt-12 flex flex-col items-center justify-center gap-4">
                   <div className="flex flex-wrap items-center justify-center gap-4">
-                    <button className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
+                    <button
+                      className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
                     px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
-                    disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
+                    disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400"
+                    >
                       <GiSpellBook
                         className="text-2xl"
                         style={{ color: "rgb(44, 84, 102)" }}
@@ -387,9 +448,11 @@ export default function InstructorPage() {
                         Create Quiz for {course?.course_name || "the Course"}
                       </div>
                     </button>
-                    <button className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
+                    <button
+                      className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
                     px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
-                    disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
+                    disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400"
+                    >
                       <GiBookmarklet
                         className="text-2xl"
                         style={{ color: "rgb(118, 208, 235)" }}
@@ -398,9 +461,11 @@ export default function InstructorPage() {
                         Flashcard for {course?.course_name || "the Course"}
                       </div>
                     </button>
-                    <button className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
+                    <button
+                      className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
                     px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
-                    disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400">
+                    disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400"
+                    >
                       <FaCalendarAlt
                         className="text-2xl"
                         style={{ color: "rgb(203, 139, 208)" }}

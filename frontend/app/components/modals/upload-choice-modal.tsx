@@ -1,4 +1,4 @@
-import { UploadChoiceModalProps } from "@/app/types";
+import { UploadChoiceModalParameters } from "@/app/types";
 import backendAPI from "@/environment/backend_api";
 import React, { useState } from "react";
 import { FaFilePdf, FaRegImages } from "react-icons/fa6";
@@ -10,8 +10,8 @@ export default function UploadChoiceModal({
   token,
   onChatUpdated,
   onUploadFile,
-  setFile
-}: UploadChoiceModalProps) {
+  setFile,
+}: UploadChoiceModalParameters) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
   const [fileType, setFileType] = useState<"slides" | "file">("slides");
@@ -37,29 +37,26 @@ export default function UploadChoiceModal({
     const formData = new FormData();
     formData.append(fileType, selectedFile);
 
-    backendAPI.put(
-      `/chat/${selectedChat.chat_id}/update_slides`,
-      formData,
-      {
+    backendAPI
+      .put(`/chat/${selectedChat.chat_id}/update_slides`, formData, {
         headers: {
           Accept: "application/json",
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
-      }
-    )
-    .then(response => {
-      console.log("Chat update response: ", response);
-    
-      const updatedChat = response.data;
-      onChatUpdated(updatedChat);
-      setSelectedFile(null);
-      setFile(null);  
-      onClose();
-    })
-    .catch(error => {
-      console.error("Error updating chat slides: ", error);
-    });
+      })
+      .then((response) => {
+        console.log("Chat update response: ", response);
+
+        const updatedChat = response.data;
+        onChatUpdated(updatedChat);
+        setSelectedFile(null);
+        setFile(null);
+        onClose();
+      })
+      .catch((error) => {
+        console.error("Error updating chat slides: ", error);
+      });
   };
 
   const handleClose = () => {

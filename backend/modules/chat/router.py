@@ -164,6 +164,50 @@ async def get_chat(chat_id: int, current_user: dict = Depends(auth.get_current_u
     chat["history"] = messages # Add the chat history to response
     return chat
 
+@router.delete("/{chat_id}")
+async def delete_chat(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Delete a chat by its ID.
+
+    Args:
+        chat_id (int): The ID of the chat to delete.
+        current_user (dict, optional): The current user's information. Defaults to Depends(auth.get_current_user).
+
+    Returns:
+        dict: A message indicating the chat was successfully deleted.
+
+    Raises:
+        HTTPException: If the chat is not found or the user is not authorized to delete the chat.
+    """
+    
+    chat = ChatDB.fetch(chat_id=chat_id)
+    
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+    
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+    
+    history_fname, metadata_fname = prepare_chat_file_names(current_user["user_id"], course["course_id"], chat_id)
+    history_path = os.path.join(CHATS_DIR, history_fname)
+    metadata_path = os.path.join(CHATS_DIR, metadata_fname)
+
+    if os.path.exists(history_path):
+        os.remove(history_path)
+    if os.path.exists(metadata_path):
+        os.remove(metadata_path)
+    if chat["slides_furl"]:
+        shutil.rmtree(get_chat_folder_path(chat_id))
+    if chat["slides_mode"]:
+        os.remove(get_generator_path(chat["slides_furl"]))
+
+    ChatDB.delete(chat_id=chat_id)
+    return {"message": "Chat deleted successfully."}    
+    
+    
+
 @router.get("/{chat_id}/next_slide")
 def get_next_slide(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
     """
