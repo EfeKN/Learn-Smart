@@ -5,6 +5,7 @@ import { Fragment, useState } from "react";
 import { FaEdit, FaQuestionCircle, FaTrashAlt } from "react-icons/fa";
 import { IoEllipsisHorizontal } from "react-icons/io5";
 import { printDebugMessage } from "../debugger";
+import { useRouter } from "next/navigation";
 
 export default function ChatsList({
   chats,
@@ -15,6 +16,7 @@ export default function ChatsList({
   const [token, setToken] = useState<string>(
     Cookies.get("authToken") as string
   );
+  const router = useRouter();
 
   const categorizeChats = (chats: Chat[]) => {
     const categories = {
@@ -51,8 +53,47 @@ export default function ChatsList({
     printDebugMessage("Rename chat:", chat_id);
   };
 
-  const handleCreateQuiz = (chat_id: string) => {
-    printDebugMessage("Create quiz from chat:", chat_id);
+  const handleCreateQuiz = async (chat_id: string) => {
+    try {
+      const response = await backendAPI.post(
+        `/chat/${chat_id}/create_quiz`,
+        {},
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleCreateFlashCards = async (chat_id: string) => {
+    try {
+      const response = await backendAPI.post(
+        `/chat/${chat_id}/create_flashcards`,
+        {},
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response.data.combined_data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleShowFlashCards = (chat_id: string) => {
+    const currentPath = window.location.pathname;
+    router.push(`${currentPath}/${chat_id}/flashcards`);
   };
 
   const handleDelete = async (chat_id: string) => {
@@ -125,6 +166,20 @@ export default function ChatsList({
                           >
                             <FaQuestionCircle className="mr-2 text-gray-400" />
                             Create Quiz
+                          </button>
+                          <button
+                            onClick={() => handleCreateFlashCards(chat.chat_id)}
+                            className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
+                          >
+                            <FaQuestionCircle className="mr-2 text-gray-400" />
+                            Create Flashcards
+                          </button>
+                          <button
+                            onClick={() => handleShowFlashCards(chat.chat_id)}
+                            className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
+                          >
+                            <FaQuestionCircle className="mr-2 text-gray-400" />
+                            Show Flashcards
                           </button>
                           <button
                             onClick={() => handleDelete(chat.chat_id)}
