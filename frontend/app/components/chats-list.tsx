@@ -2,8 +2,10 @@ import { Chat, ChatsListParameters } from "@/app/types";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { Fragment, useState } from "react";
-import { FaEdit, FaQuestionCircle, FaTrashAlt } from "react-icons/fa";
-import { IoEllipsisHorizontal } from "react-icons/io5";
+import { FaQuestionCircle, FaTrashAlt } from "react-icons/fa";
+import { CiEdit } from "react-icons/ci";
+import { MdQuiz } from "react-icons/md";
+import { IoEllipsisHorizontal, IoCreate } from "react-icons/io5";
 import { printDebugMessage } from "../debugger";
 import { useRouter } from "next/navigation";
 
@@ -160,21 +162,21 @@ export default function ChatsList({
                             onClick={() => handleRename(chat.chat_id)}
                             className="flex items-center text-sm font-normal text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
                           >
-                            <FaEdit className="mr-2 text-gray-400" />
+                            <CiEdit className="mr-2 text-gray-400" />
                             Rename
                           </button>
                           <button
                             onClick={() => handleCreateQuiz(chat.chat_id)}
                             className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
                           >
-                            <FaQuestionCircle className="mr-2 text-gray-400" />
+                            <MdQuiz className="mr-2 text-gray-400" />
                             Create Quiz
                           </button>
                           <button
                             onClick={() => handleCreateFlashCards(chat.chat_id)}
                             className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
                           >
-                            <FaQuestionCircle className="mr-2 text-gray-400" />
+                            <IoCreate className="mr-2 text-gray-400" />
                             Create Flashcards
                           </button>
                           <button
