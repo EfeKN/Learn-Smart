@@ -248,7 +248,7 @@ export default function InstructorPage() {
 
   return (
     <main>
-      {course && chats ? (
+      {Object.keys(course).length ? (
         <div className="flex h-screen">
           <div
             className={`text-gray-400 h-full p-2 pt-8 ${
