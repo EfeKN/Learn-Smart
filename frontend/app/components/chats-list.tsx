@@ -85,7 +85,10 @@ export default function ChatsList({
           },
         }
       );
-      console.log(response.data.combined_data);
+
+      const data = JSON.stringify(response.data.combined_data);
+      const url = `/flashcards?data=${encodeURIComponent(data)}`;
+      router.push(url);
     } catch (error) {
       console.log(error);
     }
