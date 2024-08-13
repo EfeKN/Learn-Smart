@@ -10,6 +10,7 @@ export default function ChatFieldMenu({
   setLastMessageID,
   lastMessageID,
   setIsLoading,
+  setSlidesMode
 }: ChatFieldParameters) {
   const [input, setInput] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
@@ -147,6 +148,7 @@ export default function ChatFieldMenu({
           setFile(file);
         }}
         setFile={setFile}
+        setSlidesMode={setSlidesMode}
       />
     </div>
   );

@@ -11,6 +11,7 @@ export default function UploadChoiceModal({
   onChatUpdated,
   onUploadFile,
   setFile,
+  setSlidesMode,
 }: UploadChoiceModalParameters) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
@@ -62,6 +63,7 @@ export default function UploadChoiceModal({
   const handleClose = () => {
     if (fileType === "slides") {
       handleUpload();
+      setSlidesMode(true);
     } else {
       onClose();
     }

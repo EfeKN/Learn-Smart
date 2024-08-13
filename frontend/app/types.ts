@@ -27,7 +27,6 @@ export interface CreateCourseModalParameters {
 export interface ChatsListParameters {
   chats: Chat[];
   selectedChat: Chat;
-  handleChatSelection: (chat_id: string) => void;
 }
 
 export interface CourseHomepageParameters {}
@@ -102,6 +101,7 @@ export interface ChatFieldParameters {
   setLastMessageID: React.Dispatch<React.SetStateAction<number>>;
   lastMessageID: number;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setSlidesMode: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface UploadChoiceModalParameters {
@@ -112,6 +112,7 @@ export interface UploadChoiceModalParameters {
   onChatUpdated: (chat: any) => void;
   onUploadFile: (file: File) => void;
   setFile: (file: File | null) => void;
+  setSlidesMode: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export interface Message {
   text: string;

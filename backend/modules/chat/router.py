@@ -278,13 +278,14 @@ def get_next_slide(chat_id: int, current_user: dict = Depends(auth.get_current_u
         with open(dumped_generator_path, "w") as file:
             file.write(jsonpickle.encode(generator)) # dump back the generator object to a string
 
-        return {"text": response.text, "media_url": content_url} # return the response in dictionary format
+        return {"text": response.text, "media_url": content_url, "details": "success"} # return the response in dictionary format
 
     except StopIteration:
         chat_update_data = {
             "slides_mode" : False
         }
         ChatDB.update(chat_id=chat_id, **chat_update_data)
+        return {"details": "no slides"}
 
 
 @router.post("/{chat_id}/send_message")

@@ -51,7 +51,9 @@ export default function InstructorPage() {
           Accept: "application/json",
           Authorization: `Bearer ${token}`,
         },
-      })
+      }).then((response) => {
+          setSlidesMode(response.data.slides_mode);
+        })
       .catch((error) => {
         console.error(error);
         throw error;
@@ -129,7 +131,11 @@ export default function InstructorPage() {
 
         printDebugMessage("Response: " + JSON.stringify(response.data));
 
-        if (response.data != null) {
+        if (response.data.details == "no slides") {
+          setSlidesMode(false);
+        }
+
+        else if (response.data.details == "success") {
           ({ text, media_url } = response.data);
         }
 
@@ -192,10 +198,13 @@ export default function InstructorPage() {
             );
           }
 
+          setSlidesMode(response.data.slides_mode);
+
           printDebugMessage("Messages: " + JSON.stringify(chatMessages));
           printDebugMessage("Last Message ID: " + lastMessageID);
           printDebugMessage("Chat Data: " + JSON.stringify(response.data));
           printDebugMessage("Slides Mode: " + response.data.slides_mode);
+
 
           setSelectedChat(response.data);
         })
@@ -212,25 +221,13 @@ export default function InstructorPage() {
 
     setChats([...chats, newChat]);
     setSelectedChat(newChat);
+    setMessages([]);
     fetchChatMessages(newChat.chat_id);
   };
 
   const scrollToBottom = () => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  const fetchChatData = async () => {
-    if (!selectedChat || !token) {
-      return;
-    }
-
-    try {
-      await fetchChat(selectedChat.chat_id);
-      setSlidesMode(selectedChat.slides_mode);
-    } catch (error) {
-      console.error("Error fetching slides mode:", error);
     }
   };
 
@@ -248,14 +245,6 @@ export default function InstructorPage() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-  useEffect(() => {
-    if (selectedChat) {
-      setTimeout(() => {
-        fetchChatData();
-      }, 5000);
-    }
-  }, [selectedChat]);
 
   return (
     <main>
@@ -327,7 +316,7 @@ export default function InstructorPage() {
             )}
           </div>
           <div className="p-10 flex-grow flex flex-col relative bg-transparent">
-            {selectedChat ? (
+            {Object.keys(selectedChat).length ? (
               <div className="flex flex-col h-full">
                 <div className="flex justify-between items-center mb-4">
                   <h1 className="text-2xl font-semibold">
@@ -406,6 +395,7 @@ export default function InstructorPage() {
                   setLastMessageID={setLastMessageID}
                   lastMessageID={lastMessageID}
                   setIsLoading={setIsLoading}
+                  setSlidesMode={setSlidesMode}
                 />
               </div>
             ) : (
