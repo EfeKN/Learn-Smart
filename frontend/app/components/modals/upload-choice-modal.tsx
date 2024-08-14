@@ -21,9 +21,9 @@ export default function UploadChoiceModal({
     const file = event.target.files && event.target.files[0];
     if (file) {
       setSelectedFile(file);
-      onUploadFile(file);
     } else {
-      setError("Please select a file to upload.");
+      setSelectedFile(null);
+      setFile(null);
     }
   };
 
@@ -60,14 +60,24 @@ export default function UploadChoiceModal({
       });
   };
 
-  const handleClose = () => {
+  const handleSubmit = () => {
     if (fileType === "slides") {
       handleUpload();
       setSlidesMode(true);
     } else {
+      if (selectedFile) {
+        onUploadFile(selectedFile);
+      }
       onClose();
+      setSelectedFile(null);
     }
   };
+
+  const handleClose = () => {
+    setSelectedFile(null);
+    setFile(null);
+    onClose();
+  }
 
   if (!isOpen) return null;
 
@@ -78,7 +88,7 @@ export default function UploadChoiceModal({
           <h1 className="text-3xl font-semibold text-gray-900">Upload File</h1>
           <button
             className="text-gray-600 hover:text-gray-800 focus:outline-none"
-            onClick={onClose}
+            onClick={handleClose}
             type="button"
             title="Close Modal"
           >
@@ -148,14 +158,13 @@ export default function UploadChoiceModal({
         {selectedFile && (
           <div className="mt-4">
             <button
-              onClick={handleClose}
+              onClick={handleSubmit}
               className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800"
             >
               Upload Selected {fileType === "slides" ? "Slides" : "File"}
             </button>
           </div>
         )}
-        {error && <p className="text-red-500 mt-2">{error}</p>}
       </div>
     </div>
   );
