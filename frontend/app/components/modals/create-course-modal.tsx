@@ -22,7 +22,7 @@ export default function CreateCourseModal(
   const [syllabusError, setSyllabusError] = useState<string>("");
   const [iconError, setIconError] = useState<string>("");
   const [token, setToken] = useState<string>("");
-
+  const [lockCreate, setLockCreate] = useState(false);
   // reset form fields
   const resetFields = () => {
     setCourseCode("");
@@ -103,6 +103,7 @@ export default function CreateCourseModal(
       formData.append("course_icon_file", icon);
     }
 
+    setLockCreate(true);
     // Send the form data to the backend
     await backendAPI
       .post(`/course/create`, formData, {
@@ -125,6 +126,7 @@ export default function CreateCourseModal(
       })
       .finally(() => {
         // Reset form fields and close the modal
+        setLockCreate(false);
         handleCancelClose();
       });
   }
@@ -343,7 +345,7 @@ export default function CreateCourseModal(
               type="submit"
               text="Create"
               loadingText="Creating course..."
-              disabled={!courseName || !courseCode}
+              disabled={!courseName || !courseCode || lockCreate}
               className="bg-black hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg"
             />
           </div>
