@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FaTrashAlt } from "react-icons/fa";
 import { CiEdit } from "react-icons/ci";
 import ConfirmationModal from "../components/modals/confirmation-modal";
+import EditCourseModal from "../components/modals/edit-course-modal";
 import { printDebugMessage } from "../debugger";
 import { Course, CourseCardFlyoutMenuParameters } from "../types";
 
@@ -12,6 +13,7 @@ export default function CourseCardFlyoutMenu({
   course,
 }: CourseCardFlyoutMenuParameters) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState<boolean>(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const token = Cookies.get("authToken") || "";
 
   const handleDeleteCourse = async () => {
@@ -34,14 +36,17 @@ export default function CourseCardFlyoutMenu({
     }
   };
 
+  if (!isOpen)
+      return null;
+
   return (
     <div className="relative z-20">
       {isOpen && (
-        <div className="absolute left-0 w-48">
+        <div className="absolute left-0 w-36">
           <div className="rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden bg-gray-200">
             <div className="flex flex-col gap-2 p-2">
               <button
-                onClick={() => console.log("TO-DO")}
+                onClick={()  => setIsEditModalOpen(true)}
                 className="flex items-center text-sm font-normal text-black hover:bg-gray-300 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
               >
                 <CiEdit className="mr-2 text-black" />
@@ -58,16 +63,20 @@ export default function CourseCardFlyoutMenu({
           </div>
         </div>
       )}
-
-      {!isOpen && (
-          <ConfirmationModal
+      <ConfirmationModal
             isOpen={isDeleteModalOpen}
             message="Are you sure you want to delete this course?"
             onConfirm={handleDeleteCourse}
             onCancel={() => setIsDeleteModalOpen(false)}
-          />
-        )
-      }
+      />
+      <EditCourseModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onCourseUpdate={() => {
+            setIsEditModalOpen(false);
+          }}
+          courseId={course.course_id}
+      />
     </div>
   );
 }
