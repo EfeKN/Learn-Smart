@@ -50,7 +50,7 @@ export default function CourseCardFlyoutMenu({
                 className="flex items-center text-sm font-normal text-black hover:bg-gray-300 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
               >
                 <CiEdit className="mr-2 text-black" />
-                Rename
+                Edit
               </button>
               <button
                 onClick={() => setIsDeleteModalOpen(true)}
