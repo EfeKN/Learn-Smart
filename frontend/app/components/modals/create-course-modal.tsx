@@ -1,6 +1,5 @@
 import { documentMimeTypes, imageMimeTypes } from "@/app/constants";
 import { printDebugMessage } from "@/app/debugger";
-import GlobalVariables from "@/app/global-variables";
 import { CreateCourseModalParameters } from "@/app/types";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
@@ -12,8 +11,6 @@ import LoadingButton from "../loading-button";
 export default function CreateCourseModal(
   modalParameters: CreateCourseModalParameters
 ) {
-  let globalVariables = GlobalVariables.getInstance();
-
   const [courseName, setCourseName] = useState<string>("");
   const [courseCode, setCourseCode] = useState<string>("");
   const [courseDescription, setCourseDescription] = useState<string>("");
@@ -22,7 +19,8 @@ export default function CreateCourseModal(
   const [syllabusError, setSyllabusError] = useState<string>("");
   const [iconError, setIconError] = useState<string>("");
   const [token, setToken] = useState<string>("");
-  const [lockCreate, setLockCreate] = useState(false);
+  const [lockCreate, setLockCreate] = useState<boolean>(false);
+
   // reset form fields
   const resetFields = () => {
     setCourseCode("");
@@ -81,7 +79,6 @@ export default function CreateCourseModal(
     }
   }
 
-  // Handle form submission to create course
   async function handleSubmit(
     event:
       | React.FormEvent<HTMLFormElement>
@@ -95,7 +92,6 @@ export default function CreateCourseModal(
     formData.append("course_name", courseName);
     formData.append("course_code", courseCode);
     formData.append("course_description", courseDescription);
-    // append files to form data if they exist
     if (syllabus) {
       formData.append("course_syllabus_file", syllabus);
     }
@@ -104,6 +100,7 @@ export default function CreateCourseModal(
     }
 
     setLockCreate(true);
+
     // Send the form data to the backend
     await backendAPI
       .post(`/course/create`, formData, {
@@ -131,9 +128,7 @@ export default function CreateCourseModal(
       });
   }
 
-  // Function to handle cancel button click
   const handleCancelClose = () => {
-    // Reset form fields and close the modal
     resetFields();
 
     // Call the onClose callback to close the modal
@@ -196,7 +191,8 @@ export default function CreateCourseModal(
             />
           </div>
           <div className="flex space-x-4 mb-4 items-start">
-            <div className="flex flex-col items-center justify-center w-1/2"
+            <div
+              className="flex flex-col items-center justify-center w-1/2"
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
@@ -269,7 +265,8 @@ export default function CreateCourseModal(
                 study plan.
               </p>
             </div>
-            <div className="flex flex-col items-center justify-center w-1/2"
+            <div
+              className="flex flex-col items-center justify-center w-1/2"
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();

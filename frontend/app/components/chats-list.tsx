@@ -1,20 +1,25 @@
 import { Chat, ChatsListParameters } from "@/app/types";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
-import { Fragment, useState } from "react";
-import { FaQuestionCircle, FaTrashAlt } from "react-icons/fa";
-import { CiEdit } from "react-icons/ci";
-import { MdQuiz } from "react-icons/md";
-import { IoEllipsisHorizontal, IoCreate } from "react-icons/io5";
-import { printDebugMessage } from "../debugger";
 import { useRouter } from "next/navigation";
+import { Fragment, useState } from "react";
+import { CiEdit } from "react-icons/ci";
+import { FaQuestionCircle, FaTrashAlt } from "react-icons/fa";
+import { IoCreate, IoEllipsisHorizontal } from "react-icons/io5";
+import { MdQuiz } from "react-icons/md";
+import { printDebugMessage } from "../debugger";
+import ChatRenameModal from "./modals/chat-rename-modal";
 
 export default function ChatsList({
   chats,
   selectedChat,
   handleChatSelection,
+  removeChatFromChatList,
+  setChats,
+  setSelectedChat,
 }: ChatsListParameters) {
   const [openMenuId, setOpenMenuId] = useState<string>("");
+  const [isRenameModalOpen, setIsRenameModalOpen] = useState<boolean>(false);
   const [token, setToken] = useState<string>(
     Cookies.get("authToken") as string
   );
@@ -51,8 +56,41 @@ export default function ChatsList({
     setOpenMenuId(openMenuId === chat_id ? "" : chat_id);
   };
 
-  const handleRename = (chat_id: string) => {
-    printDebugMessage("Rename chat:", chat_id);
+  const handleRename = async (chat_id: string, chat_title: string) => {
+    return new Promise<void>(async (resolve, reject) => {
+      await backendAPI
+        .put(
+          `/chat/${chat_id}?chat_title=${chat_title}`,
+          { chat_title: chat_title },
+          {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        )
+        .then((response) => {
+          printDebugMessage("Chat renamed:", response.data);
+
+          // Update the chat title in the selected chat and chats list state
+          setSelectedChat((prevChat) => {
+            if (prevChat.chat_id === chat_id) {
+              return { ...prevChat, chat_title };
+            }
+            return prevChat;
+          });
+          setChats((prevChats) => {
+            return prevChats.map((chat) => {
+              if (chat.chat_id === chat_id) {
+                return { ...chat, chat_title };
+              }
+              return chat;
+            });
+          });
+        });
+      resolve();
+    });
   };
 
   const handleCreateQuiz = async (chat_id: string) => {
@@ -115,8 +153,8 @@ export default function ChatsList({
         printDebugMessage("Chat to delete:", response.data);
         handleToggleMenu(chat_id);
 
-        // TODO: Remove chat from chats list without reloading the page
-        window.location.reload();
+        removeChatFromChatList(chat_id);
+        setSelectedChat({} as Chat);
       });
   };
 
@@ -149,6 +187,8 @@ export default function ChatsList({
                       e.stopPropagation();
                       handleToggleMenu(chat.chat_id);
                     }}
+                    type="button"
+                    title="More options"
                   >
                     <IoEllipsisHorizontal />
                   </button>
@@ -158,15 +198,28 @@ export default function ChatsList({
                     <div className="absolute -right-2 mt-2 w-48">
                       <div className="rounded-lg shadow-xxs ring-1 ring-black ring-opacity-5 overflow-hidden bg-gray-700">
                         <div className="flex flex-col gap-2 p-2">
-                          <button
-                            onClick={() => handleRename(chat.chat_id)}
-                            className="flex items-center text-sm font-normal text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
-                          >
-                            <CiEdit className="mr-2 text-gray-400" />
-                            Rename
-                          </button>
+                          <div>
+                            <button
+                              onClick={() =>
+                                setIsRenameModalOpen(!isRenameModalOpen)
+                              }
+                              type="button"
+                              className="flex items-center text-sm font-normal text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
+                            >
+                              <CiEdit className="mr-2 text-gray-400" />
+                              Rename
+                            </button>
+                            <ChatRenameModal
+                              isOpen={isRenameModalOpen}
+                              closeModal={() => setIsRenameModalOpen(false)}
+                              onSubmitted={handleRename}
+                              chat_id={chat.chat_id}
+                              chat_title={chat.chat_title}
+                            />
+                          </div>
                           <button
                             onClick={() => handleCreateQuiz(chat.chat_id)}
+                            type="button"
                             className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
                           >
                             <MdQuiz className="mr-2 text-gray-400" />
@@ -174,6 +227,7 @@ export default function ChatsList({
                           </button>
                           <button
                             onClick={() => handleCreateFlashCards(chat.chat_id)}
+                            type="button"
                             className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
                           >
                             <IoCreate className="mr-2 text-gray-400" />
@@ -181,6 +235,7 @@ export default function ChatsList({
                           </button>
                           <button
                             onClick={() => handleShowFlashCards(chat.chat_id)}
+                            type="button"
                             className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
                           >
                             <FaQuestionCircle className="mr-2 text-gray-400" />
@@ -188,6 +243,7 @@ export default function ChatsList({
                           </button>
                           <button
                             onClick={() => handleDelete(chat.chat_id)}
+                            type="button"
                             className="flex items-center text-sm font-normal text-red-500 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
                           >
                             <FaTrashAlt className="mr-2 text-red-500" />

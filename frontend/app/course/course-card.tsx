@@ -4,9 +4,9 @@ import dep_logo from "@/assets/dep_logo.png";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { Course } from "../types";
 import CourseCardFlyoutMenu from "./course-card-flyout-menu";
-import { MdOutlineKeyboardArrowDown } from "react-icons/md";
 
 export default function CourseCard(parameters: CourseCardParameters) {
   const [hovered, setHovered] = useState<boolean>(false);
@@ -64,44 +64,43 @@ export default function CourseCard(parameters: CourseCardParameters) {
       );
   }
 
-
   return (
-      <main ref={courseCardRef}>
-          <button
-              className="course-card flex flex-col items-center p-4 bg-red-500 shadow-lg relative overflow-hidden"
-              onMouseEnter={handleHover}
-              onMouseLeave={handleLeave}
-              onClick={handleClick}
-              type="button"
-          >
-              <div className="image-container bg-transparent">
-                  {parameters.course.course_icon_url ? (
-                      <img
-                          src={image}
-                          alt={parameters.course.course_name}
-                          className="course-image"
-                      />
-                  ) : (
-                      <Image
-                          src={dep_logo}
-                          alt={parameters.course.course_name}
-                          className="course-image"
-                      />
-                  )}
-              </div>
-              <div className="mt-2 text-white font-semibold">
-                  {parameters.course.course_name}
-              </div>
+    <main ref={courseCardRef}>
+      <button
+        className="course-card flex flex-col items-center p-4 bg-red-500 shadow-lg relative overflow-hidden"
+        onMouseEnter={handleHover}
+        onMouseLeave={handleLeave}
+        onClick={handleClick}
+        type="button"
+      >
+        <div className="image-container bg-transparent">
+          {parameters.course.course_icon_url ? (
+            <img
+              src={image}
+              alt={parameters.course.course_name}
+              className="course-image"
+            />
+          ) : (
+            <Image
+              src={dep_logo}
+              alt={parameters.course.course_name}
+              className="course-image"
+            />
+          )}
+        </div>
+        <div className="mt-2 text-white font-semibold">
+          {parameters.course.course_name}
+        </div>
 
-              <div className={`overlay-content ${hovered ? "active" : ""}`}>
-                  <div className="overlay-text">{parameters.course.course_code}</div>
-              </div>
-          </button>
+        <div className={`overlay-content ${hovered ? "active" : ""}`}>
+          <div className="overlay-text">{parameters.course.course_code}</div>
+        </div>
+      </button>
 
-          <div className="mt-2 flex items-center justify-center text-black font-semibold">
-              <span>{parameters.course.course_code}</span>
-              {renderMenu(parameters.course)}
-          </div>
-      </main>
+      <div className="mt-2 flex items-center justify-center text-black font-semibold">
+          <span>{parameters.course.course_code}</span>
+          {renderMenu(parameters.course)}
+      </div>
+    </main>
   );
 }

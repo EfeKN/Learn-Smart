@@ -3,7 +3,7 @@ import { FaRegEnvelope } from "react-icons/fa";
 import { ForgotPasswordModalParameters } from "../../types";
 
 export default function ForgotPasswordModal(
-  forgotPasswordModalProps: ForgotPasswordModalParameters
+  forgotPasswordModalParameters: ForgotPasswordModalParameters
 ) {
   const [email, setEmail] = useState<string>("");
 
@@ -26,8 +26,7 @@ export default function ForgotPasswordModal(
         console.error("Error sending password reset request:", error);
       });
 
-    // Close modal after submission
-    forgotPasswordModalProps.closeModal();
+    forgotPasswordModalParameters.closeModal();
   };
 
   return (
@@ -39,7 +38,7 @@ export default function ForgotPasswordModal(
           </h2>
           <button
             className="text-gray-600 hover:text-gray-800 focus:outline-none"
-            onClick={forgotPasswordModalProps.closeModal}
+            onClick={forgotPasswordModalParameters.closeModal}
             type="button"
             title="Close Modal"
           >
@@ -91,7 +90,7 @@ export default function ForgotPasswordModal(
               type="button"
               className="px-4 py-2 text-sm font-medium text-gray-900 bg-gray-100 border border-transparent
               rounded-md hover:bg-gray-200"
-              onClick={forgotPasswordModalProps.closeModal}
+              onClick={forgotPasswordModalParameters.closeModal}
             >
               Cancel
             </button>

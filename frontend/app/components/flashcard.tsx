@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import ReactCardFlip from "react-card-flip";
 
 type FlashCardProps = {

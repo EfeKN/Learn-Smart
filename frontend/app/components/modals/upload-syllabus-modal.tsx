@@ -1,11 +1,11 @@
-import backendAPI from "@/environment/backend_api";
-import Cookies from "js-cookie";
-import { useState, useEffect, useRef } from "react";
-import { UpdateUploadSyllabusParameters } from "@/app/types";
-import { FaFilePdf } from "react-icons/fa";
-import { TbFileTypeDocx } from "react-icons/tb";
 import { documentMimeTypes } from "@/app/constants";
 import { printDebugMessage } from "@/app/debugger";
+import { UpdateUploadSyllabusParameters } from "@/app/types";
+import backendAPI from "@/environment/backend_api";
+import Cookies from "js-cookie";
+import { useEffect, useRef, useState } from "react";
+import { FaFilePdf } from "react-icons/fa";
+import { TbFileTypeDocx } from "react-icons/tb";
 
 export default function UpdateUploadSyllabus({
   isOpen,
@@ -39,14 +39,11 @@ export default function UpdateUploadSyllabus({
   function handleFile(file: File | null, fileType: string) {
     if (file) {
       const isValidFileType =
-        fileType === "document" &&
-        documentMimeTypes.includes(file.type);
+        fileType === "document" && documentMimeTypes.includes(file.type);
 
       if (!isValidFileType) {
         setSyllabus(null);
-        setSyllabusError(
-          "Invalid file type. Allowed types are: PDF, DOCX"
-        );
+        setSyllabusError("Invalid file type. Allowed types are: PDF, DOCX");
         return;
       }
 
@@ -107,14 +104,17 @@ export default function UpdateUploadSyllabus({
       <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold">{modalTitle}</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl">
+          <button
+            onClick={onClose}
+            className="text-gray-500 hover:text-gray-800 text-2xl"
+          >
             &times;
           </button>
         </div>
         <form onSubmit={handleSubmit}>
           <div
             className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-            onClick={() => fileInputRef.current?.click()}  // Trigger file input click
+            onClick={() => fileInputRef.current?.click()} // Trigger file input click
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
@@ -151,7 +151,8 @@ export default function UpdateUploadSyllabus({
                     />
                   </svg>
                   <p className="mb-2 text-sm text-gray-500">
-                    <span className="font-semibold">Click to upload</span> or drag and drop
+                    <span className="font-semibold">Click to upload</span> or
+                    drag and drop
                   </p>
                   <p className="text-xs text-gray-500">PDF or DOCX</p>
                 </div>
@@ -161,18 +162,20 @@ export default function UpdateUploadSyllabus({
               id="syllabus"
               type="file"
               accept=".pdf,.docx"
-              onChange={(event) =>
-                handleFileChange(event, "document")
-              }
-              ref={fileInputRef}  // Attach ref here
+              onChange={(event) => handleFileChange(event, "document")}
+              ref={fileInputRef} // Attach ref here
               className="hidden"
+              title="Upload syllabus"
             />
           </div>
           {syllabusError && (
-            <p className="text-sm text-red-500 mt-2 text-center">{syllabusError}</p>
+            <p className="text-sm text-red-500 mt-2 text-center">
+              {syllabusError}
+            </p>
           )}
           <p className="text-sm text-gray-400 mt-2 text-center">
-            You can upload your course syllabus to get a personalized weekly study plan.
+            You can upload your course syllabus to get a personalized weekly
+            study plan.
           </p>
           <div className="mt-6 flex justify-end space-x-4">
             <button
@@ -186,9 +189,9 @@ export default function UpdateUploadSyllabus({
               type="submit"
               disabled={syllabus === null || lockSubmit}
               className={`px-4 py-2 rounded-lg transition duration-300 ${
-                (syllabus === null || lockSubmit)
-                  ? 'bg-black text-white cursor-not-allowed opacity-60'
-                  : 'bg-gray-800 text-white hover:bg-gray-900'
+                syllabus === null || lockSubmit
+                  ? "bg-black text-white cursor-not-allowed opacity-60"
+                  : "bg-gray-800 text-white hover:bg-gray-900"
               }`}
             >
               Upload

@@ -198,14 +198,45 @@ async def delete_chat(chat_id: int, current_user: dict = Depends(auth.get_curren
         os.remove(history_path)
     if os.path.exists(metadata_path):
         os.remove(metadata_path)
-    if chat["slides_furl"]:
+    if chat["slides_furl"] and os.path.exists(chat["slides_furl"]):
         shutil.rmtree(get_chat_folder_path(chat_id))
-    if chat["slides_mode"]:
+    if chat["slides_mode"] and chat["slides_furl"] and os.path.exists(get_generator_path(chat["slides_furl"])):
         os.remove(get_generator_path(chat["slides_furl"]))
 
     ChatDB.delete(chat_id=chat_id)
     return {"message": "Chat deleted successfully."}    
+
+
+@router.put("/{chat_id}")
+def update_chat(chat_id: int, chat_title: str, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Update a chat's title by its ID.
+
+    Args:
+        chat_id (int): The ID of the chat to update.
+        chat_title (str): The new title for the chat.
+        current_user (dict, optional): The current user's information. Defaults to Depends(auth.get_current_user).
+
+    Returns:
+        dict: A dictionary containing the updated chat details.
+
+    Raises:
+        HTTPException: If the chat is not found or the user is not authorized to update the chat.
+    """
     
+    chat = ChatDB.fetch(chat_id=chat_id)
+    
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found.")
+    
+    course = CourseDB.fetch(course_id=chat["course_id"])
+    
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden.")
+    
+    ChatDB.update(chat_id=chat_id, chat_title=chat_title)
+    chat["chat_title"] = chat_title
+    return chat   
     
 
 @router.get("/{chat_id}/next_slide")

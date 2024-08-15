@@ -1,5 +1,4 @@
 import { ConfirmationModalParameters } from "../../types";
-import { useState } from "react";
 
 export default function ConfirmationModal({
   isOpen,
@@ -38,7 +37,7 @@ export default function ConfirmationModal({
             </svg>
           </button>
         </div>
-        <hr className="mb-4 border-gray-200 w-full"/>
+        <hr className="mb-4 border-gray-200 w-full" />
         <p className="text-gray-700 mb-6">{message}</p>
         <div className="flex justify-between">
           <button
