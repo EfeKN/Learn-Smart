@@ -14,15 +14,19 @@ CHATS_DIR = f".{os.sep}" + os.getenv("CHATS_DIR", "chat_histories")
 FILES_DIR = f".{os.sep}" + os.getenv("FILES_DIR", "files")
 
 # Function to generate hash of a given string based on the strategy
-def generate_hash(filename: str, strategy="sha256"):
+def generate_hash(filename: str, strategy="sha256", **kwargs):
     if strategy == "sha256":
         return hashlib.sha256(filename.encode()).hexdigest() # generate a SHA-256 hash
     elif strategy == "uuid":
         return uuid.uuid4().hex # generate a random UUID
     elif strategy == "timestamp":
-        return f"{int(time.time())}_{filename}" # generate a timestamp based hash
+        # generate a timestamp based hash
+        suffix = f"_{filename}" if filename else ""
+        if kwargs.get("human_readable", False):
+            return f"{time.strftime('%Y-%m-%d %H:%M:%S')}{suffix}"
+        return f"{int(time.time())}{suffix}" 
     else:
-        raise ValueError("Invalid strategy provided. Please use 'sha256' or 'uuid'.")
+        raise ValueError("Invalid strategy provided. Please use 'sha256', 'uuid' or 'timestamp'.")
 
 
 # re/create DB tables, chat histories, and files directories
