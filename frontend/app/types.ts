@@ -34,6 +34,18 @@ export interface UpdateUploadSyllabusParameters {
 export interface ChatsListParameters {
   chats: Chat[];
   selectedChat: Chat;
+  handleChatSelection: (chat_id: string) => void;
+  removeChatFromChatList: (chat_id: string) => void;
+  setChats: React.Dispatch<React.SetStateAction<Chat[]>>;
+  setSelectedChat: React.Dispatch<React.SetStateAction<Chat>>;
+}
+
+export interface ChatRenameModalParameters {
+  isOpen: boolean;
+  closeModal: () => void;
+  onSubmitted: (chat_id: string, chat_title: string) => Promise<void>;
+  chat_id: string;
+  chat_title: string;
 }
 
 export interface CourseHomepageParameters {}

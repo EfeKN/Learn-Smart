@@ -28,7 +28,9 @@
 /backend/.logs
 /backend/chats/
 /backend/chat_histories
+/backend/.chat_histories
 /backend/files
+/backend/.files
 __pycache__
 .env
 

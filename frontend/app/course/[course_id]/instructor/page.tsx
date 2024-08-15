@@ -40,6 +40,10 @@ export default function InstructorPage() {
     router.replace("/login");
   }
 
+  function removeChatFromChatList(chat_id: string) {
+    setChats(chats.filter((chat) => chat.chat_id !== chat_id));
+  }
+
   const fetchChat = async (chat_id: string) => {
     if (!token || chat_id == null || chat_id === "" || chat_id === undefined) {
       return;
@@ -51,9 +55,10 @@ export default function InstructorPage() {
           Accept: "application/json",
           Authorization: `Bearer ${token}`,
         },
-      }).then((response) => {
-          setSlidesMode(response.data.slides_mode);
-        })
+      })
+      .then((response) => {
+        setSlidesMode(response.data.slides_mode);
+      })
       .catch((error) => {
         console.error(error);
         throw error;
@@ -133,9 +138,7 @@ export default function InstructorPage() {
 
         if (response.data.details == "no slides") {
           setSlidesMode(false);
-        }
-
-        else if (response.data.details == "success") {
+        } else if (response.data.details == "success") {
           ({ text, media_url } = response.data);
         }
 
@@ -205,7 +208,6 @@ export default function InstructorPage() {
           printDebugMessage("Chat Data: " + JSON.stringify(response.data));
           printDebugMessage("Slides Mode: " + response.data.slides_mode);
 
-
           setSelectedChat(response.data);
         })
         .catch((error) => {
@@ -257,8 +259,11 @@ export default function InstructorPage() {
           >
             <div className="flex justify-between items-center mb-5 text-gray-400">
               <button
-                className="h-10 rounded-lg px-2 text-token-text-secondary focus-visible:outline-0 hover:bg-token-sidebar-surface-secondary focus-visible:bg-token-sidebar-surface-secondary"
+                className="h-10 rounded-lg px-2 text-token-text-secondary focus-visible:outline-0 
+                            hover:bg-token-sidebar-surface-secondary focus-visible:bg-token-sidebar-surface-secondary"
                 onClick={() => setOpen(!open)}
+                title="Toggle Sidebar"
+                type="button"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -277,8 +282,11 @@ export default function InstructorPage() {
                 </svg>
               </button>
               <button
-                className="h-10 rounded-lg px-2 text-token-text-secondary focus-visible:outline-0 hover:bg-token-sidebar-surface-secondary focus-visible:bg-token-sidebar-surface-secondary"
+                className="h-10 rounded-lg px-2 text-token-text-secondary focus-visible:outline-0 
+                            hover:bg-token-sidebar-surface-secondary focus-visible:bg-token-sidebar-surface-secondary"
                 onClick={() => setIsModalOpen(true)}
+                title="Create Chat"
+                type="button"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -311,6 +319,9 @@ export default function InstructorPage() {
                   chats={chats}
                   selectedChat={selectedChat}
                   handleChatSelection={handleChatSelection}
+                  removeChatFromChatList={removeChatFromChatList}
+                  setChats={setChats}
+                  setSelectedChat={setSelectedChat}
                 />
               </div>
             )}
@@ -429,6 +440,7 @@ export default function InstructorPage() {
                       className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
                     px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
                     disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400"
+                      type="button"
                     >
                       <GiSpellBook
                         className="text-2xl"
@@ -442,6 +454,7 @@ export default function InstructorPage() {
                       className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
                     px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
                     disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400"
+                      type="button"
                     >
                       <GiBookmarklet
                         className="text-2xl"
@@ -455,6 +468,7 @@ export default function InstructorPage() {
                       className="relative flex w-40 flex-col gap-2 rounded-2xl border border-token-border-light
                     px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
                     disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400"
+                      type="button"
                     >
                       <FaCalendarAlt
                         className="text-2xl"
