@@ -24,6 +24,13 @@ export interface CreateCourseModalParameters {
   onCourseCreation: () => void;
 }
 
+export interface UpdateUploadSyllabusParameters {
+  isOpen: boolean;
+  modalTitle: string;
+  onClose: () => void;
+  course_id: string;
+}
+
 export interface ChatsListParameters {
   chats: Chat[];
   selectedChat: Chat;

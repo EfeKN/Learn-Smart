@@ -2,6 +2,7 @@
 
 import Navbar from "@/app/components/navbar/navbar";
 import "@/app/style/course-homepage.css";
+import UpdateUploadSyllabus from "@/app/components/modals/upload-syllabus-modal";
 import backendAPI from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import Link from "next/link";
@@ -27,6 +28,9 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
   const params = useParams<{ course_id: string }>();
   const course_id = params.course_id;
   const router = useRouter();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleModalOpen = () => setIsModalOpen(true);
+  const handleModalClose = () => setIsModalOpen(false);
 
   useEffect(() => {
     if (token) {
@@ -128,25 +132,25 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
       course_homepage_element_explanation:
         "Upload or update the course syllabus.",
       course_homepage_element_router: (
-        <a
-          title="Upload/Update Syllabus"
-          className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
-          href="/upload-update-syllabus"
-        >
-          Upload/Update Syllabus
-        </a>
+          <button
+              title="Upload/Update Syllabus"
+              className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
+              onClick={handleModalOpen}
+          >
+            Upload/Update Syllabus
+          </button>
       ),
       course_homepage_element_component: (
-        <FaUpload className="text-3xl text-white" />
+          <FaUpload className="text-3xl text-white"/>
       ),
     },
   ];
 
   return (
-    <main className="bg-transparent min-h-screen text-black">
-      <Navbar />
-      <div className="relative overflow-hidden">
-        <div className="max-w-8xl mx-auto py-6 px-6 text-black">
+      <main className="bg-transparent min-h-screen text-black">
+        <Navbar/>
+        <div className="relative overflow-hidden">
+          <div className="max-w-8xl mx-auto py-6 px-6 text-black">
           <div className="text-left mb-12">
             <h1 className="text-4xl font-bold text-left">
               <span className="font-light">Welcome to your </span>
@@ -188,6 +192,14 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
           </div>
         </div>
       </div>
+      {isModalOpen && (
+        <UpdateUploadSyllabus
+          isOpen={isModalOpen}
+          modalTitle="Upload/Update Syllabus"
+          onClose={handleModalClose}
+          course_id={course_id}
+        />
+      )}
     </main>
   );
 }
