@@ -42,6 +42,13 @@ export interface CreateCourseModalParameters {
   onCourseCreation: () => void;
 }
 
+export interface EditCourseModalParameters {
+  isOpen: boolean;
+  onClose: () => void;
+  onCourseUpdate: () => void;
+  courseId: string;
+}
+
 export interface UpdateUploadSyllabusParameters {
   isOpen: boolean;
   modalTitle: string;
