@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import FlashCard from "../../../components/flashcard";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import "../../../style/bg-animation.css";
 import backendAPI from "@/environment/backend_api";
+import { useEffect, useState } from "react";
+import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
+import FlashCard from "../../../components/flashcard";
+import "../../../style/bg-animation.css";
 
 type QuizData = {
   question: string;
@@ -125,6 +125,8 @@ export default function QuizCard() {
         <button
           onClick={handlePreviousCard}
           className="text-blue-500 hover:text-blue-600 focus:outline-none"
+          title="Previous Card"
+          type="button"
         >
           <FaArrowLeft size={24} />
         </button>
@@ -136,6 +138,8 @@ export default function QuizCard() {
         <button
           onClick={handleNextCard}
           className="text-blue-500 hover:text-blue-600 focus:outline-none"
+          title="Next Card"
+          type="button"
         >
           <FaArrowRight size={24} />
         </button>

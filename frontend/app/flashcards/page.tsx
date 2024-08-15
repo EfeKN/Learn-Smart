@@ -2,13 +2,9 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Flashcard } from "../types";
 
-interface Flashcard {
-  topic: string;
-  explanation: string;
-}
-
-const FlashcardsPage = () => {
+export default function FlashcardsPage() {
   const searchParams = useSearchParams();
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
 
@@ -41,8 +37,8 @@ const FlashcardsPage = () => {
         <ul>
           {flashcards.map((flashcard, index) => (
             <li key={index}>
-              <h2>{flashcard.topic}</h2>
-              <p>{flashcard.explanation}</p>
+              <h2>{flashcard.flashcard_topic}</h2>
+              <p>{flashcard.flashcard_explanation}</p>
               <hr />
             </li>
           ))}
@@ -52,6 +48,4 @@ const FlashcardsPage = () => {
       )}
     </div>
   );
-};
-
-export default FlashcardsPage;
+}

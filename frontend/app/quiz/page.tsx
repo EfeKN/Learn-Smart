@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Quiz from "../components/quiz";
-import "./quiz.css";
+import "../styles/quiz.css";
 
 const quizData = [
   {
@@ -203,7 +203,7 @@ const quizData = [
   },
 ];
 
-const QuizMenu: React.FC = () => {
+export default function QuizMenu() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [quizEnded, setQuizEnded] = useState(false);
@@ -288,12 +288,9 @@ const QuizMenu: React.FC = () => {
       </div>
     </div>
   );
-};
+}
 
-export default QuizMenu;
-
-{
-  /* 
+/* 
         {quizData.map((question, index) => (
             <div key={index}>
             <h2>{question.question}</h2>
@@ -305,4 +302,3 @@ export default QuizMenu;
             </div>
         ))}
         */
-}

@@ -14,7 +14,6 @@ export default function UploadChoiceModal({
   setSlidesMode,
 }: UploadChoiceModalParameters) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [error, setError] = useState<string>("");
   const [fileType, setFileType] = useState<"slides" | "file">("slides");
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,9 +76,11 @@ export default function UploadChoiceModal({
     setSelectedFile(null);
     setFile(null);
     onClose();
-  }
+  };
 
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-900 bg-opacity-75">
@@ -160,6 +161,7 @@ export default function UploadChoiceModal({
             <button
               onClick={handleSubmit}
               className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+              type="button"
             >
               Upload Selected {fileType === "slides" ? "Slides" : "File"}
             </button>

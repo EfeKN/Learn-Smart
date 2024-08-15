@@ -1,24 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import { QuizParameters } from "../types";
 
-interface QuizProps {
-  question: string;
-  options: string[];
-  answer: string;
-  currentQuestionIndex: number;
-  totalQuestions: number;
-  onNextQuestion: (isCorrect: boolean) => void;
-}
-
-const Quiz = ({
+export default function Quiz({
   question,
   options,
   answer,
   currentQuestionIndex,
   totalQuestions,
   onNextQuestion,
-}: QuizProps) => {
+}: QuizParameters) {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
 
@@ -51,6 +43,7 @@ const Quiz = ({
         {options.map((option, index) => (
           <button
             key={index}
+            type="button"
             onClick={() => handleOptionClick(option)}
             className={`w-full px-4 py-2 rounded ${
               isAnswered && selectedOption === option
@@ -68,6 +61,7 @@ const Quiz = ({
         <button
           onClick={handleNextQuestion}
           disabled={!isAnswered}
+          type="button"
           className={`px-4 py-2 rounded ${
             isAnswered
               ? "bg-blue-500 text-white hover:bg-blue-600"
@@ -79,18 +73,4 @@ const Quiz = ({
       </div>
     </div>
   );
-};
-
-export default Quiz;
-
-/*
-      {isAnswered && (
-        <p
-          className={`mt-4 ${
-            checkAnswer() ? "text-green-500" : "text-red-500"
-          }`}
-        >
-          Your answer is {checkAnswer() ? "correct" : "incorrect"}
-        </p>
-      )}
-*/
+}

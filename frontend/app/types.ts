@@ -1,5 +1,23 @@
 import React from "react";
 
+export interface MarkdownContentParameters {
+  markdown_content: string;
+}
+
+export interface QuizParameters {
+  question: string;
+  options: string[];
+  answer: string;
+  currentQuestionIndex: number;
+  totalQuestions: number;
+  onNextQuestion: (isCorrect: boolean) => void;
+}
+
+export interface Flashcard {
+  flashcard_topic: string;
+  flashcard_explanation: string;
+}
+
 export interface CourseCardParameters {
   course: Course;
 }
