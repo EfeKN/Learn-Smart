@@ -62,7 +62,6 @@ export default function EditCourseModal(
         course_icon_url = null,
       } = response.data;
 
-      console.log(response.data);
       setCourseName(course_name);
       setCourseCode(course_code);
       if(course_description) setCourseDescription(course_description);
@@ -159,7 +158,6 @@ export default function EditCourseModal(
       formData.append("course_icon_file", icon);
       formData.append('update_icon', true);
     }
-    console.log(icon);
     setLockSave(true);
     try {
       await backendAPI.put(`/course/${modalParameters.courseId}`, formData, {

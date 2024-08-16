@@ -5,32 +5,33 @@ import { QuizParameters } from "../types";
 
 export default function Quiz({
   question,
-  options,
+  choices,
   answer,
   currentQuestionIndex,
   totalQuestions,
   onNextQuestion,
 }: QuizParameters) {
-  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
   const [isAnswered, setIsAnswered] = useState<boolean>(false);
 
-  const handleOptionClick = (option: string) => {
-    setSelectedOption(option);
+  const handleChoiceClick = (choice: string) => {
+    setSelectedChoice(choice);
     setIsAnswered(true);
   };
 
   const checkAnswer = () => {
-    return selectedOption === answer;
+    // Compare only the first character (label) of the selectedChoice with the answer
+    return selectedChoice?.charAt(0).toUpperCase() === answer.toUpperCase();
   };
 
   const resetQuiz = () => {
-    setSelectedOption(null);
+    setSelectedChoice(null);
     setIsAnswered(false);
   };
 
   const handleNextQuestion = () => {
-    resetQuiz();
     onNextQuestion(checkAnswer());
+    resetQuiz();
   };
 
   return (
@@ -40,20 +41,20 @@ export default function Quiz({
       </p>
       <p className="text-lg font-medium mb-2">Question: {question}</p>
       <div className="space-y-2">
-        {options.map((option, index) => (
+        {choices.map((choice, index) => (
           <button
             key={index}
             type="button"
-            onClick={() => handleOptionClick(option)}
+            onClick={() => handleChoiceClick(choice)}
             className={`w-full px-4 py-2 rounded ${
-              isAnswered && selectedOption === option
+              isAnswered && selectedChoice === choice
                 ? checkAnswer()
                   ? "bg-green-500 text-white"
                   : "bg-red-500 text-white"
                 : "bg-gray-200 hover:bg-gray-300"
             }`}
           >
-            {option}
+            {choice}
           </button>
         ))}
       </div>

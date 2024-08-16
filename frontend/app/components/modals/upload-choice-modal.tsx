@@ -46,7 +46,6 @@ export default function UploadChoiceModal({
         },
       })
       .then((response) => {
-        console.log("Chat update response: ", response);
 
         const updatedChat = response.data;
         onChatUpdated(updatedChat);

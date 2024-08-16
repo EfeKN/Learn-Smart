@@ -85,7 +85,6 @@ export default function UpdateUploadSyllabus({
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log("Course update response: ", response);
     } catch (error) {
       setSyllabusError(`An unexpected error occurred. Please try again.`);
     } finally {

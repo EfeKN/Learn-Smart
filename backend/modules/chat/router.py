@@ -508,7 +508,7 @@ async def create_quiz(chat_id: int, current_user: dict = Depends(auth.get_curren
     with open(quiz_file_path, 'w') as file:
         json.dump(data, file, indent=4)
         
-    return data
+    return {"filename": splitext(quiz_file_name)[0], "quiz": data}
 
 @router.post("/{chat_id}/create_flashcards")
 async def create_flashcards(chat_id: int, current_user: dict = Depends(auth.get_current_user)):

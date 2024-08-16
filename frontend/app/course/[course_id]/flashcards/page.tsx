@@ -93,7 +93,6 @@ export default function QuizCard() {
           },
         }
       );
-      console.log(response.data.data);
 
       // TODO: Parsing does not work currently
       const parsedData: QuizData = response.data.data.map((item: any) => ({

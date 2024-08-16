@@ -9,6 +9,9 @@ import { IoCreate, IoEllipsisHorizontal } from "react-icons/io5";
 import { MdQuiz } from "react-icons/md";
 import { printDebugMessage } from "../debugger";
 import ChatRenameModal from "./modals/chat-rename-modal";
+import GenerateQuizModal from "./modals/generate-quiz-modal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function ChatsList({
   chats,
@@ -20,6 +23,10 @@ export default function ChatsList({
 }: ChatsListParameters) {
   const [openMenuId, setOpenMenuId] = useState<string>("");
   const [isRenameModalOpen, setIsRenameModalOpen] = useState<boolean>(false);
+
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState<boolean>(false);
+  const [generatedQuizName, setGeneratedQuizName] = useState<string>("");
+
   const [token, setToken] = useState<string>(
     Cookies.get("authToken") as string
   );
@@ -94,22 +101,7 @@ export default function ChatsList({
   };
 
   const handleCreateQuiz = async (chat_id: string) => {
-    try {
-      const response = await backendAPI.post(
-        `/chat/${chat_id}/create_quiz`,
-        {},
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log(response.data);
-    } catch (error) {
-      console.log(error);
-    }
+    setIsQuizModalOpen(true);
   };
 
   const handleCreateFlashCards = async (chat_id: string) => {
@@ -159,6 +151,7 @@ export default function ChatsList({
   };
 
   return (
+    <>
     <ul className="flex-grow overflow-y-auto bg-transparent rounded-lg p-4">
       {Object.entries(categorizeChats(chats))
         .filter(([, chats]) => chats.length > 0)
@@ -225,6 +218,17 @@ export default function ChatsList({
                             <MdQuiz className="mr-2 text-gray-400" />
                             Create Quiz
                           </button>
+                          <GenerateQuizModal
+                              isOpen={isQuizModalOpen}
+                              token={token}
+                              chatID={chat.chat_id}
+                              onClose={() => {
+                                setIsQuizModalOpen(false);
+                                toast.success(`Quiz saved successfully as '${generatedQuizName}'`);
+                                setGeneratedQuizName("");
+                              }}
+                              setQuizName={setGeneratedQuizName}
+                            />
                           <button
                             onClick={() => handleCreateFlashCards(chat.chat_id)}
                             type="button"
@@ -259,5 +263,18 @@ export default function ChatsList({
           </Fragment>
         ))}
     </ul>
+    <ToastContainer
+        position="top-center"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        theme="light"
+      />
+    </>
   );
 }
