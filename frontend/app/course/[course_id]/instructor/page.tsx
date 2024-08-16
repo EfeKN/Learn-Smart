@@ -441,6 +441,9 @@ export default function InstructorPage() {
                     px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
                     disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400"
                       type="button"
+                      onClick={()=>{
+                        router.replace(`/course/${course_id}/quizzes`);
+                      }}
                     >
                       <GiSpellBook
                         className="text-2xl"
@@ -455,6 +458,9 @@ export default function InstructorPage() {
                     px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
                     disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400"
                       type="button"
+                      onClick={()=>{
+                        router.replace(`/course/${course_id}/flashcards`);
+                      }}
                     >
                       <GiBookmarklet
                         className="text-2xl"
@@ -469,6 +475,9 @@ export default function InstructorPage() {
                     px-3 pb-4 pt-3 text-start align-top text-[15px] shadow-xxs transition enabled:hover:bg-token-main-surface-secondary
                     disabled:cursor-not-allowed bg-gray-300 hover:bg-gray-400"
                       type="button"
+                      onClick={()=>{
+                        router.replace(`/course/${course_id}/weekly-study-plan`);
+                      }}
                     >
                       <FaCalendarAlt
                         className="text-2xl"
