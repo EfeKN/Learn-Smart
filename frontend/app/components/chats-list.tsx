@@ -136,7 +136,7 @@ export default function ChatsList({
 
   const handleShowFlashCards = (chat_id: string) => {
     const currentPath = window.location.pathname;
-    router.push(`${currentPath}/${chat_id}/flashcards`);
+    router.push(`${currentPath}/${chat_id}/flashcards_list`);
   };
 
   const handleDelete = async (chat_id: string) => {

@@ -11,6 +11,7 @@ from tools import generate_hash, splitext
 from modules.chat.util import *
 from modules.chat import CHATS_DIR
 from middleware import FILES_DIR
+from pydantic import BaseModel
 from . import SYSTEM_PROMPT, MODEL_VERSION, EXPLAIN_SLIDE_PROMPT, FLASHCARD_PROMPT, QUIZZES_PROMPT
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
@@ -639,20 +640,30 @@ async def get_flashcard(chat_id: int, flashcard_name: str, current_user: dict = 
         "content": flashcard
     }
 
+class RenameFlashcardRequest(BaseModel):
+    new_name: str
+
 @router.put("/{chat_id}/flashcards/{flashcard_name}")
-async def rename_flashcard(chat_id: int, flashcard_name: str, new_name: str, current_user: dict = Depends(auth.get_current_user)):
+async def rename_flashcard(
+    chat_id: int,
+    flashcard_name: str,
+    request: RenameFlashcardRequest,
+    current_user: dict = Depends(auth.get_current_user)
+):
     """
     Rename a specific flashcard file.
 
     Args:
         chat_id (int): The ID of the chat.
         flashcard_name (str): The current name of the flashcard file (without the .json extension).
-        new_name (str): The new name for the flashcard file (without the .json extension).
+        request (RenameFlashcardRequest): The request body containing the new name.
         current_user (dict): The current authenticated user (used for authentication).
 
     Returns:
         dict: A message indicating the flashcard was successfully renamed.
     """
+
+    new_name = request.new_name
 
     chat = ChatDB.fetch(chat_id=chat_id)
 
