@@ -76,22 +76,28 @@ export default function StudyPlan() {
   };
 
   return (
-    <div className="p-4 bg-white shadow-md rounded-lg max-w-3xl mx-auto">
-      <div className="flex items-center mb-4">
-        <div className="flex space-x-4">
-          <button
-            onClick={handleBack}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 mr-auto"
-          >
-            Back
-          </button>
-        </div>
-        <h1 className="text-2xl font-bold mx-auto">Study Plan</h1>
+    <div className="p-6 bg-white shadow-lg rounded-lg max-w-3xl mx-auto border border-gray-200">
+      <div className="flex items-center mb-6">
+        <button
+          onClick={handleBack}
+          className="bg-blue-500 text-white px-6 py-2 rounded-full hover:bg-blue-600 transition-colors duration-300 ease-in-out shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75 mr-auto"
+        >
+          Back
+        </button>
+        <h1 className="text-3xl font-bold text-gray-800 mx-auto tracking-wide">
+          Study Plan
+        </h1>
       </div>
       {loading ? (
-        <div className="text-center">Loading...</div>
-      ) : (
+        <div className="text-center text-lg text-gray-600 animate-pulse">
+          Loading...
+        </div>
+      ) : studyPlan ? (
         <Markdown content={studyPlan} />
+      ) : (
+        <div className="text-center text-red-600 font-semibold">
+          Syllabus is not uploaded.
+        </div>
       )}
     </div>
   );
