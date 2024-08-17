@@ -1,8 +1,7 @@
 "use client";
 
 import "@/app/style/course-homepage.css";
-import backendAPI from "@/environment/backend_api";
-import axios from "axios";
+import { backend, backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -57,13 +56,7 @@ export default function StudyPlan() {
         
       */
 
-      // ========================= TEMPORARY FIX =========================
-      const temp_backendAPI = axios.create({
-        baseURL: "http://localhost:8000/",
-      });
-      // ========================= TEMPORARY FIX =========================
-
-      const studyPlanResponse = await temp_backendAPI.get(`${studyPlanUrl}`, {
+      const studyPlanResponse = await backend.get(`${studyPlanUrl}`, {
         headers: {
           Accept: "application/json",
           Authorization: `Bearer ${token}`,

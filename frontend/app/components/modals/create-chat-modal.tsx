@@ -2,7 +2,7 @@
 
 import { printDebugMessage } from "@/app/debugger";
 import { CreateChatModalParameters } from "@/app/types";
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { FaFilePdf } from "react-icons/fa";

@@ -1,11 +1,11 @@
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useState } from "react";
-import { FaTrashAlt } from "react-icons/fa";
 import { CiEdit } from "react-icons/ci";
+import { FaTrashAlt } from "react-icons/fa";
 import ConfirmationModal from "../components/modals/confirmation-modal";
 import { printDebugMessage } from "../debugger";
-import { Course, CourseCardFlyoutMenuParameters } from "../types";
+import { CourseCardFlyoutMenuParameters } from "../types";
 
 export default function CourseCardFlyoutMenu({
   isOpen,
@@ -60,14 +60,13 @@ export default function CourseCardFlyoutMenu({
       )}
 
       {!isOpen && (
-          <ConfirmationModal
-            isOpen={isDeleteModalOpen}
-            message="Are you sure you want to delete this course?"
-            onConfirm={handleDeleteCourse}
-            onCancel={() => setIsDeleteModalOpen(false)}
-          />
-        )
-      }
+        <ConfirmationModal
+          isOpen={isDeleteModalOpen}
+          message="Are you sure you want to delete this course?"
+          onConfirm={handleDeleteCourse}
+          onCancel={() => setIsDeleteModalOpen(false)}
+        />
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import "@/app/style/course-card.css";
 import type { CourseCardParameters } from "@/app/types";
 import dep_logo from "@/assets/dep_logo.png";
+import { backend } from "@/environment/backend_api";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -13,7 +14,7 @@ export default function CourseCard(parameters: CourseCardParameters) {
   const [currentMenu, setCurrentMenu] = useState<string>("");
   const router = useRouter();
   const courseCardRef = useRef<HTMLDivElement>(null);
-  const image = `http://127.0.0.1:8000/${parameters.course.course_icon_url}`;
+  const image = `${backend.getUri}/${parameters.course.course_icon_url}`;
 
   const handleHover = () => {
     setHovered(true);

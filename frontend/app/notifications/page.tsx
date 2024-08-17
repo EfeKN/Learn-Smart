@@ -1,6 +1,6 @@
 "use client";
 
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { IoIosNotifications, IoIosNotificationsOutline } from "react-icons/io";

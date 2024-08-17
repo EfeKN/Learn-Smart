@@ -1,9 +1,9 @@
 "use client";
 
+import UpdateUploadSyllabus from "@/app/components/modals/upload-syllabus-modal";
 import Navbar from "@/app/components/navbar/navbar";
 import "@/app/style/course-homepage.css";
-import UpdateUploadSyllabus from "@/app/components/modals/upload-syllabus-modal";
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import { useParams, usePathname, useRouter } from "next/navigation";
@@ -132,25 +132,25 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
       course_homepage_element_explanation:
         "Upload or update the course syllabus.",
       course_homepage_element_router: (
-          <button
-              title="Upload/Update Syllabus"
-              className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
-              onClick={handleModalOpen}
-          >
-            Upload/Update Syllabus
-          </button>
+        <button
+          title="Upload/Update Syllabus"
+          className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
+          onClick={handleModalOpen}
+        >
+          Upload/Update Syllabus
+        </button>
       ),
       course_homepage_element_component: (
-          <FaUpload className="text-3xl text-white"/>
+        <FaUpload className="text-3xl text-white" />
       ),
     },
   ];
 
   return (
-      <main className="bg-transparent min-h-screen text-black">
-        <Navbar/>
-        <div className="relative overflow-hidden">
-          <div className="max-w-8xl mx-auto py-6 px-6 text-black">
+    <main className="bg-transparent min-h-screen text-black">
+      <Navbar />
+      <div className="relative overflow-hidden">
+        <div className="max-w-8xl mx-auto py-6 px-6 text-black">
           <div className="text-left mb-12">
             <h1 className="text-4xl font-bold text-left">
               <span className="font-light">Welcome to your </span>

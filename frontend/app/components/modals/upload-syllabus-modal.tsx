@@ -1,7 +1,7 @@
 import { documentMimeTypes } from "@/app/constants";
 import { printDebugMessage } from "@/app/debugger";
 import { UpdateUploadSyllabusParameters } from "@/app/types";
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useEffect, useRef, useState } from "react";
 import { FaFilePdf } from "react-icons/fa";

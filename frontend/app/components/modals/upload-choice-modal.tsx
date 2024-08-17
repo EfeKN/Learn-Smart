@@ -1,5 +1,5 @@
 import { UploadChoiceModalParameters } from "@/app/types";
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import React, { useState } from "react";
 import { FaFilePdf, FaRegImages } from "react-icons/fa6";
 

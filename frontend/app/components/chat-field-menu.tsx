@@ -1,5 +1,5 @@
 import UploadChoiceModal from "@/app/components/modals/upload-choice-modal";
-import backendAPI from "@/environment/backend_api";
+import { backend, backendAPI } from "@/environment/backend_api";
 import { useState } from "react";
 import { IoCloseCircle } from "react-icons/io5";
 import { ChatFieldParameters, Message } from "../types";
@@ -51,7 +51,7 @@ export default function ChatFieldMenu({
           text: response.data.text,
           role: response.data.role,
           media_url: response.data.media_url
-            ? `http://127.0.0.1:8000/${response.data.media_url}`
+            ? `${backend.getUri}/${response.data.media_url}`
             : null,
           message_id: lastMessageID + 2,
         };

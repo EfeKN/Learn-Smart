@@ -1,5 +1,5 @@
 import { Chat, ChatsListParameters } from "@/app/types";
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";

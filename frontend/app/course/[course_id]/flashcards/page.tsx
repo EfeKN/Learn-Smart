@@ -1,6 +1,6 @@
 "use client";
 
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import { useEffect, useState } from "react";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import FlashCard from "../../../components/flashcard";
