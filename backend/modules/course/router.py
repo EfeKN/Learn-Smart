@@ -92,19 +92,20 @@ async def get_quizzes(course_id: int, current_user: dict = Depends(auth.get_curr
     """
 
     course = CourseDB.fetch(course_id=course_id)
-
     if not course:
         raise HTTPException(status_code=404, detail="Course not found.")
+    
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden. You are not authorized to rename this quiz.")
 
     chats = ChatDB.fetch(course_id=course_id, all=True)
-    all_quizzes = []
+    quizzes = []
     for chat in chats:
         quizzes_path = get_quizzes_folder_path(chat["chat_id"])
         if os.path.exists(quizzes_path):
-            # get all markdown files in the quizzes folder of the chat
-            md_files = [splitext(filename)[0] for filename in os.listdir(quizzes_path) if splitext(filename)[1] == "md"]
-            all_quizzes.append({"chat_id": chat["chat_id"], "chat_title": chat["chat_title"], "quizzes": md_files})
-    return all_quizzes
+            filenames = [splitext(filename)[0] for filename in os.listdir(quizzes_path)]
+            quizzes.append({"chat_id": chat["chat_id"], "chat_title": chat["chat_title"], "quizzes": filenames})
+    return quizzes
 
 
 # Quizzes don't have entries in DB and don't have IDs, which makes this function inefficient
@@ -130,23 +131,68 @@ async def rename_quiz(course_id: int, quiz_name: str, new_quiz_name: str,
     course = CourseDB.fetch(course_id=course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found.")
+    
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden. You are not authorized to rename this quiz.")
 
+    quiz_name = quiz_name.strip()
+    chats = ChatDB.fetch(course_id=course_id, all=True)
+
+    old, new = None, None
+    for chat in chats:
+        quizzes_path = get_quizzes_folder_path(chat["chat_id"])
+        if os.path.exists(quizzes_path):
+            filenames = [splitext(filename)[0] for filename in os.listdir(quizzes_path)]
+            if new_quiz_name in filenames:
+                raise HTTPException(status_code=400, detail=f'Quiz with name "{new_quiz_name}" already exists.')
+            if quiz_name in filenames:
+                old = os.path.join(quizzes_path, f"{quiz_name}.json")
+                new = os.path.join(quizzes_path, f"{new_quiz_name}.json")
+    
+    if old and new:
+        os.rename(old, new)
+        return new
+    
+    raise HTTPException(status_code=404, detail=f'Quiz with name "{quiz_name}" not found.')
+
+
+@router.get("/{course_id}/quizzes/{quiz_name}")
+async def get_quiz(course_id: int, quiz_name: str, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Get a quiz.
+
+    Args:
+        course_id (int): The ID of the course.
+        quiz_name (str): The name of the quiz.
+        current_user (User): The current authenticated user (used for authentication).
+
+    Returns:
+        dict: A dictionary containing the quiz.
+
+    Raises:
+        HTTPException: If there is an error getting the quiz.
+    """
+
+    course = CourseDB.fetch(course_id=course_id)
+    if not course:
+        raise HTTPException(status_code=404, detail="Course not found.")
+
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden. You are not authorized to rename this quiz.")
+
+    quiz_name = quiz_name.strip()
+    print(quiz_name)
     chats = ChatDB.fetch(course_id=course_id, all=True)
     for chat in chats:
         quizzes_path = get_quizzes_folder_path(chat["chat_id"])
         if os.path.exists(quizzes_path):
-            # get all markdown files in the quizzes folder of the chat
-            md_files = [splitext(filename)[0] for filename in os.listdir(quizzes_path) if splitext(filename)[1] == "md"]
-            if quiz_name in md_files:
-                new_name = f"{new_quiz_name}"
-                os.rename(os.path.join(quizzes_path, f"{quiz_name}.md"), os.path.join(quizzes_path, f"{new_name}.md"))
-                os.rename(os.path.join(quizzes_path, f"{quiz_name}_answers.json"), 
-                          os.path.join(quizzes_path, f"{new_quiz_name}_answers.json"))
-
-                return {"new_quiz_name": new_quiz_name}
+            filenames = [splitext(filename)[0] for filename in os.listdir(quizzes_path)]
+            print(filenames)
+            if quiz_name in filenames:
+                with open(os.path.join(quizzes_path, f"{quiz_name}.json"), "r") as f:
+                    return json.load(f)
 
     raise HTTPException(status_code=404, detail="Quiz not found.")
-
 
 @router.delete("/{course_id}/quizzes/{quiz_name}")
 async def delete_quiz(course_id: int, quiz_name: str, current_user: dict = Depends(auth.get_current_user)):
@@ -169,16 +215,14 @@ async def delete_quiz(course_id: int, quiz_name: str, current_user: dict = Depen
     if not course:
         raise HTTPException(status_code=404, detail="Course not found.")
 
+    quiz_name = quiz_name.strip()
     chats = ChatDB.fetch(course_id=course_id, all=True)
     for chat in chats:
         quizzes_path = get_quizzes_folder_path(chat["chat_id"])
         if os.path.exists(quizzes_path):
-            # get all markdown files in the quizzes folder of the chat
-            md_files = [splitext(filename)[0] for filename in os.listdir(quizzes_path) if splitext(filename)[1] == "md"]
-            if quiz_name in md_files:
-                os.remove(os.path.join(quizzes_path, f"{quiz_name}.md"))
-                os.remove(os.path.join(quizzes_path, f"{quiz_name}_answers.json"))
-
+            filenames = [splitext(filename)[0] for filename in os.listdir(quizzes_path)]
+            if quiz_name in filenames:
+                os.remove(os.path.join(quizzes_path, f"{quiz_name}.json"))
                 return {"message": "Quiz deleted successfully."}
 
     raise HTTPException(status_code=404, detail="Quiz not found.")

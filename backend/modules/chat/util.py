@@ -76,5 +76,38 @@ def get_chat_folder_path(chat_id: int):
 def get_quizzes_folder_path(chat_id: int):
     return os.path.join(get_chat_folder_path(chat_id), "quiz") # construct the storage directory
 
+
 def get_flashcards_folder_path(chat_id: int):
     return os.path.join(get_chat_folder_path(chat_id), "flashcards") # construct the storage directory
+
+
+def validate_llm_quiz_response(data):
+    if not isinstance(data, list):
+        return False
+    
+    for item in data:
+        if not isinstance(item, dict):
+            return False
+
+        # Validate 'question' key
+        if 'question' not in item or not isinstance(item['question'], str):
+            return False
+
+        # Validate 'choices' key
+        if 'choices' not in item or not isinstance(item['choices'], list):
+            return False
+        
+        # Ensure 'choices' contains 5 elements
+        if len(item['choices']) != 5:
+            return False
+        
+        # Validate each choice in 'choices'
+        for choice in item['choices']:
+            if not isinstance(choice, str):
+                return False
+        
+        # Validate 'answer' key
+        if 'answer' not in item or not item['answer'].upper() in ['A', 'B', 'C', 'D', 'E']:
+            return False
+
+    return True

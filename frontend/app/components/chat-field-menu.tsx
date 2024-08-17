@@ -2,6 +2,7 @@ import UploadChoiceModal from "@/app/components/modals/upload-choice-modal";
 import { backend, backendAPI } from "@/environment/backend_api";
 import { useState } from "react";
 import { IoCloseCircle } from "react-icons/io5";
+import { BsFileEarmarkPdf } from "react-icons/bs";
 import { ChatFieldParameters, Message } from "../types";
 
 export default function ChatFieldMenu({
@@ -17,9 +18,10 @@ export default function ChatFieldMenu({
   const [file, setFile] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isSlide, setSlide] = useState<boolean>(false);
 
   const handleSendMessage = () => {
-    if (!input.trim() && !file) return;
+    if (!input.trim()) return;
 
     const formData = new FormData();
     formData.append("text", input);
@@ -37,7 +39,7 @@ export default function ChatFieldMenu({
     setFile(null);
     setIsLoading(true);
     setImagePreview(null);
-
+    setSlide(false);
     backendAPI
       .post(`/chat/${selectedChat?.chat_id}/send_message`, formData, {
         headers: {
@@ -105,7 +107,7 @@ export default function ChatFieldMenu({
         </svg>
       </label>
       <div className="flex-grow">
-        {imagePreview && (
+        {!isSlide && imagePreview && (
           <div className="relative mt-1">
             <img
               src={imagePreview}
@@ -123,6 +125,22 @@ export default function ChatFieldMenu({
               <IoCloseCircle className="text-red-500" />
             </button>
           </div>
+        )}
+        {isSlide && (
+         <div className="relative mt-1">
+            <BsFileEarmarkPdf className="text-2xl"/>
+           <button
+            className="absolute top-0 left-4 text-black"
+            onClick={() => {
+              handleDeleteImage();
+              setSlide(false);
+            }}
+            type="button"
+            title="Delete image"
+           >
+            <IoCloseCircle className="text-red-500"/>
+           </button>
+         </div>
         )}
         <textarea
           className="w-full border mt-4 rounded-lg bg-transparent text-token-text-primary placeholder-gray-500 border-none focus-visible:outline-none overflow-y-auto resize-none h-10"
@@ -144,12 +162,12 @@ export default function ChatFieldMenu({
       </div>
       <button
         className={`${
-          !input.trim() && !file
+          !input.trim()
             ? "bg-gray-800 rounded-full text-white flex items-center cursor-not-allowed opacity-50"
             : "bg-gray-800 rounded-full text-white flex items-center"
         }`}
         onClick={handleSendMessage}
-        disabled={!input.trim() && !file}
+        disabled={!input.trim()}
         title="Send message"
         type="button"
       >
@@ -178,6 +196,12 @@ export default function ChatFieldMenu({
         onUploadFile={(file) => {
           setFile(file);
           setImagePreview(URL.createObjectURL(file));
+          const fileExtension = file.name.split('.').pop().toLowerCase();
+          if (['doc', 'docx', 'pdf'].includes(fileExtension)) {
+            setSlide(true);
+          } else {
+            setSlide(false);
+          }
         }}
         setFile={setFile}
         setSlidesMode={setSlidesMode}

@@ -3,7 +3,7 @@ export default class GlobalVariables {
   // Singleton instance
   private static instance: GlobalVariables;
 
-  debug_mode: boolean = true;
+  debug_mode: boolean = false;
 
   private constructor() {}
 

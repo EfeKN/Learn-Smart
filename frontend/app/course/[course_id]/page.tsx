@@ -85,7 +85,7 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
         <Link
           title="quizzes"
           className="px-4 py-2 bg-black text-white rounded-full hover:bg-gray-700 transition duration-300 inline-block"
-          href="/quizzes"
+          href={`${pathname}/quizzes`}
         >
           Quizzes
         </Link>

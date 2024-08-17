@@ -6,7 +6,7 @@ export interface MarkdownContentParameters {
 
 export interface QuizParameters {
   question: string;
-  options: string[];
+  choices: string[];
   answer: string;
   currentQuestionIndex: number;
   totalQuestions: number;
@@ -42,6 +42,13 @@ export interface CreateCourseModalParameters {
   onCourseCreation: () => void;
 }
 
+export interface EditCourseModalParameters {
+  isOpen: boolean;
+  onClose: () => void;
+  onCourseUpdate: () => void;
+  courseId: string;
+}
+
 export interface UpdateUploadSyllabusParameters {
   isOpen: boolean;
   modalTitle: string;
@@ -64,6 +71,43 @@ export interface ChatRenameModalParameters {
   onSubmitted: (chat_id: string, chat_title: string) => Promise<void>;
   chat_id: string;
   chat_title: string;
+}
+
+export interface GenerateQuizModalParameters {
+  isOpen: boolean;
+  token: string;
+  chatID: string;
+  onClose: (error: any) => void;
+  setQuizName: (quizName: string) => void;
+}
+
+export interface QuizModalParameters {
+  isOpen: boolean;
+  token: string;
+  quizName: string;
+  courseID: string;
+  onClose: () => void;
+}
+
+export interface QuizzesPageParameters {
+  courseID: string;
+  courseName: string;
+}
+
+export interface QuizCardProps {
+  quizName: string;
+  chatTitle: string;
+  onClick: () => void;
+  token: string;
+  courseID: string;
+  onQuizNameChange: any;
+  onQuizDelete: any;
+}
+
+export interface QuizData {
+  chat_id: number;
+  chat_title: string;
+  quizzes: string[];
 }
 
 export interface CourseHomepageParameters {}

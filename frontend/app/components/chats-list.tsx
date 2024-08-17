@@ -9,6 +9,9 @@ import { IoCreate, IoEllipsisHorizontal } from "react-icons/io5";
 import { MdQuiz } from "react-icons/md";
 import { printDebugMessage } from "../debugger";
 import ChatRenameModal from "./modals/chat-rename-modal";
+import GenerateQuizModal from "./modals/generate-quiz-modal";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function ChatsList({
   chats,
@@ -20,6 +23,13 @@ export default function ChatsList({
 }: ChatsListParameters) {
   const [openMenuId, setOpenMenuId] = useState<string>("");
   const [isRenameModalOpen, setIsRenameModalOpen] = useState<boolean>(false);
+
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState<boolean>(false);
+  const [generatedQuizName, setGeneratedQuizName] = useState<string>("");
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>("");
+
   const [token, setToken] = useState<string>(
     Cookies.get("authToken") as string
   );
@@ -94,25 +104,13 @@ export default function ChatsList({
   };
 
   const handleCreateQuiz = async (chat_id: string) => {
-    try {
-      const response = await backendAPI.post(
-        `/chat/${chat_id}/create_quiz`,
-        {},
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log(response.data);
-    } catch (error) {
-      console.log(error);
-    }
+    setIsQuizModalOpen(true);
   };
 
   const handleCreateFlashCards = async (chat_id: string) => {
+    setIsLoading(true);
+    setLoadingMessage("Creating flashcards...");
+
     try {
       const response = await backendAPI.post(
         `/chat/${chat_id}/create_flashcards`,
@@ -131,12 +129,15 @@ export default function ChatsList({
       router.push(url);
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage("");
     }
   };
 
   const handleShowFlashCards = (chat_id: string) => {
     const currentPath = window.location.pathname;
-    router.push(`${currentPath}/${chat_id}/flashcards`);
+    router.push(`${currentPath}/${chat_id}/flashcards_list`);
   };
 
   const handleDelete = async (chat_id: string) => {
@@ -159,105 +160,142 @@ export default function ChatsList({
   };
 
   return (
-    <ul className="flex-grow overflow-y-auto bg-transparent rounded-lg p-4">
-      {Object.entries(categorizeChats(chats))
-        .filter(([, chats]) => chats.length > 0)
-        .map(([category, chats]) => (
-          <Fragment key={category}>
-            <h2 className="text-xs font-semibold text-gray-400 capitalize p-2">
-              {category === "lastWeek" ? "Last Week" : category}
-            </h2>
-            {chats.map((chat) => (
-              <li
-                key={chat.chat_id}
-                className={`p-2 cursor-pointer rounded-lg mb-2 transition-colors duration-200 ${
-                  selectedChat && selectedChat.chat_id === chat.chat_id
-                    ? "bg-gray-800"
-                    : "hover:bg-gray-800"
-                }`}
-                onClick={() => handleChatSelection(chat.chat_id)}
-              >
-                <div className="flex justify-between items-center">
-                  <p className="text-sm font-normal text-gray-400">
-                    {chat.chat_title}
-                  </p>
-                  <button
-                    className="text-gray-400 text-xl hover:text-gray-300"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleToggleMenu(chat.chat_id);
-                    }}
-                    type="button"
-                    title="More options"
-                  >
-                    <IoEllipsisHorizontal />
-                  </button>
-                </div>
-                {openMenuId === chat.chat_id && (
-                  <div className="relative z-50">
-                    <div className="absolute -right-2 mt-2 w-48">
-                      <div className="rounded-lg shadow-xxs ring-1 ring-black ring-opacity-5 overflow-hidden bg-gray-700">
-                        <div className="flex flex-col gap-2 p-2">
-                          <div>
+    <>
+      {isLoading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg flex flex-col items-center">
+            <p className="mb-4 text-gray-800">{loadingMessage}</p>
+            <div className="border-t-4 border-blue-500 border-solid rounded-full w-16 h-16 animate-spin"></div>
+          </div>
+        </div>
+      )}
+      <ul className="flex-grow overflow-y-auto bg-transparent rounded-lg p-4">
+        {Object.entries(categorizeChats(chats))
+          .filter(([, chats]) => chats.length > 0)
+          .map(([category, chats]) => (
+            <Fragment key={category}>
+              <h2 className="text-xs font-semibold text-gray-400 capitalize p-2">
+                {category === "lastWeek" ? "Last Week" : category}
+              </h2>
+              {chats.map((chat) => (
+                <li
+                  key={chat.chat_id}
+                  className={`p-2 cursor-pointer rounded-lg mb-2 transition-colors duration-200 ${
+                    selectedChat && selectedChat.chat_id === chat.chat_id
+                      ? "bg-gray-800"
+                      : "hover:bg-gray-800"
+                  }`}
+                  onClick={() => handleChatSelection(chat.chat_id)}
+                >
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm font-normal text-gray-400">
+                      {chat.chat_title}
+                    </p>
+                    <button
+                      className="text-gray-400 text-xl hover:text-gray-300"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleToggleMenu(chat.chat_id);
+                      }}
+                      type="button"
+                      title="More options"
+                    >
+                      <IoEllipsisHorizontal />
+                    </button>
+                  </div>
+                  {openMenuId === chat.chat_id && (
+                    <div className="relative z-50">
+                      <div className="absolute -right-2 mt-2 w-48">
+                        <div className="rounded-lg shadow-xxs ring-1 ring-black ring-opacity-5 overflow-hidden bg-gray-700">
+                          <div className="flex flex-col gap-2 p-2">
+                            <div>
+                              <button
+                                onClick={() =>
+                                  setIsRenameModalOpen(!isRenameModalOpen)
+                                }
+                                type="button"
+                                className="flex items-center text-sm font-normal text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
+                              >
+                                <CiEdit className="mr-2 text-gray-400" />
+                                Rename
+                              </button>
+                              <ChatRenameModal
+                                isOpen={isRenameModalOpen}
+                                closeModal={() => setIsRenameModalOpen(false)}
+                                onSubmitted={handleRename}
+                                chat_id={chat.chat_id}
+                                chat_title={chat.chat_title}
+                              />
+                            </div>
+                            <button
+                              onClick={() => handleCreateQuiz(chat.chat_id)}
+                              type="button"
+                              className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
+                            >
+                              <MdQuiz className="mr-2 text-gray-400" />
+                              Create Quiz
+                            </button>
+                            <GenerateQuizModal
+                              isOpen={isQuizModalOpen}
+                              token={token}
+                              chatID={chat.chat_id}
+                              onClose={(error) => {
+                                setIsQuizModalOpen(false);
+                                if (!error) {
+                                  toast.success(`Quiz saved successfully as '${generatedQuizName}'`);
+                                }
+                                setGeneratedQuizName("");
+                              }}
+                              setQuizName={setGeneratedQuizName}
+                            />
                             <button
                               onClick={() =>
-                                setIsRenameModalOpen(!isRenameModalOpen)
+                                handleCreateFlashCards(chat.chat_id)
                               }
                               type="button"
-                              className="flex items-center text-sm font-normal text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
+                              className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
                             >
-                              <CiEdit className="mr-2 text-gray-400" />
-                              Rename
+                              <IoCreate className="mr-2 text-gray-400" />
+                              Create Flashcards
                             </button>
-                            <ChatRenameModal
-                              isOpen={isRenameModalOpen}
-                              closeModal={() => setIsRenameModalOpen(false)}
-                              onSubmitted={handleRename}
-                              chat_id={chat.chat_id}
-                              chat_title={chat.chat_title}
-                            />
+                            <button
+                              onClick={() => handleShowFlashCards(chat.chat_id)}
+                              type="button"
+                              className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
+                            >
+                              <FaQuestionCircle className="mr-2 text-gray-400" />
+                              Show Flashcards
+                            </button>
+                            <button
+                              onClick={() => handleDelete(chat.chat_id)}
+                              type="button"
+                              className="flex items-center text-sm font-normal text-red-500 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
+                            >
+                              <FaTrashAlt className="mr-2 text-red-500" />
+                              Delete
+                            </button>
                           </div>
-                          <button
-                            onClick={() => handleCreateQuiz(chat.chat_id)}
-                            type="button"
-                            className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
-                          >
-                            <MdQuiz className="mr-2 text-gray-400" />
-                            Create Quiz
-                          </button>
-                          <button
-                            onClick={() => handleCreateFlashCards(chat.chat_id)}
-                            type="button"
-                            className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
-                          >
-                            <IoCreate className="mr-2 text-gray-400" />
-                            Create Flashcards
-                          </button>
-                          <button
-                            onClick={() => handleShowFlashCards(chat.chat_id)}
-                            type="button"
-                            className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
-                          >
-                            <FaQuestionCircle className="mr-2 text-gray-400" />
-                            Show Flashcards
-                          </button>
-                          <button
-                            onClick={() => handleDelete(chat.chat_id)}
-                            type="button"
-                            className="flex items-center text-sm font-normal text-red-500 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
-                          >
-                            <FaTrashAlt className="mr-2 text-red-500" />
-                            Delete
-                          </button>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
-              </li>
-            ))}
-          </Fragment>
-        ))}
-    </ul>
+                  )}
+                </li>
+              ))}
+            </Fragment>
+          ))}
+      </ul>
+      <ToastContainer
+        position="top-center"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss={false}
+        draggable={false}
+        pauseOnHover={false}
+        theme="light"
+      />
+    </>
   );
 }

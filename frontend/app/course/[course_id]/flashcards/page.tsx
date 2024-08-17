@@ -1,149 +1,245 @@
 "use client";
 
 import { backendAPI } from "@/environment/backend_api";
+import Navbar from "@/app/components/navbar/navbar";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
-import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
-import FlashCard from "../../../components/flashcard";
 import "../../../style/bg-animation.css";
+import { useParams, useRouter } from "next/navigation";
 
-type QuizData = {
-  question: string;
-  answer: string;
-}[];
+interface Chat {
+  chat_id: number;
+  chat_title: string;
+  created_at: string;
+}
 
-export default function QuizCard() {
-  const initialQuizData: QuizData = [
-    {
-      question:
-        "What is React React React React React React React React React?",
-      answer: "A JavaScript library for building user interfaces.",
-    },
-  ];
+interface FlashcardContent {
+  flashcards: string[];
+  explanations: string[];
+}
 
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [quizData, setQuizData] = useState<QuizData>(initialQuizData);
-  const [loading, setLoading] = useState(true);
+interface Flashcard {
+  filename: string;
+  content: FlashcardContent;
+}
 
-  const handleNextCard = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentCardIndex((currentCardIndex + 1) % quizData.length);
-      setIsTransitioning(false);
-    }, 300);
-  };
+export default function Flashcards() {
+  const [token, setToken] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+  const [chats, setChats] = useState<Chat[]>([]);
+  const [flashcardsList, setFlashcardsList] = useState<{
+    [key: number]: Flashcard[];
+  }>({});
+  const params = useParams<{ course_id: string }>();
+  const course_id = params.course_id;
+  const router = useRouter();
 
-  const handlePreviousCard = () => {
-    setIsTransitioning(true);
-    setTimeout(() => {
-      setCurrentCardIndex(
-        (currentCardIndex - 1 + quizData.length) % quizData.length
-      );
-      setIsTransitioning(false);
-    }, 300);
-  };
+  useEffect(() => {
+    setToken(Cookies.get("authToken") || "");
+  }, []);
 
-  const generateFlashcards = async () => {
+  useEffect(() => {
+    if (token) {
+      fetchAllChats();
+    }
+  }, [token]);
+
+  const fetchAllChats = async () => {
+    if (!token || course_id == null || course_id === "") {
+      return;
+    }
+
     setLoading(true);
+
     try {
-      const formData = new FormData();
-      // TODO: COMPLETE THE formData and Delete the placeholder question above
-      formData.append(
-        "course_flashcard_file_content",
-        `
-              Course Title: Introduction to Computer Science
-              Course ID: CS101
-              Instructor: Dr. Jane Doe
-              Course Description:
-              This course provides an introduction to the fundamental concepts of computer science, including programming, algorithms, and data structures. Students will gain hands-on experience through various projects and assignments.
-              Course Objectives:
-              1. Understand the basics of programming in Python.
-              2. Learn how to design and implement algorithms.
-              3. Gain experience with data structures such as lists, stacks, and queues.
-              4. Develop problem-solving skills through coding challenges.
-              Course Schedule:
-              Week 1: Introduction to Python
-              Week 2: Control Structures and Functions
-              Week 3: Data Structures - Lists and Tuples
-              Week 4: Data Structures - Dictionaries and Sets
-              Week 5: Algorithms - Sorting and Searching
-              Week 6: Midterm Exam
-              Week 7: Advanced Topics in Algorithms
-              Week 8: Project Development
-              Week 9: Project Presentation
-              Week 10: Final Exam
-              Assessment:
-              - Midterm Exam: 30%
-              - Final Exam: 40%
-              - Project: 30%
-              Resources:
-              - Textbook: "Introduction to Computer Science" by John Smith
-              - Online Tutorials: Codecademy, Coursera
-              - Office Hours: Monday and Wednesday, 2-4 PM
-            `
-      );
-      formData.append("course_id", "PLACEHOLDER");
+      const response = await backendAPI.get(`/course/${course_id}/chats`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setChats(response.data);
 
-      const response = await backendAPI.post(
-        "/course/generate_flashcards",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
-      console.log(response.data.data);
-
-      // TODO: Parsing does not work currently
-      const parsedData: QuizData = response.data.data.map((item: any) => ({
-        question: item.question,
-        answer: item.answer,
-      }));
-
-      const mergedData = [...initialQuizData, ...parsedData];
-
-      setQuizData(mergedData);
-      setLoading(false);
+      for (const chat of response.data) {
+        await fetchFlashcardsList(chat.chat_id);
+      }
     } catch (error) {
-      console.error("Error generating flashcards:", error);
+      console.error("Error fetching chats:", error);
+    } finally {
+      console.log(flashcardsList);
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    generateFlashcards();
-  }, []);
+  const fetchFlashcardsList = async (chat_id: number) => {
+    try {
+      const response = await backendAPI.get(`/chat/${chat_id}/flashcards`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setFlashcardsList((prev) => ({
+        ...prev,
+        [chat_id]: response.data,
+      }));
+    } catch (error) {
+      console.error("Error fetching flashcards data:", error);
+    }
+  };
+
+  const handleRename = async (chat_id: number, index: number) => {
+    setLoading(true);
+    const currentFilename = flashcardsList[chat_id][index].filename;
+    const currentFilenameWithoutExtension = currentFilename.replace(
+      ".json",
+      ""
+    );
+    const newFilename = prompt(
+      "Enter new filename:",
+      currentFilenameWithoutExtension
+    );
+    if (newFilename) {
+      try {
+        await backendAPI.put(
+          `chat/${chat_id}/flashcards/${currentFilenameWithoutExtension}`,
+          {new_name: newFilename},
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        window.location.reload();
+      } catch (error) {
+        console.error("Error renaming flashcard:", error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (chat_id: number, index: number) => {
+    if (window.confirm("Are you sure you want to delete this flashcard?")) {
+      setLoading(true);
+      const currentFilename = flashcardsList[chat_id][index].filename;
+      const currentFilenameWithoutExtension = currentFilename.replace(
+        ".json",
+        ""
+      );
+      try {
+        await backendAPI.delete(
+          `chat/${chat_id}/flashcards/${currentFilenameWithoutExtension}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        window.location.reload();
+      } catch (error) {
+        console.error("Error deleting flashcard:", error);
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setLoading(false);
+    }
+  };
+
+  const handleFilenameClick = async (chat_id: number, filename: string) => {
+    try {
+      const currentFilenameWithoutExtension = filename.replace(".json", "");
+      const response = await backendAPI.get(
+        `/chat/${chat_id}/flashcards/${currentFilenameWithoutExtension}`,
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const data = JSON.stringify(response.data.content);
+      const url = `/flashcards?data=${encodeURIComponent(data)}`;
+      router.push(url);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 min-h-screen animated-gradient">
-      <div className="flex justify-between w-full items-center">
-        <button
-          onClick={handlePreviousCard}
-          className="text-blue-500 hover:text-blue-600 focus:outline-none"
-          title="Previous Card"
-          type="button"
-        >
-          <FaArrowLeft size={24} />
-        </button>
-        <FlashCard
-          question={quizData[currentCardIndex].question}
-          answer={quizData[currentCardIndex].answer}
-          isTransitioning={isTransitioning}
-        />
-        <button
-          onClick={handleNextCard}
-          className="text-blue-500 hover:text-blue-600 focus:outline-none"
-          title="Next Card"
-          type="button"
-        >
-          <FaArrowRight size={24} />
-        </button>
+    <main className="bg-transparent min-h-screen text-black">
+      <Navbar />
+      <div className="flex-1 flex items-center justify-center bg-transparent text-black p-4">
+        <div className="flex flex-col w-full max-w-4xl p-4 bg-white shadow-lg rounded-lg">
+          {chats.map((chat) => (
+            <div
+              key={chat.chat_id}
+              className="p-4 mb-4 border rounded-lg shadow-sm bg-gray-50"
+            >
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                {chat.chat_title}
+              </h3>
+              {/* 
+              <p className="text-gray-600 mb-1">ID: {chat.chat_id}</p>
+              <p className="text-gray-500 text-sm">{chat.created_at}</p>
+              */}
+
+              <div className="border-t-4 border-gray-500 mt-4 pt-4 border-dashed">
+                {flashcardsList[chat.chat_id] &&
+                flashcardsList[chat.chat_id].length > 0 ? (
+                  <ul className="space-y-2">
+                    {flashcardsList[chat.chat_id].map((flashcard, index) => (
+                      <li
+                        key={index}
+                        className="p-4 border border-gray-300 rounded-lg shadow-sm hover:bg-gray-100 flex items-center justify-between"
+                      >
+                        <button
+                          onClick={() =>
+                            handleFilenameClick(
+                              chat.chat_id,
+                              flashcard.filename
+                            )
+                          }
+                          className="text-lg font-semibold text-blue-500 hover:underline"
+                        >
+                          {flashcard.filename}
+                        </button>
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => handleRename(chat.chat_id, index)}
+                            className="bg-yellow-500 text-white py-1 px-2 rounded hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-opacity-50"
+                          >
+                            Rename
+                          </button>
+                          <button
+                            onClick={() => handleDelete(chat.chat_id, index)}
+                            className="bg-red-500 text-white py-1 px-2 rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-500">No flashcards found.</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

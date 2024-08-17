@@ -11,6 +11,7 @@ from tools import generate_hash, splitext
 from modules.chat.util import *
 from modules.chat import CHATS_DIR
 from middleware import FILES_DIR
+from pydantic import BaseModel
 from . import SYSTEM_PROMPT, MODEL_VERSION, EXPLAIN_SLIDE_PROMPT, FLASHCARD_PROMPT, QUIZZES_PROMPT
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
@@ -225,12 +226,10 @@ def update_chat(chat_id: int, chat_title: str, current_user: dict = Depends(auth
     """
     
     chat = ChatDB.fetch(chat_id=chat_id)
-    
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found.")
     
     course = CourseDB.fetch(course_id=chat["course_id"])
-    
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
     
@@ -490,37 +489,25 @@ async def create_quiz(chat_id: int, current_user: dict = Depends(auth.get_curren
         generation_config={"response_mime_type": "application/json"}
     ).start_chat(history=history)
 
-    print(QUIZZES_PROMPT)
-
     response = chat_model.send_message(QUIZZES_PROMPT)
     response_dict = json.loads(response.text)
     if not response_dict["success"]:
         raise HTTPException(status_code=500, detail="Failed to generate quiz.")
     
     data = response_dict["data"]
-
-    print("################dat################)")
-    print(data)
-
-    quiz = data["quiz"]
-    answers = data["answers"]
+    if not validate_llm_quiz_response(data):
+        raise HTTPException(status_code=500, detail="An error occurred while generating the quiz.")
 
     quizzes_base_path = get_quizzes_folder_path(chat_id)
+
     os.makedirs(quizzes_base_path, exist_ok=True)
-    quiz_file_name = f"{generate_hash('quiz', strategy='timestamp')}.md"
-    answers_file_name = f"{generate_hash('quiz', strategy='timestamp')}_answers.json"
-
+    quiz_file_name = f"{generate_hash('', strategy='timestamp', human_readable=True)}.json"
     quiz_file_path = os.path.join(quizzes_base_path, quiz_file_name)
-    answers_file_path = os.path.join(quizzes_base_path, answers_file_name)
 
-    with open(quiz_file_path, "w") as file:
-        file.write(quiz)
-
-    with open(answers_file_path, "w") as file:
-        answers_list = [{idx + 1: answer} for idx, answer in enumerate(answers)]
-        json.dump(answers_list, file, indent=4)
-    
-    return {"quiz": quiz, "answers": answers}
+    with open(quiz_file_path, 'w') as file:
+        json.dump(data, file, indent=4)
+        
+    return {"filename": splitext(quiz_file_name)[0], "quiz": data}
 
 @router.post("/{chat_id}/create_flashcards")
 async def create_flashcards(chat_id: int, current_user: dict = Depends(auth.get_current_user)):
@@ -651,20 +638,30 @@ async def get_flashcard(chat_id: int, flashcard_name: str, current_user: dict = 
         "content": flashcard
     }
 
+class RenameFlashcardRequest(BaseModel):
+    new_name: str
+
 @router.put("/{chat_id}/flashcards/{flashcard_name}")
-async def rename_flashcard(chat_id: int, flashcard_name: str, new_name: str, current_user: dict = Depends(auth.get_current_user)):
+async def rename_flashcard(
+    chat_id: int,
+    flashcard_name: str,
+    request: RenameFlashcardRequest,
+    current_user: dict = Depends(auth.get_current_user)
+):
     """
     Rename a specific flashcard file.
 
     Args:
         chat_id (int): The ID of the chat.
         flashcard_name (str): The current name of the flashcard file (without the .json extension).
-        new_name (str): The new name for the flashcard file (without the .json extension).
+        request (RenameFlashcardRequest): The request body containing the new name.
         current_user (dict): The current authenticated user (used for authentication).
 
     Returns:
         dict: A message indicating the flashcard was successfully renamed.
     """
+
+    new_name = request.new_name
 
     chat = ChatDB.fetch(chat_id=chat_id)
 

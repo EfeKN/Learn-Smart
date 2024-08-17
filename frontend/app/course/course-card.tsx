@@ -45,22 +45,24 @@ export default function CourseCard(parameters: CourseCardParameters) {
   }, []);
 
   function renderMenu(course: Course): JSX.Element {
-    return (
-      <div>
-        <button
-          type="button"
-          className="inline-flex items-center text-xl font-semibold"
-          title="Course Menu"
-        >
-          <MdOutlineKeyboardArrowDown />
-        </button>
-        <CourseCardFlyoutMenu
-          isOpen={currentMenu === "menu"}
-          onClose={() => setCurrentMenu("")}
-          course={course}
-        />
-      </div>
-    );
+      return (
+        <div className="relative">
+          <button
+            type="button"
+            className="inline-flex items-center text-xl font-semibold ml-1 mt-1"
+            onClick={() => setCurrentMenu((prevMenu) => (prevMenu === "menu" ? "" : "menu"))}
+          >
+            <MdOutlineKeyboardArrowDown/>
+          </button>
+          {currentMenu === "menu" && (
+            <CourseCardFlyoutMenu
+              isOpen={currentMenu === "menu"}
+              onClose={() => setCurrentMenu("")}
+              course={course}
+            />
+          )}
+        </div>
+      );
   }
 
   return (
@@ -97,17 +99,8 @@ export default function CourseCard(parameters: CourseCardParameters) {
       </button>
 
       <div className="mt-2 flex items-center justify-center text-black font-semibold">
-        <span>{parameters.course.course_code}</span>
-        <button
-          onClick={() => {
-            setCurrentMenu((prevMenu) => (prevMenu === "menu" ? "" : "menu"));
-          }}
-          className="mt-1 ml-1.5"
-          title="Course Menu"
-          type="button"
-        >
+          <span>{parameters.course.course_code}</span>
           {renderMenu(parameters.course)}
-        </button>
       </div>
     </main>
   );
