@@ -1,8 +1,11 @@
-import { MarkdownContentParameters } from "@/app/types";
 import Markdown from "react-markdown";
 
-export default function MarkdownContent({
-  markdown_content,
-}: MarkdownContentParameters) {
-  return <Markdown>{markdown_content}</Markdown>;
+interface MarkdownContentProps {
+  content: string;
 }
+
+const MarkdownContent: React.FC<MarkdownContentProps> = ({ content }) => {
+  return <Markdown>{content}</Markdown>;
+};
+
+export default MarkdownContent;
