@@ -1,11 +1,11 @@
 "use client";
 
-import backendAPI from "@/environment/backend_api";
 import Navbar from "@/app/components/navbar/navbar";
+import { backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import "../../../style/bg-animation.css";
-import { useParams, useRouter } from "next/navigation";
 
 interface Chat {
   chat_id: number;
@@ -102,10 +102,8 @@ export default function Flashcards() {
     if (newFilename) {
       try {
         await backendAPI.put(
-          `chat/${chat_id}/flashcards/${currentFilenameWithoutExtension}?new_name=${encodeURIComponent(
-            newFilename
-          )}`,
-          {},
+          `chat/${chat_id}/flashcards/${currentFilenameWithoutExtension}`,
+          { new_name: newFilename },
           {
             headers: {
               "Content-Type": "application/json",

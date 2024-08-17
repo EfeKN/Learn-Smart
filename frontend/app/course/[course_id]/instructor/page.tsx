@@ -8,7 +8,7 @@ import { printDebugMessage } from "@/app/debugger";
 import "@/app/style/logo-font.css";
 import { Chat, Course, Message } from "@/app/types";
 import logo from "@/assets/chatbot-logo.png";
-import backendAPI from "@/environment/backend_api";
+import { backend, backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
@@ -147,7 +147,7 @@ export default function InstructorPage() {
           const modelResponse = {
             text: text,
             role: "model",
-            media_url: `http://127.0.0.1:8000/${media_url}`,
+            media_url: `${backend.getUri()}/${media_url}`,
             message_id: lastMessageID + 1,
           };
 
@@ -190,7 +190,7 @@ export default function InstructorPage() {
             text: msg.text,
             role: msg.role,
             media_url: msg.media_url
-              ? `http://localhost:8000/${msg.media_url}`
+              ? `${backend.getUri()}/${msg.media_url}`
               : null,
             message_id: msg.message_id,
           }));

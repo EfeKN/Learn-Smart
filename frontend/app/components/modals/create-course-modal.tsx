@@ -1,7 +1,7 @@
 import { documentMimeTypes, imageMimeTypes } from "@/app/constants";
 import { printDebugMessage } from "@/app/debugger";
 import { CreateCourseModalParameters } from "@/app/types";
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { FaFilePdf, FaRegImages } from "react-icons/fa6";

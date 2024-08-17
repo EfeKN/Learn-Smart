@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from "react";
 import QuizMenu from "@/app/quiz/page";
-import { GenerateQuizModalParameters } from "../../types";
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import { GenerateQuizModalParameters } from "../../types";
 
 const GenerateQuizModal = (modalParameters: GenerateQuizModalParameters) => {
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [quizData, setQuizData] = useState(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState(null);
+  const [quizData, setQuizData] = useState(null);
 
     const handleClose = (err: any) => {
         setQuizData(null);
@@ -56,6 +56,7 @@ const GenerateQuizModal = (modalParameters: GenerateQuizModalParameters) => {
               onClick={() => handleClose(null)}
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
               aria-label="Close"
+              type="button"
             >
               &#10005; {/* This is the Unicode character for an "X" symbol */}
             </button>

@@ -1,8 +1,8 @@
 import UploadChoiceModal from "@/app/components/modals/upload-choice-modal";
-import backendAPI from "@/environment/backend_api";
+import { backend, backendAPI } from "@/environment/backend_api";
 import { useState } from "react";
-import { IoCloseCircle } from "react-icons/io5";
 import { BsFileEarmarkPdf } from "react-icons/bs";
+import { IoCloseCircle } from "react-icons/io5";
 import { ChatFieldParameters, Message } from "../types";
 
 export default function ChatFieldMenu({
@@ -53,7 +53,7 @@ export default function ChatFieldMenu({
           text: response.data.text,
           role: response.data.role,
           media_url: response.data.media_url
-            ? `http://127.0.0.1:8000/${response.data.media_url}`
+            ? `${backend.getUri()}/${response.data.media_url}`
             : null,
           message_id: lastMessageID + 2,
         };
@@ -127,20 +127,20 @@ export default function ChatFieldMenu({
           </div>
         )}
         {isSlide && (
-         <div className="relative mt-1">
-            <BsFileEarmarkPdf className="text-2xl"/>
-           <button
-            className="absolute top-0 left-4 text-black"
-            onClick={() => {
-              handleDeleteImage();
-              setSlide(false);
-            }}
-            type="button"
-            title="Delete image"
-           >
-            <IoCloseCircle className="text-red-500"/>
-           </button>
-         </div>
+          <div className="relative mt-1">
+            <BsFileEarmarkPdf className="text-2xl" />
+            <button
+              className="absolute top-0 left-4 text-black"
+              onClick={() => {
+                handleDeleteImage();
+                setSlide(false);
+              }}
+              type="button"
+              title="Delete image"
+            >
+              <IoCloseCircle className="text-red-500" />
+            </button>
+          </div>
         )}
         <textarea
           className="w-full border mt-4 rounded-lg bg-transparent text-token-text-primary placeholder-gray-500 border-none focus-visible:outline-none overflow-y-auto resize-none h-10"
@@ -196,8 +196,8 @@ export default function ChatFieldMenu({
         onUploadFile={(file) => {
           setFile(file);
           setImagePreview(URL.createObjectURL(file));
-          const fileExtension = file.name.split('.').pop().toLowerCase();
-          if (['doc', 'docx', 'pdf'].includes(fileExtension)) {
+          const fileExtension = file.name.split(".").pop().toLowerCase();
+          if (["doc", "docx", "pdf"].includes(fileExtension)) {
             setSlide(true);
           } else {
             setSlide(false);

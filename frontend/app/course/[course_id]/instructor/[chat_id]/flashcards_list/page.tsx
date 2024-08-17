@@ -1,7 +1,7 @@
 "use client";
 
 import "@/app/style/course-homepage.css";
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -72,10 +72,8 @@ export default function FlashCardList() {
     if (newFilename) {
       try {
         const response = await backendAPI.put(
-          `chat/${chat_id}/flashcards/${currentFilenameWithoutExtension}?new_name=${encodeURIComponent(
-            newFilename
-          )}`,
-          {},
+          `chat/${chat_id}/flashcards/${currentFilenameWithoutExtension}`,
+          { new_name: newFilename },
           {
             headers: {
               "Content-Type": "application/json",

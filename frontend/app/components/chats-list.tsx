@@ -1,5 +1,5 @@
 import { Chat, ChatsListParameters } from "@/app/types";
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { Fragment, useState } from "react";
@@ -241,8 +241,9 @@ export default function ChatsList({
                               chatID={chat.chat_id}
                               onClose={(error) => {
                                 setIsQuizModalOpen(false);
-                                if (!error)
+                                if (!error) {
                                   toast.success(`Quiz saved successfully as '${generatedQuizName}'`);
+                                }
                                 setGeneratedQuizName("");
                               }}
                               setQuizName={setGeneratedQuizName}

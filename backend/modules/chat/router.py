@@ -501,7 +501,7 @@ async def create_quiz(chat_id: int, current_user: dict = Depends(auth.get_curren
     quizzes_base_path = get_quizzes_folder_path(chat_id)
 
     os.makedirs(quizzes_base_path, exist_ok=True)
-    quiz_file_name = f"{generate_hash('', strategy='timestamp', human_readable=True)}.json"
+    quiz_file_name = f"{generate_hash("", strategy='timestamp', human_readable=True)}.json"
     quiz_file_path = os.path.join(quizzes_base_path, quiz_file_name)
 
     with open(quiz_file_path, 'w') as file:
@@ -542,7 +542,7 @@ async def create_flashcards(chat_id: int, current_user: dict = Depends(auth.get_
 
     flashcards_base_path = get_flashcards_folder_path(chat_id)
     os.makedirs(flashcards_base_path, exist_ok=True)
-    flashcards_file_name = f"{generate_hash('flashcards', strategy='timestamp')}.json"
+    flashcards_file_name = f"{generate_hash("", strategy='timestamp', human_readable=True)}.json"
 
     flashcards_file_path = os.path.join(flashcards_base_path, flashcards_file_name)
 

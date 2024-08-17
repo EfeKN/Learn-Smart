@@ -23,7 +23,7 @@ def generate_hash(filename: str, strategy="sha256", **kwargs):
         # generate a timestamp based hash
         suffix = f"_{filename}" if filename else ""
         if kwargs.get("human_readable", False):
-            return f"{time.strftime('%Y-%m-%d %H:%M:%S')}{suffix}"
+            return f"{time.strftime('%Y-%m-%d %H꞉%M꞉%S')}{suffix}"
         return f"{int(time.time())}{suffix}" 
     else:
         raise ValueError("Invalid strategy provided. Please use 'sha256', 'uuid' or 'timestamp'.")

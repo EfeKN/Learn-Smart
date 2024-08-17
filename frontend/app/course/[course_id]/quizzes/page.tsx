@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import { Course } from "@/app/types";
 import QuizCard from "@/app/components/quiz-card";
 import { QuizData } from "@/app/types";

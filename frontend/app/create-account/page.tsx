@@ -1,6 +1,6 @@
 "use client";
 
-import backendAPI from "@/environment/backend_api";
+import { backendAPI } from "@/environment/backend_api";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FaRegEnvelope, FaRegUser } from "react-icons/fa";
