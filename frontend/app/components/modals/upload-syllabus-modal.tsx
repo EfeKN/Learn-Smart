@@ -113,7 +113,7 @@ export default function UpdateUploadSyllabus({
         <form onSubmit={handleSubmit}>
           <div
             className="flex flex-col items-center justify-center w-full h-48 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-            onClick={() => fileInputRef.current?.click()} // Trigger file input click
+            onClick={() => fileInputRef.current?.click()}
             onDragOver={(e) => e.preventDefault()}
             onDrop={(e) => {
               e.preventDefault();
@@ -162,7 +162,7 @@ export default function UpdateUploadSyllabus({
               type="file"
               accept=".pdf,.docx"
               onChange={(event) => handleFileChange(event, "document")}
-              ref={fileInputRef} // Attach ref here
+              ref={fileInputRef}
               className="hidden"
               title="Upload syllabus"
             />

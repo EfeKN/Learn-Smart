@@ -138,33 +138,33 @@ export default function UploadChoiceModal({
               Upload Images/Documents
             </h2>
             <label
-              htmlFor="file-upload"
-              className="flex flex-col items-center justify-center w-full h-full p-4 border-2 border-dashed border-gray-400 rounded-lg cursor-pointer hover:border-gray-500 hover:bg-gray-100"
+                htmlFor="file-upload"
+                className="flex flex-col items-center justify-center w-full h-full p-4 border-2 border-dashed border-gray-400 rounded-lg cursor-pointer hover:border-gray-500 hover:bg-gray-100"
             >
-              <FaRegImages className="w-12 h-12 mb-2 text-gray-500" />
+              <FaRegImages className="w-12 h-12 mb-2 text-gray-500"/>
               <p className="text-lg font-semibold text-gray-700">Upload File</p>
               <p className="text-gray-500">Images and Documents</p>
               <input
-                type="file"
-                id="file-upload"
-                className="hidden"
-                accept="image/*,.doc,.docx,.pdf"
-                onChange={handleFileChange}
+                  type="file"
+                  id="file-upload"
+                  className="hidden"
+                  accept="image/*,.doc,.docx,.pdf"
+                  onChange={handleFileChange}
                 onClick={() => setFileType("file")}
               />
             </label>
           </div>
         </div>
         {selectedFile && (
-          <div className="mt-4">
-            <button
-              onClick={handleSubmit}
-              className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800"
-              type="button"
-            >
-              Upload Selected {fileType === "slides" ? "Slides" : "File"}
-            </button>
-          </div>
+            <div className="mt-4">
+              <button
+                  onClick={handleSubmit}
+                  className="bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800"
+                  type="button"
+              >
+                Upload Selected {fileType === "slides" ? "Slides" : "File"}
+              </button>
+            </div>
         )}
       </div>
     </div>
