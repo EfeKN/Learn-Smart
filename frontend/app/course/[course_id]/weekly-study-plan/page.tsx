@@ -93,7 +93,7 @@ export default function StudyPlan() {
           Loading...
         </div>
       ) : studyPlan ? (
-        <Markdown content={studyPlan} />
+        <Markdown markdown_content={studyPlan} />
       ) : (
         <div className="text-center text-red-600 font-semibold">
           Syllabus is not uploaded.
