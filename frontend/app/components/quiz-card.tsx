@@ -1,7 +1,7 @@
+import { backendAPI } from "@/environment/backend_api";
 import React, { useState } from "react";
+import { FaCheck, FaClipboardList, FaEllipsisV, FaTimes } from "react-icons/fa";
 import { QuizCardProps } from "../types";
-import { FaClipboardList, FaEllipsisV, FaCheck, FaTimes } from "react-icons/fa";
-import backendAPI from "@/environment/backend_api";
 
 export default function QuizCard({
   quizName,
@@ -10,7 +10,7 @@ export default function QuizCard({
   token,
   courseID,
   onQuizNameChange,
-  onQuizDelete
+  onQuizDelete,
 }: QuizCardProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isRenaming, setIsRenaming] = useState(false);
@@ -38,22 +38,23 @@ export default function QuizCard({
   const handleDeleteConfirm = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the onClick of the card
 
-    backendAPI.delete(`/course/${courseID}/quizzes/${currentQuizName}`, {
-      headers: {
-        Accept: "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-    .then(() => {
-      setIsDeleting(false);
-      if (onQuizDelete) {
-        onQuizDelete(currentQuizName); // Notify parent of the deletion
-      }
-    })
-    .catch(() => {
-      alert("An error occurred while deleting quiz");
-      // Optionally, handle the error (e.g., show a notification)
-    });
+    backendAPI
+      .delete(`/course/${courseID}/quizzes/${currentQuizName}`, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        setIsDeleting(false);
+        if (onQuizDelete) {
+          onQuizDelete(currentQuizName); // Notify parent of the deletion
+        }
+      })
+      .catch(() => {
+        alert("An error occurred while deleting quiz");
+        // Optionally, handle the error (e.g., show a notification)
+      });
   };
 
   const handleDeleteCancel = (e: React.MouseEvent) => {
@@ -67,29 +68,30 @@ export default function QuizCard({
 
   const handleRenameConfirm = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the onClick of the card
-    backendAPI.put(
-      `/course/${courseID}/quizzes/${currentQuizName}?new_quiz_name=${newQuizName}`, 
-      { new_quiz_name: newQuizName },
-      {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
+    backendAPI
+      .put(
+        `/course/${courseID}/quizzes/${currentQuizName}?new_quiz_name=${newQuizName}`,
+        { new_quiz_name: newQuizName },
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
-      }
-    )
-    .then(() => {
-      // Update frontend with new name if API call is successful
-      setRenderedQuizName(newQuizName);
-      setIsRenaming(false);
-      if (onQuizNameChange) {
-        console.log("passing " + newQuizName + "to onQuizNameChange");
-        onQuizNameChange(newQuizName); // Notify parent of the name change
-      }
-    })
-    .catch(() => {
-      alert("Error renaming quiz: quiz with the same name already exists.");
-    });
-  }
+      )
+      .then(() => {
+        // Update frontend with new name if API call is successful
+        setRenderedQuizName(newQuizName);
+        setIsRenaming(false);
+        if (onQuizNameChange) {
+          console.log("passing " + newQuizName + "to onQuizNameChange");
+          onQuizNameChange(newQuizName); // Notify parent of the name change
+        }
+      })
+      .catch(() => {
+        alert("Error renaming quiz: quiz with the same name already exists.");
+      });
+  };
 
   const handleRenameCancel = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the onClick of the card
@@ -176,11 +178,12 @@ export default function QuizCard({
           </div>
         ) : (
           <>
-          <h3 className="text-xl font-medium mb-2 text-black">{currentQuizName}</h3>
-          <p className="text-md font-light text-gray-700 mb-2">{chatTitle}</p>
+            <h3 className="text-xl font-medium mb-2 text-black">
+              {currentQuizName}
+            </h3>
+            <p className="text-md font-light text-gray-700 mb-2">{chatTitle}</p>
           </>
         )}
-        
       </div>
     </div>
   );

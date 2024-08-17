@@ -2,7 +2,7 @@ import { documentMimeTypes, imageMimeTypes } from "@/app/constants";
 import { printDebugMessage } from "@/app/debugger";
 import GlobalVariables from "@/app/global-variables";
 import { EditCourseModalParameters } from "@/app/types";
-import backendAPI from "@/environment/backend_api";
+import { backend, backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { FaFilePdf, FaRegImages } from "react-icons/fa6";
@@ -12,7 +12,6 @@ import LoadingButton from "../loading-button";
 export default function EditCourseModal(
   modalParameters: EditCourseModalParameters
 ) {
-
   GlobalVariables.getInstance();
   const [courseName, setCourseName] = useState<string>("");
   const [courseCode, setCourseCode] = useState<string>("");
@@ -22,11 +21,12 @@ export default function EditCourseModal(
   const [syllabusError, setSyllabusError] = useState<string>("");
   const [iconError, setIconError] = useState<string>("");
   const [token, setToken] = useState<string>(Cookies.get("authToken") || "");
-  const [lockSave, setLockSave] = useState(false);
+  const [lockSave, setLockSave] = useState<boolean>(false);
 
   const [originalCourseName, setOriginalCourseName] = useState<string>("");
   const [originalCourseCode, setOriginalCourseCode] = useState<string>("");
-  const [originalCourseDescription, setOriginalCourseDescription] = useState<string>("");
+  const [originalCourseDescription, setOriginalCourseDescription] =
+    useState<string>("");
   const [originalSyllabus, setOriginalSyllabus] = useState<File | null>(null);
   const [originalIcon, setOriginalIcon] = useState<File | null>(null);
   const resetFields = () => {
@@ -47,12 +47,15 @@ export default function EditCourseModal(
 
   const fetchCourseDetails = async () => {
     try {
-      const response = await backendAPI.get(`/course/${modalParameters.courseId}`, {
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await backendAPI.get(
+        `/course/${modalParameters.courseId}`,
+        {
+          headers: {
+            Accept: "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       const {
         course_name = "",
@@ -64,22 +67,30 @@ export default function EditCourseModal(
 
       setCourseName(course_name);
       setCourseCode(course_code);
-      if(course_description) setCourseDescription(course_description);
+      if (course_description) setCourseDescription(course_description);
 
       if (course_syllabus_url) {
-        const syllabusResponse = await fetch(`http://localhost:8000/${course_syllabus_url}`);
+        const syllabusResponse = await fetch(
+          `${backend.getUri()}/${course_syllabus_url}`
+        );
         const syllabusBlob = await syllabusResponse.blob();
         const syllabusType = syllabusBlob.type;
         const syllabusExtension = syllabusType.split("/")[1]; // Extract the file extension from the MIME type
-        const syllabusFile = new File([syllabusBlob], `syllabus.${syllabusExtension}`, {
-          type: syllabusType,
-        });
+        const syllabusFile = new File(
+          [syllabusBlob],
+          `syllabus.${syllabusExtension}`,
+          {
+            type: syllabusType,
+          }
+        );
         setSyllabus(syllabusFile);
         setOriginalSyllabus(syllabusFile);
       }
 
       if (course_icon_url) {
-        const iconResponse = await fetch(`http://localhost:8000/${course_icon_url}`);
+        const iconResponse = await fetch(
+          `${backend.getUri()}/${course_icon_url}`
+        );
         const iconBlob = await iconResponse.blob();
         const iconType = iconBlob.type;
         const iconExtension = iconType.split("/")[1]; // Extract the file extension from the MIME type
@@ -92,7 +103,6 @@ export default function EditCourseModal(
       setOriginalCourseName(course_name);
       setOriginalCourseCode(course_code);
       setOriginalCourseDescription(course_description);
-
     } catch (error) {
       console.error("Error fetching course details:", error);
       alert("Error fetching course details.");
@@ -142,7 +152,9 @@ export default function EditCourseModal(
   }
 
   async function handleSubmit(
-    event: React.FormEvent<HTMLFormElement> | React.MouseEvent<HTMLButtonElement>
+    event:
+      | React.FormEvent<HTMLFormElement>
+      | React.MouseEvent<HTMLButtonElement>
   ) {
     event.preventDefault();
 
@@ -152,11 +164,11 @@ export default function EditCourseModal(
     formData.append("course_description", courseDescription);
     if (syllabus) {
       formData.append("course_syllabus_file", syllabus);
-      formData.append('course_update_syllabus', true);
+      formData.append("course_update_syllabus", true);
     }
     if (icon) {
       formData.append("course_icon_file", icon);
-      formData.append('update_icon', true);
+      formData.append("update_icon", true);
     }
     setLockSave(true);
     try {
@@ -243,7 +255,8 @@ export default function EditCourseModal(
             />
           </div>
           <div className="flex space-x-4 mb-4 items-start">
-            <div className="flex flex-col items-center justify-center w-1/2"
+            <div
+              className="flex flex-col items-center justify-center w-1/2"
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
@@ -316,7 +329,8 @@ export default function EditCourseModal(
                 study plan.
               </p>
             </div>
-            <div className="flex flex-col items-center justify-center w-1/2"
+            <div
+              className="flex flex-col items-center justify-center w-1/2"
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();

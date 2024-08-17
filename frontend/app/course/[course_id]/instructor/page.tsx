@@ -147,7 +147,7 @@ export default function InstructorPage() {
           const modelResponse = {
             text: text,
             role: "model",
-            media_url: `${backend.getUri}/${media_url}`,
+            media_url: `${backend.getUri()}/${media_url}`,
             message_id: lastMessageID + 1,
           };
 
@@ -190,7 +190,7 @@ export default function InstructorPage() {
             text: msg.text,
             role: msg.role,
             media_url: msg.media_url
-              ? `${backend.getUri}/${msg.media_url}`
+              ? `${backend.getUri()}/${msg.media_url}`
               : null,
             message_id: msg.message_id,
           }));
