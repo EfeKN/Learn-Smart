@@ -241,8 +241,9 @@ export default function ChatsList({
                               chatID={chat.chat_id}
                               onClose={(error) => {
                                 setIsQuizModalOpen(false);
-                                if (!error)
+                                if (Object.keys(error).length) {
                                   toast.success(`Quiz saved successfully as '${generatedQuizName}'`);
+                                }
                                 setGeneratedQuizName("");
                               }}
                               setQuizName={setGeneratedQuizName}
