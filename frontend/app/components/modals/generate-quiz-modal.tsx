@@ -9,9 +9,9 @@ const GenerateQuizModal = (modalParameters: GenerateQuizModalParameters) => {
     const [error, setError] = useState(null);
     const [quizData, setQuizData] = useState(null);
 
-    const handleClose = () => {
+    const handleClose = (err: any) => {
         setQuizData(null);
-        modalParameters.onClose(error);
+        modalParameters.onClose(err);
     }
   
     const generateQuiz = async (chat_id: string) => {
@@ -33,9 +33,8 @@ const GenerateQuizModal = (modalParameters: GenerateQuizModalParameters) => {
         .catch((error) => {
             setError(error);
             setIsLoading(false);
-            console.error(error);
             toast.error(error?.response?.data?.detail || "Error generating quiz");
-            handleClose();
+            handleClose(error);
         });
       };
     
