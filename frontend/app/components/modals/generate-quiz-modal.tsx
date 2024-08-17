@@ -53,7 +53,7 @@ const GenerateQuizModal = (modalParameters: GenerateQuizModalParameters) => {
           <div className="bg-white w-full max-w-3xl rounded-lg shadow-lg overflow-hidden max-h-[90vh] relative">
             {/* Close Button */}
             <button
-              onClick={handleClose}
+              onClick={() => handleClose(null)}
               className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
               aria-label="Close"
             >
@@ -62,7 +62,7 @@ const GenerateQuizModal = (modalParameters: GenerateQuizModalParameters) => {
             
             {quizData ? (
               <div className="overflow-y-auto max-h-full">
-                <QuizMenu quizData={quizData} onClose={handleClose}/>
+                <QuizMenu quizData={quizData} onClose={() => handleClose(null)}/>
               </div>
             ) : isLoading ? (
               <div className="p-8 flex items-center justify-center h-full">Preparing a quiz for you...</div>
