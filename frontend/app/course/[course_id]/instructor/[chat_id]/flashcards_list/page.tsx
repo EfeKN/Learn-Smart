@@ -72,10 +72,8 @@ export default function FlashCardList() {
     if (newFilename) {
       try {
         const response = await backendAPI.put(
-          `chat/${chat_id}/flashcards/${currentFilenameWithoutExtension}?new_name=${encodeURIComponent(
-            newFilename
-          )}`,
-          {},
+          `chat/${chat_id}/flashcards/${currentFilenameWithoutExtension}`,
+          { new_name: newFilename },
           {
             headers: {
               "Content-Type": "application/json",
