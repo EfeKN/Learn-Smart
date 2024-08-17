@@ -77,7 +77,7 @@ export interface GenerateQuizModalParameters {
   isOpen: boolean;
   token: string;
   chatID: string;
-  onClose: () => void;
+  onClose: (error: any) => void;
   setQuizName: (quizName: string) => void;
 }
 
@@ -98,6 +98,10 @@ export interface QuizCardProps {
   quizName: string;
   chatTitle: string;
   onClick: () => void;
+  token: string;
+  courseID: string;
+  onQuizNameChange: any;
+  onQuizDelete: any;
 }
 
 export interface QuizData {

@@ -71,6 +71,8 @@ export default function QuizzesPage() {
       })
       .then((response) => {
         setQuizzesData(response.data);
+        console.log("fetched quizzes. quizzesData: ")
+        console.log(response.data)
       })
       .catch((error) => {
         console.error("Error fetching quizzes:", error);
@@ -83,6 +85,43 @@ export default function QuizzesPage() {
 
   const closeQuizModal = () => {
     setSelectedQuiz(null);
+  };
+
+  const handleQuizNameChange = (oldName: string, newName: string) => {
+    setQuizzesData((prevQuizzesData) =>
+      prevQuizzesData.map((chatData) => {
+        // Check if the quiz exists in the current chatData's quizzes array
+        if (chatData.quizzes.includes(oldName)) {
+          // Replace the old quiz name with the new name in the quizzes array
+          const updatedQuizzes = chatData.quizzes.map((quiz) =>
+            quiz === oldName ? newName : quiz
+          );
+          // Return a new chatData object with the updated quizzes array
+          return { ...chatData, quizzes: updatedQuizzes };
+        }
+        // If the oldName wasn't found in this chatData, return it unchanged
+        return chatData;
+      })
+    );
+  
+    // Update selected quiz name if it's the one being edited
+    if (selectedQuiz && selectedQuiz.quizName === oldName) {
+      setSelectedQuiz({ ...selectedQuiz, quizName: newName });
+    }
+  };
+
+  const handleQuizDelete = (quizName: string) => {
+    setQuizzesData((prevQuizzesData) =>
+      prevQuizzesData.map((chatData) => ({
+        ...chatData,
+        quizzes: chatData.quizzes.filter((quiz) => quiz !== quizName),
+      }))
+    );
+  
+    // If the quiz being deleted is currently selected, close the modal
+    if (selectedQuiz && selectedQuiz.quizName === quizName) {
+      closeQuizModal();
+    }
   };
 
   return (
@@ -100,12 +139,16 @@ export default function QuizzesPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
             {quizzesData.map((chatData) =>
-              chatData.quizzes.map((quiz, index) => (
+              chatData.quizzes.map((quiz) => (
                 <QuizCard
-                  key={`${chatData.chat_id}-${index}`}
+                  key={`${chatData.chat_id}-${quiz}`}
                   quizName={quiz}
                   chatTitle={chatData.chat_title}
                   onClick={() => openQuizModal(quiz, chatData.chat_title)} // Pass the click handler
+                  token={token}
+                  courseID={course_id}
+                  onQuizNameChange={(newName: string) => handleQuizNameChange(quiz, newName)}
+                  onQuizDelete={handleQuizDelete}
                 />
               ))
             )}

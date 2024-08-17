@@ -62,7 +62,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     """
     
     logger.info(f"Getting current user with token: {token}")
-    
+
     credentials_exception = HTTPException(
         detail="Could not validate credentials",
         status_code=status.HTTP_401_UNAUTHORIZED,

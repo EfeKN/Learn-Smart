@@ -94,6 +94,9 @@ async def get_quizzes(course_id: int, current_user: dict = Depends(auth.get_curr
     course = CourseDB.fetch(course_id=course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found.")
+    
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden. You are not authorized to rename this quiz.")
 
     chats = ChatDB.fetch(course_id=course_id, all=True)
     quizzes = []
@@ -128,6 +131,9 @@ async def rename_quiz(course_id: int, quiz_name: str, new_quiz_name: str,
     course = CourseDB.fetch(course_id=course_id)
     if not course:
         raise HTTPException(status_code=404, detail="Course not found.")
+    
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden. You are not authorized to rename this quiz.")
 
     quiz_name = quiz_name.strip()
     chats = ChatDB.fetch(course_id=course_id, all=True)
@@ -142,10 +148,11 @@ async def rename_quiz(course_id: int, quiz_name: str, new_quiz_name: str,
             if quiz_name in filenames:
                 old = os.path.join(quizzes_path, f"{quiz_name}.json")
                 new = os.path.join(quizzes_path, f"{new_quiz_name}.json")
+    
     if old and new:
         os.rename(old, new)
         return new
-
+    
     raise HTTPException(status_code=404, detail=f'Quiz with name "{quiz_name}" not found.')
 
 
@@ -170,12 +177,17 @@ async def get_quiz(course_id: int, quiz_name: str, current_user: dict = Depends(
     if not course:
         raise HTTPException(status_code=404, detail="Course not found.")
 
+    if course["user_id"] != current_user["user_id"]:
+        raise HTTPException(status_code=403, detail="Forbidden. You are not authorized to rename this quiz.")
+
     quiz_name = quiz_name.strip()
+    print(quiz_name)
     chats = ChatDB.fetch(course_id=course_id, all=True)
     for chat in chats:
         quizzes_path = get_quizzes_folder_path(chat["chat_id"])
         if os.path.exists(quizzes_path):
             filenames = [splitext(filename)[0] for filename in os.listdir(quizzes_path)]
+            print(filenames)
             if quiz_name in filenames:
                 with open(os.path.join(quizzes_path, f"{quiz_name}.json"), "r") as f:
                     return json.load(f)

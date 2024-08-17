@@ -226,12 +226,10 @@ def update_chat(chat_id: int, chat_title: str, current_user: dict = Depends(auth
     """
     
     chat = ChatDB.fetch(chat_id=chat_id)
-    
     if not chat:
         raise HTTPException(status_code=404, detail="Chat not found.")
     
     course = CourseDB.fetch(course_id=chat["course_id"])
-    
     if course["user_id"] != current_user["user_id"]:
         raise HTTPException(status_code=403, detail="Forbidden.")
     

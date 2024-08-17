@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import QuizMenu from "@/app/quiz/page";
 import { GenerateQuizModalParameters } from "../../types";
 import backendAPI from "@/environment/backend_api";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 const GenerateQuizModal = (modalParameters: GenerateQuizModalParameters) => {
     const [isLoading, setIsLoading] = useState(true);
@@ -11,7 +11,7 @@ const GenerateQuizModal = (modalParameters: GenerateQuizModalParameters) => {
 
     const handleClose = () => {
         setQuizData(null);
-        modalParameters.onClose();
+        modalParameters.onClose(error);
     }
   
     const generateQuiz = async (chat_id: string) => {
@@ -33,7 +33,8 @@ const GenerateQuizModal = (modalParameters: GenerateQuizModalParameters) => {
         .catch((error) => {
             setError(error);
             setIsLoading(false);
-            toast.error("An error occurred while generating the quiz.");
+            console.error(error);
+            toast.error(error?.response?.data?.detail || "Error generating quiz");
             handleClose();
         });
       };
