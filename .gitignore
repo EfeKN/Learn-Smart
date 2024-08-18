@@ -32,12 +32,10 @@
 /backend/files
 /backend/.files
 __pycache__
-.env
 
 .idea/
 /backend/bin
 # dotenv
-.env
 logs/
 
 # virtualenv
