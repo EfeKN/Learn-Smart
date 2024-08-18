@@ -1,14 +1,14 @@
 # Learn Smart
 
-## [Features & Research](https://docs.google.com/document/d/1n-9d7_FFlAlxyvOE3r7Jz7EtxRcYxnx6OD2oDc-vsy4/edit)
+LearnSmart is a web application. Application designed to help students study their courses more effectively by intending to improve their grade output with its learning guide.  LearnSmart intends to offer holistic help for students across all facets of their academic progress through newly developed technologies, such as LLMs, and it is intended to be delivered with the future scope of mobile/tablet/metaverse. 
+
+Scholarly articles, textbooks, class slides, syllabi, and other necessary study resources can be uploaded by students to the platform. LearnSmart provides thorough explanations using LLMs on a page-by-page basis or in the context of the entire content, where content can be slides, photos, reports, part of a book, and many more. This feature ensures that students can grasp the content thoroughly, enhancing their understanding and retention of course material. The platform includes interactive learning tools like flashcards and quizzes to reinforce learning and assess knowledge.
+
+Additionally, LearnSmart offers customized study schedules tailored to each student’s preferences and syllabus schedule. These tools help students stay organized, manage their time effectively, and optimize their study practices. LearnSmart wants to add a question-answer system with a chatbot capable of answering course-related queries and assisting with study questions. 
+
+In summary, LearnSmart provides essential tools and resources through a web application to support students' academic endeavors. By integrating lecture presentations, syllabi, and other study materials with advanced LLM capabilities and offering interactive learning tools, LearnSmart aims to enhance the efficiency and effectiveness of student learning.
 
 ## [Design Document](https://docs.google.com/document/d/1yBGZlqTAZuNbOirmpqzgfHXvrq4RJoF7VfEGX3V5clY/edit#heading=h.yr1n1w74g294)
-
-## [High Level Architecture](https://app.diagrams.net/#G1Xt1IQutJySTuM8h47ZfxEwFGxCOxfnQR#%7B%22pageId%22%3A%22WgwmZhFJbQ_Y9UpnWUmw%22%7D)
-
-## [Software Architecture Domain Taslak](https://docs.google.com/document/d/1h_BqT49P4DqD8VypANlMgdfN1WFtN8ua21FydvSJa9M/edit)
-
-## [Software Application Domain Chart](https://app.diagrams.net/#G1dG1N9txHlM9Nq-ffLHRjDzezJM5rkmxY#%7B%22pageId%22%3A%22b5b7bab2-c9e2-2cf4-8b2a-24fd1a2a6d21%22%7D)
 
 ## Build
 
