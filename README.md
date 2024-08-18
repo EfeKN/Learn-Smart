@@ -10,6 +10,8 @@ In summary, LearnSmart provides essential tools and resources through a web appl
 
 ## [Design Document](https://docs.google.com/document/d/1yBGZlqTAZuNbOirmpqzgfHXvrq4RJoF7VfEGX3V5clY/edit#heading=h.yr1n1w74g294)
 
+## [Demo Video](https://drive.google.com/file/d/19HlsxClf0-VlwYFk9slciC6GaGLtUUIj/view)
+
 ## Build
 
 1. Use node 20.15.0
