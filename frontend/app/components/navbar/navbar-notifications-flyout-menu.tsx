@@ -1,17 +1,19 @@
 import { useRouter } from "next/navigation";
-import { NavbarNotificationsFlyoutMenuParameters } from "../../types";
+import { useState } from "react";
+import {
+  NavbarNotificationsFlyoutMenuParameters,
+  Notification,
+} from "../../types";
 
 export default function NavbarNotificationsFlyoutMenu({
   isOpen,
 }: NavbarNotificationsFlyoutMenuParameters) {
   const router = useRouter();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const handleSeeMoreClick = () => {
     router.replace("/notifications");
   };
-
-  // TODO: Replace with actual notifications when backend is implemented
-  const notifications = [1, 2, 3, 4, 5];
 
   if (!isOpen) {
     return null;
@@ -37,30 +39,40 @@ export default function NavbarNotificationsFlyoutMenu({
           </div>
           <div className="h-32 overflow-y-auto">
             <ul className="space-y-2 max-h-32">
-              {notifications.map((notification, index: Number) => (
-                <li
-                  key={notification}
-                  className="flex items-start cursor-pointer bg-gray-200 p-2 rounded-md"
-                >
-                  <img
-                    src="https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3603&q=80"
-                    alt=""
-                    className="h-10 w-10 rounded-md object-cover"
-                  />
-                  <div className="ml-2">
-                    <p className="text-sm text-gray-500">
-                      <time dateTime="2023-03-16">July 6, 2024</time>
-                    </p>
-                    <a
-                      href="#"
-                      className="text-base font-medium text-gray-900 hover:text-gray-700"
-                    >
-                      Example {notification}
-                    </a>
-                    <p className="mt-1 text-sm text-gray-500">Lorem Ipsum.</p>
-                  </div>
+              {notifications.length ? (
+                notifications.map((notification, index: Number) => (
+                  <li
+                    key={notification.toString()}
+                    className="flex items-start cursor-pointer bg-gray-200 p-2 rounded-md"
+                  >
+                    <img
+                      src="https://images.unsplash.com/photo-1496128858413-b36217c2ce36?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=3603&q=80"
+                      alt=""
+                      className="h-10 w-10 rounded-md object-cover"
+                    />
+                    <div className="ml-2">
+                      <p className="text-sm text-gray-500">
+                        <time dateTime="2023-03-16">
+                          {notification.notification_date}
+                        </time>
+                      </p>
+                      <a
+                        href="#"
+                        className="text-base font-medium text-gray-900 hover:text-gray-700"
+                      >
+                        {notification.notification_title}
+                      </a>
+                      <p className="mt-1 text-sm text-gray-500">
+                        {notification.notification_content}
+                      </p>
+                    </div>
+                  </li>
+                ))
+              ) : (
+                <li className="flex items-center justify-center h-32">
+                  <p className="text-sm text-gray-500">No notifications</p>
                 </li>
-              ))}
+              )}
             </ul>
           </div>
         </div>

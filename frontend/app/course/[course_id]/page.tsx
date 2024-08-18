@@ -12,7 +12,6 @@ import {
   FaBook,
   FaCalendarAlt,
   FaClipboardList,
-  FaUpload,
   FaUserTie,
 } from "react-icons/fa";
 import {
@@ -20,6 +19,7 @@ import {
   CourseHomepageElement,
   CourseHomepageParameters,
 } from "../../types";
+import { IoCloudUploadSharp } from "react-icons/io5";
 
 export default function CourseHomepage(parameters: CourseHomepageParameters) {
   const [course, setCourse] = useState<Course>();
@@ -141,7 +141,7 @@ export default function CourseHomepage(parameters: CourseHomepageParameters) {
         </button>
       ),
       course_homepage_element_component: (
-        <FaUpload className="text-3xl text-white" />
+        <IoCloudUploadSharp className="text-3xl text-white" />
       ),
     },
   ];

@@ -135,11 +135,6 @@ export default function ChatsList({
     }
   };
 
-  const handleShowFlashCards = (chat_id: string) => {
-    const currentPath = window.location.pathname;
-    router.push(`${currentPath}/${chat_id}/flashcards_list`);
-  };
-
   const handleDelete = async (chat_id: string) => {
     printDebugMessage("Deleting chat:", chat_id);
 
@@ -259,14 +254,6 @@ export default function ChatsList({
                             >
                               <IoCreate className="mr-2 text-gray-400" />
                               Create Flashcards
-                            </button>
-                            <button
-                              onClick={() => handleShowFlashCards(chat.chat_id)}
-                              type="button"
-                              className="font-normal flex items-center text-sm text-gray-400 hover:bg-gray-800 py-2 px-4 rounded-lg transition duration-150 ease-in-out"
-                            >
-                              <FaQuestionCircle className="mr-2 text-gray-400" />
-                              Show Flashcards
                             </button>
                             <button
                               onClick={() => handleDelete(chat.chat_id)}

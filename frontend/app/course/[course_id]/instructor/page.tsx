@@ -469,7 +469,7 @@ export default function InstructorPage() {
                         style={{ color: "rgb(44, 84, 102)" }}
                       />
                       <div className="line-clamp-3 max-w-full text-balance text-gray-600 dark:text-gray-500 break-word">
-                        Create Quiz for {course?.course_name || "the Course"}
+                        Go to Quiz for {course?.course_name || "the Course"}
                       </div>
                     </button>
                     <button

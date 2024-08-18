@@ -213,7 +213,7 @@ export default function Flashcards() {
                           }
                           className="text-lg font-semibold text-blue-500 hover:underline"
                         >
-                          {flashcard.filename}
+                          {flashcard.filename.replace(".json", "")}
                         </button>
                         <div className="flex space-x-2">
                           <button
