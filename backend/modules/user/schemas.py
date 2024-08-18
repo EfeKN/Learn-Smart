@@ -33,3 +33,18 @@ class UserResponse(BaseModel):
     nickname: Optional[str] = None
     email: Optional[EmailStr] = None # EmailStr is a Pydantic email validator
     
+    
+class UserUpdateRequest(BaseModel):
+    """
+    Represents a request to update a user.
+
+    Attributes:
+        name (Optional[str]): The name of the user.
+        nickname (Optional[str]): The nickname of the user.
+        email (Optional[EmailStr]): The email address of the user.
+        password (Optional[str]): The password of the user.
+    """
+    name: Optional[str] = None
+    nickname: Optional[str] = None
+    email: Optional[EmailStr] = None # EmailStr is a Pydantic email validator
+    password: Optional[str] = None

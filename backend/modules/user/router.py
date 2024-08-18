@@ -95,3 +95,27 @@ def get_current_user(current_user: dict = Depends(auth.get_current_user)):
     current_user["courses"] = courses # add the user's courses to response
     current_user.pop("hashed_password") # remove the hashed password from the response
     return current_user
+
+@router.put("/update", response_model=schemas.UserResponse)
+def update_user(user: schemas.UserUpdateRequest, current_user: dict = Depends(auth.get_current_user)):
+    """
+    Update a user's information.
+
+    Args:
+        user (schemas.UserUpdateRequest): The user data to update.
+        current_user (User): The currently authenticated user.
+
+    Returns:
+        UserResponse: The updated user data.
+
+    Raises:
+        HTTPException: If the user is not found.
+    """
+    
+    if not current_user:
+        logger.error("User not found")
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user_dict = UserDB.update(current_user["user_id"], **user.model_dump())
+    
+    return schemas.UserResponse(**user_dict)    

@@ -4,6 +4,19 @@ export interface MarkdownContentParameters {
   markdown_content: string;
 }
 
+export interface EditProfileModalParameters {
+  isOpen: boolean;
+  onClose: () => void;
+  onSubmitted: (
+    user_id: string,
+    name: string,
+    nickname: string,
+    email: string,
+    password: string
+  ) => Promise<void>;
+  user: User;
+}
+
 export interface QuizParameters {
   question: string;
   choices: string[];

@@ -187,18 +187,51 @@ class UserDB(DatabaseInterface):
             )  # return a single user dict or None
 
     @staticmethod
-    def update(obj: User):
+    def update(user_id: int, **kwargs):
         """
-        Updates a user in the database.
+        Update the user details in the database.
 
         Args:
-        - obj (User): The user object to be updated.
+        - user_id (int): The ID of the user to update.
+        - **kwargs: Keyword arguments for the fields to update. Possible keyword arguments include:
+            - name (str): The new name for the user.
+            - nickname (str): The new nickname for the user.
+            - email (str): The new email address for the user.
+            - password (str): The new password for the user.
 
         Returns:
-        - User: The updated user object.
+        - dict: A dictionary representing the updated user details.
 
+        Raises:
+        - ValueError: If the user with the specified ID is not found in the database.
         """
-        pass
+        name = kwargs.get("name", None)
+        nickname = kwargs.get("nickname", None)
+        email = kwargs.get("email", None)
+        password = kwargs.get("password", None)
+        
+        if not any([name, nickname, email, password]):
+            raise ValueError("No fields to update provided")
+
+        with db_connection as db:
+            user = db.query(User).filter(User.user_id == user_id).first()
+            if not user:
+                raise ValueError(f"User with ID {user_id} not found")
+
+            if name:
+                user.name = name
+            if nickname:
+                user.nickname = nickname
+            if email:
+                user.email = email
+            if password:
+                user.hashed_password = auth.hash_password(password)
+
+            db.commit()
+            db.refresh(user)
+
+            return user.to_dict()
+        
 
     @staticmethod
     def delete(**kwargs):

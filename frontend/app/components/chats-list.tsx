@@ -7,11 +7,11 @@ import { CiEdit } from "react-icons/ci";
 import { FaQuestionCircle, FaTrashAlt } from "react-icons/fa";
 import { IoCreate, IoEllipsisHorizontal } from "react-icons/io5";
 import { MdQuiz } from "react-icons/md";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { printDebugMessage } from "../debugger";
 import ChatRenameModal from "./modals/chat-rename-modal";
 import GenerateQuizModal from "./modals/generate-quiz-modal";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 
 export default function ChatsList({
   chats,
@@ -242,7 +242,9 @@ export default function ChatsList({
                               onClose={(error) => {
                                 setIsQuizModalOpen(false);
                                 if (!error) {
-                                  toast.success(`Quiz saved successfully as '${generatedQuizName}'`);
+                                  toast.success(
+                                    `Quiz saved successfully as '${generatedQuizName}'`
+                                  );
                                 }
                                 setGeneratedQuizName("");
                               }}

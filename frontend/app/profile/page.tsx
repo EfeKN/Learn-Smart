@@ -3,6 +3,7 @@
 import { backendAPI } from "@/environment/backend_api";
 import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
+import EditProfileModal from "../components/modals/edit-profile-modal";
 import Navbar from "../components/navbar/navbar";
 import { printDebugMessage } from "../debugger";
 import { User } from "../types";
@@ -11,6 +12,7 @@ export default function Profile() {
   const [token, setToken] = useState<string>(
     Cookies.get("authToken") as string
   );
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
   const [user, setUser] = useState<User>({
     user_id: "",
     name: "",
@@ -47,6 +49,42 @@ export default function Profile() {
       });
   }
 
+  async function handleEditProfile(
+    user_id: string,
+    name: string,
+    nickname: string,
+    email: string,
+    password: string
+  ) {
+    printDebugMessage("Editing profile for user: " + user_id);
+
+    return new Promise<void>(async (resolve, reject) => {
+      await backendAPI
+        .put(
+          `/users/update`,
+          {
+            name: name,
+            nickname: nickname,
+            email: email,
+            password: password,
+          },
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+        .then((response) => {
+          // Update the user state with the new data
+          setUser(response.data as User);
+        });
+
+      resolve();
+    });
+  }
+
   return (
     <div>
       <Navbar />
@@ -71,16 +109,24 @@ export default function Profile() {
         </div>
 
         <div className="w-full flex justify-center mb-2.5">
-          <ul className="flex px-5 py-1.5">
-            <li className="px-3 font-semibold text-gray-600">
-              <a href="#">Courses</a>
-            </li>
-          </ul>
+          {false ? (
+            <ul className="flex px-5 py-1.5">
+              <li className="px-3 font-semibold text-gray-600">
+                <a href="#">Courses</a>
+              </li>
+            </ul>
+          ) : (
+            <></>
+          )}
           <ul className="flex mb:pl-14">
             <li className="px-2 font-semibold">
               <button
                 className="bg-gray-200 px-5 py-1 rounded-lg text-black font-semibold"
                 type="button"
+                onClick={() => {
+                  setModalOpen(!modalOpen);
+                  printDebugMessage("Edit Profile button clicked");
+                }}
               >
                 <i className="bx bx-edit-alt mr-2 text-xl"></i>
                 Edit Profile
@@ -89,6 +135,13 @@ export default function Profile() {
           </ul>
         </div>
       </div>
+
+      <EditProfileModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmitted={handleEditProfile}
+        user={user}
+      />
 
       {false ? (
         <div className="flex justify-center h-screen mr-12 mt-4 p-4 shadow rounded-lg bg-white w-80">
