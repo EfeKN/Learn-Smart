@@ -20,7 +20,7 @@ In summary, LearnSmart provides essential tools and resources through a web appl
 
 3. You'll see a .env file inside the root folder of the project, populated with the below content. Adjust the ```DATABASE_URL``` field accordingly after setting up MySQL database.
 
-    * `GOOGLE_API_KEY=AIzaSyCyyUXqPM4k1jSvObaTI9gu8zeZXQrndRs`
+    * `GOOGLE_API_KEY=AIzaSyAeyE-PHyG_b4lRqAXTwMbUUahDKbAB6Js`
     * `DATABASE_URL=` (your MySQL DB URI, example: `mysql://\<username>:\<password>@localhost/<database_name>`)
     * `FILES_DIR="files"`
     * `CHATS_DIR="chat_histories"`
