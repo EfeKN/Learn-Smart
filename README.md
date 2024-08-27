@@ -1,3 +1,5 @@
+![LearnSmart Logo](https://github.com/gorkemsolun/Learn-Smart/blob/main/learnsmartlogo.png)
+
 # Learn Smart
 
 LearnSmart is a web application. Application designed to help students study their courses more effectively by intending to improve their grade output with its learning guide.  LearnSmart intends to offer holistic help for students across all facets of their academic progress through newly developed technologies, such as LLMs, and it is intended to be delivered with the future scope of mobile/tablet/metaverse. 
